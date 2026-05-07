@@ -111,14 +111,24 @@
         const USER_PIN = "{{ user.pin }}";
         const USER_ROL = "{{ user.rol }}";
 
-        function checkPin() {
-            if(document.getElementById('pin-input').value === USER_PIN) {
-                document.getElementById('login-screen').classList.add('hidden-section');
-                document.getElementById('main-app').classList.remove('hidden-section');
-            } else {
-                alert("PIN INCORRECTO");
-            }
-        }
+      function checkPin() {
+    const input = document.getElementById('pin-input');
+    const loginScreen = document.getElementById('login-screen');
+    const mainApp = document.getElementById('main-app');
+
+    if (input.value === USER_PIN) {
+        // Forzamos el cambio de visibilidad
+        loginScreen.style.display = 'none';
+        mainApp.style.display = 'block';
+        mainApp.classList.remove('hidden-section');
+        
+        // Guardamos en el navegador que ya entramos
+        localStorage.setItem('pin_verificado', 'true');
+    } else {
+        alert("❌ PIN INCORRECTO. Intenta de nuevo.");
+        input.value = ''; // Limpia el campo para reintentar
+    }
+}
 
         function nav(id) {
             document.querySelectorAll('body > div').forEach(d => {
