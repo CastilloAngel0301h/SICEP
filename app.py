@@ -1,89 +1,69 @@
 from flask import Flask, render_template, request, jsonify, session
 import os
-import json
 import random
+import string
 from datetime import datetime
 
 app = Flask(__name__)
-app.secret_key = os.environ.get('SECRET_KEY', 'lion_power_uth_2026')
+app.secret_key = os.environ.get('SECRET_KEY', 'angel_lion_king_2026')
 
-# --- PERSISTENCIA DE USUARIOS (Simulada para Render) ---
-USERS_FILE = 'users.json'
+# Base de datos en memoria (Se reinicia con el servidor)
+# Angel es el único ADMIN por defecto
+db = {
+    "usuarios": {
+        "angel0301": {"nombre": "Angel Castillo", "rol": "admin", "pass": "2026"}
+    },
+    "historial": [],
+    "feedback": []
+}
 
-def load_users():
-    if not os.path.exists(USERS_FILE):
-        # Usuario Admin por defecto
-        initial = {"angel0301": {"name": "Angel Castillo", "pin": "0301", "role": "admin"}}
-        save_users(initial)
-        return initial
-    with open(USERS_FILE, 'r') as f:
-        return json.load(f)
+def generar_token(nombre):
+    nums = ''.join(random.choices(string.digits, k=3))
+    return f"{nombre.lower().replace(' ', '')}{nums}"
 
-def save_users(users):
-    with open(USERS_FILE, 'w') as f:
-        json.dump(users, f)
+def generar_pass():
+    return ''.join(random.choices(string.digits, k=4))
 
 @app.route('/')
 def index():
-    # El acceso es vía token en URL o sesión activa
     token = request.args.get('token')
-    users = load_users()
-    
-    if token in users:
-        # Si el token es válido, pedimos el PIN en el cliente
-        session['pending_token'] = token
-        return render_template('index.html', step='login')
-    
-    if 'user' in session:
-        return render_template('index.html', usuario=session['user'], role=session.get('role'))
-    
-    return "<h1 style='color:red;text-align:center;'>ACCESO DENEGADO</h1>", 403
-
-@app.route('/api/verify_pin', methods=['POST'])
-def verify_pin():
-    data = request.json
-    token = session.get('pending_token')
-    pin = data.get('pin')
-    users = load_users()
-    
-    if token in users and users[token]['pin'] == pin:
-        session['user'] = users[token]['name']
+    if token in db["usuarios"]:
         session['user_id'] = token
-        session['role'] = users[token]['role']
-        return jsonify({"status": "success"})
-    return jsonify({"status": "error", "message": "PIN Incorrecto"})
+        session['user_name'] = db["usuarios"][token]["nombre"]
+        session['rol'] = db["usuarios"][token]["rol"]
+        return render_template('index.html', usuario=session['user_name'], rol=session['rol'])
+    
+    return "<h1 style='color:red;text-align:center;margin-top:50px;'>ACCESO DENEGADO: TOKEN INVÁLIDO</h1>", 403
 
-@app.route('/api/admin/add_user', methods=['POST'])
-def add_user():
-    if session.get('role') != 'admin': return jsonify({"status": "error"}), 403
+@app.route('/api/admin/crear', methods=['POST'])
+def crear_usuario():
+    if session.get('rol') != 'admin': return jsonify({"error": "No autorizado"}), 403
     data = request.json
-    name = data.get('name', 'operador')
-    # Generar Token y PIN
-    token = f"{name.lower().replace(' ', '')}{random.randint(100, 999)}"
-    pin = f"{random.randint(1000, 9999)}"
-    
-    users = load_users()
-    users[token] = {"name": name, "pin": pin, "role": "user"}
-    save_users(users)
-    
-    return jsonify({"status": "success", "token": token, "pin": pin})
-
-@app.route('/api/admin/list_users')
-def list_users():
-    if session.get('role') != 'admin': return jsonify({"status": "error"}), 403
-    return jsonify(load_users())
-
-# --- HISTORIAL Y VALORACIONES ---
-db = {"historial": [], "feedback": []}
+    nuevo_token = generar_token(data['nombre'])
+    nueva_pass = generar_pass()
+    db["usuarios"][nuevo_token] = {
+        "nombre": data['nombre'],
+        "identificador": data['contacto'], # Correo o Tel
+        "rol": "user",
+        "pass": nueva_pass
+    }
+    return jsonify({"token": nuevo_token, "pass": nueva_pass})
 
 @app.route('/api/save', methods=['POST'])
 def save_data():
-    if 'user' not in session: return jsonify({"status": "error"}), 403
+    if 'user_id' not in session: return jsonify({"status": "error"}), 403
     data = request.json
-    data['user'] = session['user']
-    data['date'] = datetime.now().strftime("%H:%M")
+    data['user'] = session['user_name']
+    data['date'] = datetime.now().strftime("%d/%m %H:%M")
     db['historial'].append(data)
     return jsonify({"status": "success"})
+
+@app.route('/api/load')
+def load_data():
+    return jsonify({
+        "historial": db["historial"],
+        "usuarios": db["usuarios"] if session.get('rol') == 'admin' else {}
+    })
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
