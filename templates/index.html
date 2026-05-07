@@ -2,212 +2,269 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora Producción Ahogados</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <!-- PWA Meta Tags -->
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <title>CALCULADORA EFICIENCIAS PRODUCCION AHOGADOS</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body {
-            background: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8)), 
-                        url('https://images.unsplash.com/photo-1546182990-dffeafbe841d?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
+        body { 
+            background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.9)), url('https://images.unsplash.com/photo-1546182990-dffeafbe841d?auto=format&fit=crop&w=1200&q=80');
             background-size: cover; background-position: center; background-attachment: fixed;
-            color: white; font-family: 'Inter', sans-serif;
+            color: white; font-family: 'Inter', sans-serif; overflow-x: hidden;
         }
-        .glass { background: rgba(22, 27, 34, 0.85); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; }
-        .card-lion { transition: 0.3s; cursor: pointer; border: 1px solid rgba(255,255,255,0.05); }
-        .card-lion:hover { border-color: #facc15; transform: translateY(-5px); }
-        .input-pro { background: rgba(13, 17, 23, 0.9); border: 1px solid #30363d; color: white; border-radius: 12px; padding: 12px; width: 100%; outline: none; }
-        .hidden-section { display: none; }
+        .glass { background: rgba(22, 27, 34, 0.8); backdrop-filter: blur(15px); border: 1px solid rgba(255,255,255,0.1); }
+        .view-window { 
+            position: fixed; top: 0; left: 100%; width: 100%; height: 100%; 
+            background: #0d1117; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 50; 
+            overflow-y: auto;
+        }
+        .view-window.active { left: 0; }
+        .input-pro { background: #161b22; border: 1px solid #30363d; color: white; border-radius: 12px; padding: 15px; width: 100%; font-weight: bold; }
+        .lion-btn { transition: 0.2s; border: 1px solid rgba(255,255,255,0.05); }
+        .lion-btn:active { transform: scale(0.95); background: rgba(250, 204, 21, 0.2); }
     </style>
 </head>
-<body class="p-4 max-w-xl mx-auto pb-20">
+<body class="max-w-md mx-auto">
 
-    <div id="login-screen" class="min-h-screen flex flex-col justify-center items-center text-center">
-        <div class="glass p-8 w-full">
-            <h1 class="text-3xl font-black mb-2 uppercase italic text-yellow-500">BIENVENIDO 🦁</h1>
-            <p class="text-xs text-gray-400 mb-6">INGRESA TU PIN DE 4 DÍGITOS</p>
-            <input type="password" id="pin-input" maxlength="4" class="input-pro text-center text-3xl tracking-[1em] mb-6" placeholder="****">
-            <button onclick="checkPin()" class="w-full py-4 bg-yellow-600 rounded-xl font-black">ACCEDER</button>
+    <!-- PANTALLA DE BLOQUEO -->
+    <div id="lock-screen" class="min-h-screen flex flex-col justify-center items-center p-6 text-center">
+        <div class="glass p-8 rounded-[32px] w-full border-yellow-500/30 border-2">
+            <span class="text-6xl mb-4 block">🦁</span>
+            <h1 class="text-xl font-black uppercase text-yellow-500 mb-2">Acceso Privado</h1>
+            <p class="text-xs text-gray-400 mb-6 uppercase tracking-widest">Ingresa PIN de 4 dígitos</p>
+            <input type="password" id="pin-input" maxlength="4" class="input-pro text-center text-3xl tracking-[0.5em] mb-6" placeholder="****">
+            <button onclick="verificarAcceso()" class="w-full py-4 bg-yellow-600 rounded-2xl font-black shadow-lg shadow-yellow-900/20">INGRESAR</button>
         </div>
     </div>
 
-    <div id="main-app" class="hidden-section">
-        <header class="text-center my-10">
-            <h1 class="text-2xl font-black italic uppercase tracking-tighter">CALCULADORA EFICIENCIAS <span class="text-red-500">AHOGADOS</span></h1>
-            <p class="text-[10px] text-gray-400 font-bold uppercase mt-2">PRESENTADO POR: <span class="text-yellow-500 font-black">ANGEL CASTILLO</span></p>
+    <!-- MENÚ PRINCIPAL -->
+    <div id="app-home" class="hidden p-4 pb-20">
+        <header class="my-10 text-center">
+            <h1 class="text-2xl font-black leading-tight">CALCULADORA EFICIENCIAS<br><span class="text-red-600">PRODUCCION AHOGADOS</span></h1>
+            <p class="text-[10px] font-bold text-gray-400 mt-4 uppercase tracking-tighter">Creado y Presentado por: <span class="text-yellow-500">Angel Castillo</span></p>
         </header>
 
-        <div id="menu-grid" class="grid grid-cols-2 gap-4 mb-8">
-            <div onclick="nav('calc')" class="card-lion glass p-6 flex flex-col items-center">
-                <span class="text-3xl mb-2">🦁</span>
-                <h2 class="font-bold text-[10px] text-center">EFICIENCIA COMPLETA</h2>
+        <div class="grid grid-cols-2 gap-4">
+            <div onclick="openView('view-eficiencia')" class="lion-btn glass p-6 rounded-[24px] text-center">
+                <span class="text-4xl block mb-2">🦁</span>
+                <span class="text-[10px] font-black uppercase">Eficiencia<br>Completa</span>
             </div>
-            <div onclick="nav('tiempo')" class="card-lion glass p-6 flex flex-col items-center">
-                <span class="text-3xl mb-2">⏱️</span>
-                <h2 class="font-bold text-[10px] text-center uppercase">Tiempo por Docenaje</h2>
+            <div onclick="openView('view-tiempo')" class="lion-btn glass p-6 rounded-[24px] text-center">
+                <span class="text-4xl block mb-2">⏱️</span>
+                <span class="text-[10px] font-black uppercase">Tiempo por<br>Docenaje</span>
             </div>
-            <div onclick="nav('historial')" class="card-lion glass p-6 flex flex-col items-center">
-                <span class="text-3xl mb-2">📂</span>
-                <h2 class="font-bold text-[10px] text-center">HISTORIAL</h2>
+            <div onclick="openView('view-historial')" class="lion-btn glass p-6 rounded-[24px] text-center">
+                <span class="text-4xl block mb-2">📂</span>
+                <span class="text-[10px] font-black uppercase">Historial<br>Guardado</span>
             </div>
-            <div onclick="nav('feedback')" class="card-lion glass p-6 flex flex-col items-center">
-                <span class="text-3xl mb-2">⭐</span>
-                <h2 class="font-bold text-[10px] text-center uppercase">Valoraciones</h2>
+            <div onclick="openView('view-feedback')" class="lion-btn glass p-6 rounded-[24px] text-center">
+                <span class="text-4xl block mb-2">⭐</span>
+                <span class="text-[10px] font-black uppercase">Valorar<br>App</span>
             </div>
-            {% if user.rol == 'admin' %}
-            <div onclick="nav('admin')" class="card-lion glass p-6 col-span-2 border-yellow-500 border-2 flex flex-col items-center">
-                <span class="text-3xl mb-2">👑</span>
-                <h2 class="font-bold text-[11px] text-yellow-500 uppercase">Administrar Usuarios (Exclusivo Angel)</h2>
+
+            {% if user.token == 'angel0301' %}
+            <div onclick="openView('view-admin')" class="lion-btn glass p-6 rounded-[24px] text-center col-span-2 border-yellow-500 bg-yellow-500/10">
+                <span class="text-4xl block mb-2">👑</span>
+                <span class="text-[11px] font-black text-yellow-500 uppercase italic">Panel de Control Angel (Admin)</span>
             </div>
             {% endif %}
         </div>
     </div>
 
-    <div id="tiempo" class="hidden-section glass p-6">
-        <button onclick="nav('main-app')" class="text-blue-400 text-xs font-bold mb-6 italic">← REGRESAR</button>
-        <h2 class="text-xl font-black mb-6">TIEMPO AL 100% 🦁</h2>
-        <div class="space-y-4 mb-6">
-            <div>
-                <label class="text-[10px] text-gray-400 font-bold uppercase">Meta de la Carga (Total)</label>
-                <input type="number" id="t-meta" oninput="calcTiempoSimple()" class="input-pro mt-2" placeholder="Ej: 550">
-            </div>
-            <div>
-                <label class="text-[10px] text-gray-400 font-bold uppercase">Docenaje de Carga (Actual)</label>
-                <input type="number" id="t-doc" oninput="calcTiempoSimple()" class="input-pro mt-2" placeholder="Ej: 100">
-            </div>
+    <!-- VISTA: EFICIENCIA COMPLETA -->
+    <div id="view-eficiencia" class="view-window p-6">
+        <div class="flex items-center mb-8">
+            <button onclick="closeView()" class="text-yellow-500 font-bold text-xl mr-4">←</button>
+            <h2 class="text-xl font-black">EFICIENCIA COMPLETA 🦁</h2>
         </div>
-        <div class="bg-blue-600 p-6 rounded-2xl text-center shadow-xl">
-            <p class="text-[10px] font-bold uppercase opacity-80 mb-1">Resultado del Tiempo</p>
-            <div id="res-tiempo" class="text-4xl font-black">0H 00M</div>
-            <p id="res-ritmo" class="text-[9px] mt-2 opacity-70">Ritmo: 0 doc/hr</p>
-        </div>
-    </div>
-
-    <div id="admin" class="hidden-section glass p-6">
-        <button onclick="nav('main-app')" class="text-blue-400 text-xs mb-6 italic">← REGRESAR</button>
-        <h2 class="text-xl font-black mb-6 text-yellow-500 uppercase">Gestionar Accesos</h2>
-        <div class="space-y-3 mb-8">
-            <input type="text" id="adm-nombre" placeholder="Nombre completo del usuario" class="input-pro">
-            <input type="text" id="adm-contacto" placeholder="Correo o Teléfono" class="input-pro">
-            <button onclick="crearUser()" class="w-full py-3 bg-yellow-600 rounded-xl font-bold uppercase text-xs">Generar Token y PIN</button>
-        </div>
-        <div id="user-list" class="space-y-2"></div>
-    </div>
-
-    <div id="calc" class="hidden-section glass p-6">
-        <button onclick="nav('main-app')" class="text-blue-400 text-xs font-bold mb-6 italic">← REGRESAR</button>
-        <div id="inputs-cargas" class="space-y-2 mb-4"></div>
-        <button onclick="addCargaRow()" class="w-full py-2 bg-gray-700 rounded-lg text-[10px] font-bold mb-4">+ AÑADIR CARGA</button>
-        <input type="number" id="paros" value="0" step="0.01" oninput="runLogic()" class="input-pro mb-4" placeholder="Paros (Hrs)">
+        <div id="cargas-list" class="space-y-3 mb-4"></div>
+        <button onclick="addCarga()" class="w-full py-3 border-2 border-dashed border-gray-600 rounded-xl text-xs font-bold mb-6">+ AÑADIR NUEVA CARGA</button>
+        <label class="text-[10px] text-gray-400 font-bold">HORAS DE PARO (TIEMPO MUERTO)</label>
+        <input type="number" id="ef-paros" step="0.01" oninput="calcularEficiencia()" class="input-pro mt-2 mb-6" placeholder="0.00">
         
-        <div id="badge-ef" class="bg-red-600 p-8 rounded-3xl text-center mb-4 transition-all">
-            <div id="ef-val" class="text-5xl font-black">0.00%</div>
-            <p class="text-[10px] font-bold mt-2 uppercase">Eficiencia General</p>
+        <div class="bg-red-600 p-8 rounded-[32px] text-center mb-6" id="ef-badge">
+            <div id="ef-resultado" class="text-5xl font-black">0.00%</div>
+            <p class="text-xs font-bold uppercase mt-1 opacity-80">Rendimiento General</p>
         </div>
-        <div id="split-h" class="space-y-1"></div>
-        <button onclick="save()" class="w-full py-4 bg-green-600 rounded-xl font-bold mt-6">GUARDAR HISTORIAL</button>
+        <button onclick="guardarHistorial('Eficiencia')" class="w-full py-4 bg-green-600 rounded-2xl font-black">GUARDAR EN HISTORIAL</button>
+    </div>
+
+    <!-- VISTA: TIEMPO POR DOCENAJE (Lógica Angel) -->
+    <div id="view-tiempo" class="view-window p-6">
+        <div class="flex items-center mb-8">
+            <button onclick="closeView()" class="text-yellow-500 font-bold text-xl mr-4">←</button>
+            <h2 class="text-xl font-black uppercase">Tiempo Simple ⏱️</h2>
+        </div>
+        <div class="space-y-6">
+            <div class="glass p-6 rounded-3xl">
+                <label class="text-[10px] text-yellow-500 font-black uppercase">1. Meta de la Carga (Total 11h)</label>
+                <input type="number" id="ts-meta" oninput="calcTiempoSimple()" class="input-pro mt-2" placeholder="Ej: 550">
+            </div>
+            <div class="glass p-6 rounded-3xl">
+                <label class="text-[10px] text-yellow-500 font-black uppercase">2. Docenaje de Carga Actual</label>
+                <input type="number" id="ts-doc" oninput="calcTiempoSimple()" class="input-pro mt-2" placeholder="Ej: 100">
+            </div>
+            <div class="bg-blue-600 p-8 rounded-[32px] text-center">
+                <p class="text-[10px] font-bold uppercase mb-2 opacity-80">Tiempo Estimado al 100%</p>
+                <div id="ts-res" class="text-5xl font-black">0H 00M</div>
+                <div id="ts-ritmo" class="text-[10px] mt-4 font-mono bg-black/20 py-2 rounded-lg">Ritmo: 0.00 doc/hora</div>
+            </div>
+            <button onclick="guardarHistorial('Tiempo Simple')" class="w-full py-4 bg-green-600 rounded-2xl font-black uppercase">Guardar Cálculo</button>
+        </div>
+    </div>
+
+    <!-- VISTA: ADMIN (EXCLUSIVO ANGEL) -->
+    <div id="view-admin" class="view-window p-6 bg-[#000]">
+        <div class="flex items-center mb-8">
+            <button onclick="closeView()" class="text-yellow-500 font-bold text-xl mr-4">←</button>
+            <h2 class="text-xl font-black text-yellow-500">CONTROL DE ACCESOS 👑</h2>
+        </div>
+        <div class="glass p-6 rounded-3xl mb-8">
+            <input type="text" id="adm-nombre" placeholder="Nombre del Operador" class="input-pro mb-3">
+            <input type="text" id="adm-cont" placeholder="Teléfono o Correo" class="input-pro mb-4">
+            <button onclick="crearUsuario()" class="w-full py-4 bg-yellow-600 rounded-xl font-black">GENERAR ACCESO</button>
+        </div>
+        <div id="admin-users-list" class="space-y-3"></div>
+    </div>
+
+    <!-- VISTA: HISTORIAL -->
+    <div id="view-historial" class="view-window p-6">
+        <div class="flex items-center mb-8">
+            <button onclick="closeView()" class="text-yellow-500 font-bold text-xl mr-4">←</button>
+            <h2 class="text-xl font-black">HISTORIAL 📂</h2>
+        </div>
+        <div id="historial-content" class="space-y-3"></div>
     </div>
 
     <script>
-        const USER_PIN = "{{ user.pin }}";
-        const USER_ROL = "{{ user.rol }}";
+        const PIN_CORRECTO = "{{ user.pin }}";
+        const MI_TOKEN = "{{ token }}";
 
-      function checkPin() {
-    const input = document.getElementById('pin-input');
-    const loginScreen = document.getElementById('login-screen');
-    const mainApp = document.getElementById('main-app');
-
-    if (input.value === USER_PIN) {
-        // Forzamos el cambio de visibilidad
-        loginScreen.style.display = 'none';
-        mainApp.style.display = 'block';
-        mainApp.classList.remove('hidden-section');
-        
-        // Guardamos en el navegador que ya entramos
-        localStorage.setItem('pin_verificado', 'true');
-    } else {
-        alert("❌ PIN INCORRECTO. Intenta de nuevo.");
-        input.value = ''; // Limpia el campo para reintentar
-    }
-}
-
-        function nav(id) {
-            document.querySelectorAll('body > div').forEach(d => {
-                if(d.id !== 'login-screen') d.classList.add('hidden-section');
-            });
-            document.getElementById(id).classList.remove('hidden-section');
-            if(id === 'admin') cargarUsuarios();
+        function verificarAcceso() {
+            if(document.getElementById('pin-input').value === PIN_CORRECTO) {
+                document.getElementById('lock-screen').classList.add('hidden');
+                document.getElementById('app-home').classList.remove('hidden');
+            } else { alert("PIN INCORRECTO 🦁"); }
         }
 
-        // LÓGICA DE TIEMPO SIMPLE (PEDIDA POR ANGEL)
+        function openView(id) {
+            document.getElementById(id).classList.add('active');
+            if(id === 'view-admin') fetchAdminUsers();
+            if(id === 'view-historial') fetchHistorial();
+        }
+
+        function closeView() {
+            document.querySelectorAll('.view-window').forEach(v => v.classList.remove('active'));
+        }
+
+        // LÓGICA TIEMPO SIMPLE (Fórmula Angel)
         function calcTiempoSimple() {
-            const meta = parseFloat(document.getElementById('t-meta').value) || 0;
-            const docenaje = parseFloat(document.getElementById('t-doc').value) || 0;
-            
+            const meta = parseFloat(document.getElementById('ts-meta').value) || 0;
+            const doc = parseFloat(document.getElementById('ts-doc').value) || 0;
             if(meta > 0) {
                 const docHora = meta / 11;
-                const tiempoTotal = docenaje / docHora;
-                const h = Math.floor(tiempoTotal);
-                const m = Math.round((tiempoTotal - h) * 60);
-                document.getElementById('res-tiempo').innerText = `${h}H ${m < 10 ? '0'+m : m}M`;
-                document.getElementById('res-ritmo').innerText = `Ritmo: ${docHora.toFixed(2)} doc/hr`;
+                const horasTotales = doc / docHora;
+                const h = Math.floor(horasTotales);
+                const m = Math.round((horasTotales - h) * 60);
+                document.getElementById('ts-res').innerText = `${h}H ${m < 10 ? '0'+m : m}M`;
+                document.getElementById('ts-ritmo').innerText = `Ritmo calculado: ${docHora.toFixed(2)} doc/hora`;
             }
         }
 
-        // LÓGICA DE EFICIENCIA (11 HORAS)
-        function runLogic() {
-            const ms = document.querySelectorAll('.m-val'), hs = document.querySelectorAll('.h-val');
-            const p = parseFloat(document.getElementById('paros').value) || 0;
-            let sm=0, sh=0, n=0;
-            ms.forEach((m, i) => { if(m.value > 0){ sm += parseFloat(m.value); sh += parseFloat(hs[i].value); n++; }});
-            const mGen = n > 0 ? sm/n : 0;
-            const mAj = mGen - (p * (mGen/11));
-            const ef = mAj > 0 ? (sh/mAj)*100 : 0;
-            document.getElementById('ef-val').innerText = ef.toFixed(2) + "%";
-            
-            const split = document.getElementById('split-h');
-            split.innerHTML = '';
-            hs.forEach((h, i) => {
-                if(sh > 0) {
-                    let tc = (parseFloat(h.value)/sh) * (11-p);
-                    split.innerHTML += `<div class="flex justify-between bg-white/5 p-2 rounded text-[10px]"><span>CARGA ${i+1}</span><b>${Math.floor(tc)}H ${Math.round((tc%1)*60)}M</b></div>`;
-                }
-            });
-        }
-
-        function addCargaRow() {
+        // LÓGICA EFICIENCIA COMPLETA
+        function addCarga() {
+            const container = document.getElementById('cargas-list');
             const div = document.createElement('div');
-            div.className = "flex gap-2";
-            div.innerHTML = `<input type="number" placeholder="META" class="input-pro m-val" oninput="runLogic()">
-                             <input type="number" placeholder="HECHO" class="input-pro h-val" oninput="runLogic()">`;
-            document.getElementById('inputs-cargas').appendChild(div);
+            div.className = "flex gap-2 animate-slide-in";
+            div.innerHTML = `<input type="number" placeholder="META" class="input-pro c-meta" oninput="calcularEficiencia()">
+                             <input type="number" placeholder="HECHO" class="input-pro c-hecho" oninput="calcularEficiencia()">`;
+            container.appendChild(div);
         }
 
-        // ADMIN FUNCTIONS
-        async function crearUser() {
+        function calcularEficiencia() {
+            const metas = document.querySelectorAll('.c-meta'), hechos = document.querySelectorAll('.c-hecho');
+            const paros = parseFloat(document.getElementById('ef-paros').value) || 0;
+            let sumMeta = 0, sumHecho = 0, count = 0;
+            metas.forEach((m, i) => {
+                if(m.value > 0) { sumMeta += parseFloat(m.value); sumHecho += parseFloat(hechos[i].value); count++; }
+            });
+            const mGen = count > 0 ? sumMeta/count : 0;
+            const mAj = mGen - (paros * (mGen/11));
+            const ef = mAj > 0 ? (sumHecho / mAj) * 100 : 0;
+            const resEl = document.getElementById('ef-resultado');
+            resEl.innerText = ef.toFixed(2) + "%";
+            document.getElementById('ef-badge').className = `p-8 rounded-[32px] text-center mb-6 ${ef >= 100 ? 'bg-green-600' : 'bg-red-600'}`;
+        }
+
+        // ACCIONES ADMIN
+        async function crearUsuario() {
             const n = document.getElementById('adm-nombre').value;
-            const c = document.getElementById('adm-contacto').value;
-            const r = await fetch('/api/admin/crear', {
+            const c = document.getElementById('adm-cont').value;
+            const res = await fetch('/api/admin/usuarios', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({nombre: n, contacto: c})
             });
-            const d = await r.json();
-            alert(`USUARIO CREADO\nToken: ${d.token}\nPIN: ${d.pin}\nEnlace: https://tu-app.onrender.com/?token=${d.token}`);
-            cargarUsuarios();
+            const d = await res.json();
+            alert(`USUARIO CREADO\nToken: ${d.token}\nPIN: ${d.pin}\nEnlace: ${window.location.origin}/?token=${d.token}`);
+            fetchAdminUsers();
         }
 
-        async function cargarUsuarios() {
-            const r = await fetch('/api/admin/usuarios');
-            const users = await r.json();
-            document.getElementById('user-list').innerHTML = Object.keys(users).map(t => `
-                <div class="glass p-3 flex justify-between items-center text-[10px]">
-                    <div><b>${users[t].nombre}</b><br><span class="text-yellow-500">${t}</span> | PIN: ${users[t].pin}</div>
-                    ${t !== 'angel0301' ? `<button onclick="eliminar('${t}')" class="text-red-500">Eliminar</button>` : ''}
+        async function fetchAdminUsers() {
+            const res = await fetch('/api/admin/usuarios');
+            const users = await res.json();
+            const list = document.getElementById('admin-users-list');
+            list.innerHTML = Object.keys(users).map(t => `
+                <div class="glass p-4 rounded-2xl flex justify-between items-center">
+                    <div>
+                        <p class="font-bold text-sm">${users[t].nombre}</p>
+                        <p class="text-[10px] text-yellow-500">${t} | PIN: ${users[t].pin}</p>
+                    </div>
+                    ${t !== 'angel0301' ? `<button onclick="eliminarUser('${t}')" class="text-red-500 text-xs font-bold">ELIMINAR</button>` : '👑'}
                 </div>
             `).join('');
         }
 
-        addCargaRow();
+        async function eliminarUser(t) {
+            if(confirm('¿Eliminar acceso?')) {
+                await fetch(`/api/admin/eliminar/${t}`, {method: 'DELETE'});
+                fetchAdminUsers();
+            }
+        }
+
+        async function guardarHistorial(tipo) {
+            let info = {};
+            if(tipo === 'Eficiencia') {
+                info = { res: document.getElementById('ef-resultado').innerText };
+            } else {
+                info = { res: document.getElementById('ts-res').innerText, meta: document.getElementById('ts-meta').value };
+            }
+            await fetch('/api/save', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({tipo, info})
+            });
+            alert("Guardado exitosamente");
+        }
+
+        async function fetchHistorial() {
+            const res = await fetch('/api/load');
+            const data = await res.json();
+            const cont = document.getElementById('historial-content');
+            cont.innerHTML = data.reverse().map(i => `
+                <div class="glass p-4 rounded-2xl border-l-4 border-yellow-500">
+                    <div class="flex justify-between text-[10px] mb-1 font-bold text-gray-400">
+                        <span>${i.tipo}</span><span>${i.fecha_hora}</span>
+                    </div>
+                    <div class="text-xl font-black text-white">${i.info.res}</div>
+                </div>
+            `).join('');
+        }
+
+        addCarga();
     </script>
 </body>
 </html>
