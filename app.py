@@ -1,4 +1,6 @@
 from flask import Flask, render_template, request, jsonify, session
+import gspread
+from oauth2client.service_account import ServiceAccountCredentials
 import os
 import random
 import string
@@ -7,14 +9,25 @@ from datetime import datetime
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'angel_admin_2026_secure')
 
-# Base de datos en memoria 
-db = {
-    "usuarios": {
-        "angel0301": {"nombre": "Angel Castillo", "rol": "admin", "pin": "0000", "contacto": "Admin Principal"}
-    },
-    "historial": {}, 
-    "feedback": []
-}
+# --- CONFIGURACIÓN DE GOOGLE SHEETS ---
+# Asegúrate de tener el archivo 'credenciales.json' en la misma carpeta
+scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
+try:
+    creds = ServiceAccountCredentials.from_json_keyfile_name('credenciales.json', scope)
+    client = gspread.authorize(creds)
+    # Abre la hoja por su nombre exacto
+    sheet = client.open("Base_Datos_Calculadora").sheet1
+except Exception as e:
+    print(f"Error de conexión a Google: {e}")
+
+# --- FUNCIONES DE SOPORTE ---
+def cargar_usuarios_drive():
+    """Trae los usuarios actualizados desde Google Sheets"""
+    try:
+        records = sheet.get_all_records()
+        return {str(r['token']): r for r in records}
+    except:
+        return {}
 
 def generar_token(nombre):
     prefijo = nombre.split()[0].lower()
@@ -24,82 +37,67 @@ def generar_token(nombre):
 def generar_pin():
     return "".join(random.choices(string.digits, k=4))
 
+# --- RUTAS DE LA APLICACIÓN ---
+
 @app.route('/')
 def index():
     token = request.args.get('token')
-    if token in db["usuarios"]:
+    usuarios_actuales = cargar_usuarios_drive()
+    
+    if token in usuarios_actuales:
+        user_data = usuarios_actuales[token]
         session['user_token'] = token
-        session['user_name'] = db["usuarios"][token]["nombre"]
-        session['user_rol'] = db["usuarios"][token]["rol"]
-        return render_template('index.html', user=db["usuarios"][token], token=token)
-    return "<h1 style='color:white;background:#0d1b2a;text-align:center;padding:50px;font-family:sans-serif;'>ACCESO DENEGADO: TOKEN INVÁLIDO</h1>", 403
+        session['user_name'] = user_data['nombre']
+        # Pasamos token=token para que el HTML reconozca si eres angel0301
+        return render_template('index.html', user=user_data, token=token)
+    
+    return "<h1 style='color:white;background:#0b132b;text-align:center;padding:50px;font-family:sans-serif;'>ACCESO DENEGADO: TOKEN INVÁLIDO</h1>", 403
 
-# --- GESTIÓN DE ADMINISTRADOR (EXCLUSIVO ANGEL) ---
+# --- API EXCLUSIVA PARA ADMINISTRADOR (ANGEL) ---
+
 @app.route('/api/admin/usuarios', methods=['GET', 'POST', 'PUT'])
-def admin_users():
-    if session.get('user_token') != 'angel0301': return jsonify({"error": "No autorizado"}), 403
+def admin_drive():
+    if session.get('user_token') != 'angel0301': 
+        return jsonify({"error": "No autorizado"}), 403
     
-    # Crear usuario
+    if request.method == 'GET':
+        return jsonify(cargar_usuarios_drive())
+
+    data = request.json
+    
     if request.method == 'POST':
-        data = request.json
         nuevo_tkn = generar_token(data['nombre'])
-        pin = generar_pin()
-        db["usuarios"][nuevo_tkn] = {
-            "nombre": data['nombre'],
-            "contacto": data['contacto'],
-            "rol": "operador",
-            "pin": pin
-        }
-        return jsonify({"token": nuevo_tkn, "pin": pin})
-    
-    # Editar usuario
+        nuevo_pin = generar_pin()
+        # Insertar en Google Sheets: token, nombre, contacto, pin, rol
+        sheet.append_row([nuevo_tkn, data['nombre'], data['contacto'], nuevo_pin, "operador"])
+        return jsonify({"token": nuevo_tkn, "pin": nuevo_pin})
+
     if request.method == 'PUT':
-        data = request.json
-        tkn = data['token']
-        if tkn in db["usuarios"] and tkn != 'angel0301':
-            db["usuarios"][tkn]['nombre'] = data['nombre']
-            db["usuarios"][tkn]['contacto'] = data['contacto']
-            if data.get('nuevo_pin'):
-                db["usuarios"][tkn]['pin'] = data['nuevo_pin']
-            return jsonify({"status": "updated", "pin": db["usuarios"][tkn]['pin']})
-        return jsonify({"error": "Usuario no encontrado o protegido"}), 400
-    
-    return jsonify(db["usuarios"])
+        # Buscar usuario por token para editar
+        try:
+            celda = sheet.find(data['token'])
+            fila = celda.row
+            sheet.update_cell(fila, 2, data['nombre'])   # Columna B: Nombre
+            sheet.update_cell(fila, 3, data['contacto']) # Columna C: Contacto
+            if data.get('nuevo_pin') and data['nuevo_pin'].strip() != "":
+                sheet.update_cell(fila, 4, data['nuevo_pin']) # Columna D: PIN
+            return jsonify({"status": "updated"})
+        except:
+            return jsonify({"error": "Usuario no encontrado"}), 404
 
 @app.route('/api/admin/eliminar/<tkn>', methods=['DELETE'])
-def eliminar_usuario(tkn):
-    if session.get('user_token') != 'angel0301' or tkn == "angel0301": return jsonify({"error": "Prohibido"}), 403
-    if tkn in db["usuarios"]: del db["usuarios"][tkn]
-    return jsonify({"status": "deleted"})
-
-# --- OPERACIONES DE USUARIO ---
-@app.route('/api/save', methods=['POST'])
-def save_data():
-    tkn = session.get('user_token')
-    if not tkn: return jsonify({"error": "Sesion expirada"}), 403
-    if tkn not in db["historial"]: db["historial"][tkn] = []
+def eliminar_drive(tkn):
+    if session.get('user_token') != 'angel0301' or tkn == 'angel0301':
+        return jsonify({"error": "Acción no permitida"}), 403
     
-    data = request.json
-    data['fecha_hora'] = datetime.now().strftime("%d/%m %H:%M")
-    db["historial"][tkn].append(data)
-    return jsonify({"status": "success"})
+    try:
+        celda = sheet.find(tkn)
+        sheet.delete_rows(celda.row)
+        return jsonify({"status": "deleted"})
+    except:
+        return jsonify({"error": "No se pudo eliminar"}), 404
 
-@app.route('/api/load')
-def load_data():
-    tkn = session.get('user_token')
-    if tkn == 'angel0301':
-        # El admin ve todo el historial
-        historial_completo = []
-        for user_token, registros in db["historial"].items():
-            user_name = db["usuarios"].get(user_token, {}).get("nombre", "Desconocido")
-            for reg in registros:
-                reg_copy = reg.copy()
-                reg_copy['usuario'] = user_name
-                historial_completo.append(reg_copy)
-        return jsonify(historial_completo)
-    
-    return jsonify(db["historial"].get(tkn, []))
-
+# --- INICIO DEL SERVIDOR ---
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port)
