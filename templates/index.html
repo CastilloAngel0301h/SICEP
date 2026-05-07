@@ -3,203 +3,175 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Calculadora Pro | Angel Castillo</title>
+    <title>Lion Efficiency Pro</title>
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { background: #0b0e14; color: white; font-family: 'Inter', sans-serif; }
-        .card-menu { background: #161b22; border: 1px solid #30363d; border-radius: 20px; transition: 0.3s; cursor: pointer; }
-        .card-menu:hover { border-color: #58a6ff; transform: translateY(-5px); }
-        .input-pro { background: #0d1117; border: 1px solid #30363d; color: white; border-radius: 10px; padding: 12px; width: 100%; outline: none; transition: 0.2s; }
-        .input-pro:focus { border-color: #ff4b4b; box-shadow: 0 0 10px rgba(255, 75, 75, 0.2); }
+        body { 
+            background: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.9)), 
+                        url('https://images.unsplash.com/photo-1546182990-dffeafbe841d?q=80&w=2059&auto=format&fit=crop');
+            background-size: cover;
+            background-attachment: fixed;
+            color: white;
+            font-family: 'Inter', sans-serif;
+        }
+        .card-lion { background: rgba(22, 27, 34, 0.8); backdrop-filter: blur(10px); border: 1px solid #30363d; border-radius: 24px; transition: 0.3s; }
+        .card-lion:hover { border-color: #f1c40f; transform: scale(1.02); }
+        .input-gold { background: rgba(13, 17, 23, 0.9); border: 1px solid #30363d; color: white; border-radius: 12px; padding: 14px; width: 100%; outline: none; }
+        .input-gold:focus { border-color: #f1c40f; box-shadow: 0 0 15px rgba(241, 196, 15, 0.2); }
         .hidden-section { display: none; }
-        .bg-blue-card { background: linear-gradient(145deg, #1d4ed8, #1e3a8a); }
-        .bg-red-card { background: linear-gradient(145deg, #dc2626, #991b1b); }
     </style>
 </head>
-<body class="p-4 max-w-lg mx-auto pb-20">
+<body class="p-4 max-w-lg mx-auto pb-24">
 
-    <div id="menu" class="animate-in fade-in duration-500">
-        <header class="text-center my-10">
-            <div class="bg-red-600 w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-xl">
-                <span class="text-2xl">⚡</span>
+    <div id="menu">
+        <header class="text-center my-12">
+            <div class="text-6xl mb-4 drop-shadow-lg">🦁</div>
+            <h1 class="text-3xl font-black italic uppercase tracking-tighter text-yellow-500">Lion <span class="text-white">Efficiency</span></h1>
+            <p class="text-[10px] font-bold tracking-[0.4em] text-blue-400">AHOGADOS PRODUCCIÓN VOLTEO</p>
+            <div class="mt-6 bg-yellow-600/20 py-1 px-4 rounded-full inline-block border border-yellow-600/50">
+                <p class="text-[9px] font-black uppercase">Bienvenido Rey: {{ user.nombre }}</p>
             </div>
-            <h1 class="text-2xl font-black italic uppercase tracking-tighter">Calculadora <span class="text-red-500">Eficiencias</span></h1>
-            <p class="text-blue-500 text-[10px] font-bold tracking-[0.3em] mt-1">AHOGADOS PRODUCCIÓN VOLTEO</p>
-            <p class="text-[9px] text-gray-500 mt-4 font-bold uppercase tracking-widest">Creador: {{ usuario }}</p>
         </header>
 
         <div class="grid grid-cols-2 gap-4">
-            <div onclick="nav('calc')" class="card-menu bg-blue-card p-6 h-44 flex flex-col justify-end">
-                <p class="text-[25px] mb-2">📊</p>
+            <div onclick="nav('calc')" class="card-lion p-6 h-48 flex flex-col justify-end relative overflow-hidden">
+                <span class="absolute top-4 right-4 text-3xl opacity-20">🐾</span>
                 <h2 class="font-bold text-sm">EFICIENCIA COMPLETA</h2>
-                <p class="text-[9px] opacity-70 mt-1">Múltiples cargas y paros</p>
+                <p class="text-[9px] opacity-60 mt-1">Cálculo total de jornada</p>
             </div>
-            <div onclick="nav('tiempo')" class="card-menu bg-red-card p-6 h-44 flex flex-col justify-end">
-                <p class="text-[25px] mb-2">⏱️</p>
+            <div onclick="nav('tsimple')" class="card-lion p-6 h-48 flex flex-col justify-end bg-red-900/20 border-red-900/50 relative overflow-hidden">
+                <span class="absolute top-4 right-4 text-3xl opacity-20">⏱️</span>
                 <h2 class="font-bold text-sm">TIEMPO SIMPLE</h2>
-                <p class="text-[9px] opacity-70 mt-1">Cálculo rápido al 100%</p>
+                <p class="text-[9px] opacity-60 mt-1">Cálculo rápido por carga</p>
             </div>
-            <div onclick="nav('historial')" class="card-menu p-6 h-44 flex flex-col justify-end">
-                <p class="text-[25px] mb-2">📂</p>
+            <div onclick="nav('historial')" class="card-lion p-6 h-48 flex flex-col justify-end relative overflow-hidden">
+                <span class="absolute top-4 right-4 text-3xl opacity-20">📂</span>
                 <h2 class="font-bold text-sm">HISTORIAL</h2>
-                <p class="text-[9px] opacity-70 mt-1">Registros guardados</p>
+                <p class="text-[9px] opacity-60 mt-1">Registros de producción</p>
             </div>
-            <div onclick="nav('feedback')" class="card-menu p-6 h-44 flex flex-col justify-end border-yellow-900/50">
-                <p class="text-[25px] mb-2 text-yellow-500">⭐</p>
-                <h2 class="font-bold text-sm">VALORACIONES</h2>
-                <p class="text-[9px] opacity-70 mt-1">Danos tu opinión</p>
+            {% if user.rol == 'admin' %}
+            <div onclick="nav('admin-panel')" class="card-lion p-6 h-48 flex flex-col justify-end border-yellow-500 relative overflow-hidden">
+                <span class="absolute top-4 right-4 text-3xl text-yellow-500">👑</span>
+                <h2 class="font-bold text-sm text-yellow-500">GESTIÓN REAL</h2>
+                <p class="text-[9px] opacity-60 mt-1">Dar accesos y tokens</p>
             </div>
+            {% endif %}
         </div>
-    </div>
-
-    <div id="calc" class="hidden-section">
-        <button onclick="nav('menu')" class="text-blue-500 text-xs font-bold mb-6">← VOLVER AL INICIO</button>
         
-        <div id="dynamic-inputs" class="space-y-3 mb-4"></div>
-        <button onclick="addRow()" class="w-full py-3 bg-blue-600 rounded-xl text-xs font-bold mb-6">+ CARGA NUEVA</button>
-
-        <div class="card-menu p-4 mb-6 border-l-4 border-red-600">
-            <label class="text-[10px] text-gray-500 font-bold uppercase">Paros / Inactividad (Hrs)</label>
-            <input type="number" id="paros" value="0" step="0.01" oninput="runLogic()" class="input-pro mt-2">
-        </div>
-
-        <div id="badge-color" class="p-8 rounded-3xl text-center shadow-2xl transition-all duration-500 bg-gray-800">
-            <p class="text-[10px] font-bold opacity-70 uppercase mb-1">Eficiencia del Día</p>
-            <div id="out-ef" class="text-6xl font-black">0.00%</div>
-            <div class="grid grid-cols-3 gap-2 mt-6 text-[9px] font-bold uppercase border-t border-white/10 pt-4">
-                <div>Meta: <span id="out-m" class="text-blue-400">0</span></div>
-                <div>Ajuste: <span id="out-a" class="text-red-400">0</span></div>
-                <div>Hecho: <span id="out-h" class="text-green-400">0</span></div>
-            </div>
-        </div>
-
-        <div id="time-split" class="mt-8 space-y-2"></div>
-
-        <button onclick="saveRecord()" class="w-full py-4 bg-green-600 rounded-xl font-black uppercase text-xs mt-10 shadow-lg">Guardar en Historial</button>
-    </div>
-
-    <div id="feedback" class="hidden-section">
-        <button onclick="nav('menu')" class="text-blue-500 text-xs font-bold mb-6">← VOLVER</button>
-        <div class="card-menu p-6">
-            <h3 class="font-bold mb-4 uppercase text-center text-yellow-500">¿Cómo evaluarías la App?</h3>
-            <div class="flex justify-center gap-2 mb-6 text-3xl" id="stars-row">
-                <span onclick="rate(1)" class="cursor-pointer text-gray-700">★</span>
-                <span onclick="rate(2)" class="cursor-pointer text-gray-700">★</span>
-                <span onclick="rate(3)" class="cursor-pointer text-gray-700">★</span>
-                <span onclick="rate(4)" class="cursor-pointer text-gray-700">★</span>
-                <span onclick="rate(5)" class="cursor-pointer text-gray-700">★</span>
-            </div>
-            <textarea id="comment" class="input-pro h-24 mb-4" placeholder="Escribe un comentario..."></textarea>
-            <button onclick="submitRate()" class="w-full py-3 bg-yellow-600 rounded-xl font-bold">ENVIAR RESEÑA</button>
+        <div class="mt-10 text-center">
+            <button onclick="alert('En Chrome/Safari: Dale a Compartir > Añadir a pantalla de inicio')" class="text-[10px] text-gray-400 underline">Instalar como App en mi Celular</button>
         </div>
     </div>
 
-    <div id="historial" class="hidden-section">
-        <button onclick="nav('menu')" class="text-blue-500 text-xs font-bold mb-6">← VOLVER</button>
-        <h3 class="font-bold text-xs uppercase mb-4 tracking-widest">Turnos Registrados</h3>
-        <div id="h-list" class="space-y-3"></div>
+    <div id="tsimple" class="hidden-section">
+        <button onclick="nav('menu')" class="text-yellow-500 text-xs font-bold mb-8">← REGRESAR AL REINO</button>
+        <h2 class="text-2xl font-black mb-6 flex items-center gap-3">⏱️ TIEMPO AL 100%</h2>
+        
+        <div class="space-y-6">
+            <div class="card-lion p-5 border-l-4 border-blue-500">
+                <label class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Meta de la Carga (Doz)</label>
+                <input type="number" id="ts-meta" placeholder="Ej: 550" oninput="calcSimple()" class="input-gold mt-2 text-xl font-bold">
+            </div>
+            
+            <div class="card-lion p-5 border-l-4 border-yellow-500">
+                <label class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Docenaje de Carga (Doz)</label>
+                <input type="number" id="ts-hecho" placeholder="Ej: 100" oninput="calcSimple()" class="input-gold mt-2 text-xl font-bold">
+            </div>
+
+            <div class="bg-yellow-600 p-8 rounded-3xl text-center shadow-2xl shadow-yellow-900/40">
+                <p class="text-[10px] font-black text-black uppercase mb-1">Tiempo Estimado de Carga</p>
+                <div id="ts-resultado" class="text-5xl font-black text-black">0H 00M</div>
+                <div class="mt-4 text-[10px] text-black/70 font-bold uppercase">
+                    Ritmo Necesario: <span id="ts-ritmo">0</span> doz/hr
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="admin-panel" class="hidden-section">
+        <button onclick="nav('menu')" class="text-yellow-500 text-xs font-bold mb-8">← VOLVER</button>
+        <h2 class="text-2xl font-black text-yellow-500 mb-6">👑 GESTIÓN DE ACCESOS</h2>
+        
+        <div class="card-lion p-6 mb-8">
+            <h3 class="text-xs font-bold mb-4 uppercase">Añadir Nuevo Usuario</h3>
+            <input type="text" id="adm-nombre" placeholder="Nombre completo" class="input-gold mb-3 text-sm">
+            <input type="text" id="adm-contacto" placeholder="Email o Teléfono" class="input-gold mb-4 text-sm">
+            <button onclick="crearUser()" class="w-full py-4 bg-yellow-600 rounded-xl font-black text-black text-xs uppercase">Generar Enlace y Token</button>
+        </div>
+
+        <div id="user-list" class="space-y-3">
+            </div>
     </div>
 
     <script>
-        let rowIdx = 0;
-        let starVal = 0;
-
         function nav(id) {
             document.querySelectorAll('body > div').forEach(d => d.classList.add('hidden-section'));
             document.getElementById(id).classList.remove('hidden-section');
-            if(id === 'historial') updateList();
+            if(id === 'admin-panel') cargarUsuarios();
         }
 
-        function addRow() {
-            rowIdx++;
-            const div = document.createElement('div');
-            div.className = "card-menu p-4 grid grid-cols-3 gap-3 animate-pulse";
-            div.innerHTML = `
-                <div class="col-span-1"><label class="text-[8px] text-gray-500 font-bold">META</label><input type="number" class="input-pro val-m" oninput="runLogic()"></div>
-                <div class="col-span-1"><label class="text-[8px] text-gray-500 font-bold">HECHO</label><input type="number" class="input-pro val-h" oninput="runLogic()"></div>
-                <div class="col-span-1 flex items-center justify-center text-[9px] text-blue-500 font-bold">CARGA ${rowIdx}</div>
-            `;
-            document.getElementById('dynamic-inputs').appendChild(div);
-            div.classList.remove('animate-pulse');
+        // LÓGICA MATEMÁTICA: TIEMPO SIMPLE
+        function calcSimple() {
+            const meta = parseFloat(document.getElementById('ts-meta').value) || 0;
+            const hecho = parseFloat(document.getElementById('ts-hecho').value) || 0;
+            
+            if(meta > 0 && hecho > 0) {
+                const dozHora = meta / 11; // Meta / 11 horas
+                const tiempoTotalHrs = hecho / dozHora;
+                
+                const hh = Math.floor(tiempoTotalHrs);
+                const mm = Math.round((tiempoTotalHrs - hh) * 60);
+                
+                document.getElementById('ts-resultado').innerText = `${hh}H ${mm.toString().padStart(2, '0')}M`;
+                document.getElementById('ts-ritmo').innerText = dozHora.toFixed(2);
+            } else {
+                document.getElementById('ts-resultado').innerText = "0H 00M";
+            }
         }
 
-        // LÓGICA MATEMÁTICA EN TIEMPO REAL (11 HORAS)
-        function runLogic() {
-            const ms = document.querySelectorAll('.val-m'), hs = document.querySelectorAll('.val-h');
-            const paros = parseFloat(document.getElementById('paros').value) || 0;
-            let sumM = 0, sumH = 0, count = 0;
+        async function crearUser() {
+            const n = document.getElementById('adm-nombre').value;
+            const c = document.getElementById('adm-contacto').value;
+            if(!n || !c) return alert("Completa los datos");
 
-            ms.forEach((m, i) => {
-                let vM = parseFloat(m.value) || 0, vH = parseFloat(hs[i].value) || 0;
-                if(vM > 0) { sumM += vM; sumH += vH; count++; }
+            const res = await fetch('/api/admin/usuarios', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({nombre: n, contacto: c})
             });
-
-            const metaGen = count > 0 ? sumM / count : 0;
-            const metaAjustada = metaGen - (paros * (metaGen / 11));
-            const eficiencia = metaAjustada > 0 ? (sumH / metaAjustada) * 100 : 0;
-
-            // Actualizar Interfaz
-            document.getElementById('out-ef').innerText = eficiencia.toFixed(2) + "%";
-            document.getElementById('out-m').innerText = metaGen.toFixed(1);
-            document.getElementById('out-a').innerText = metaAjustada.toFixed(1);
-            document.getElementById('out-h').innerText = sumH;
-
-            // Color del badge
-            let bg = "#161b22";
-            if(eficiencia > 70) bg = "#d97706"; // Naranja
-            if(eficiencia > 90) bg = "#16a34a"; // Verde
-            if(eficiencia > 100) bg = "#2563eb"; // Azul
-            document.getElementById('badge-color').style.background = bg;
-
-            // Cuadre de Tiempos
-            const tLibre = 11 - paros;
-            const split = document.getElementById('time-split');
-            split.innerHTML = '<p class="text-[10px] text-gray-500 font-bold uppercase mt-4">Cuadre por Carga (11h)</p>';
-            hs.forEach((h, i) => {
-                if(sumH > 0) {
-                    let horasCarga = (parseFloat(h.value) / sumH) * tLibre;
-                    let hh = Math.floor(horasCarga), mm = Math.round((horasCarga - hh) * 60);
-                    split.innerHTML += `<div class="flex justify-between bg-white/5 p-3 rounded-lg text-xs">
-                        <span class="text-gray-400 italic">Tiempo Carga ${i+1}:</span>
-                        <span class="font-bold text-blue-400">${hh}H ${mm}M</span>
-                    </div>`;
-                }
-            });
+            const data = await res.json();
+            alert(`Token Generado: ${data.token}\nEnlace copiado al portapapeles.`);
+            navigator.clipboard.writeText(data.link);
+            cargarUsuarios();
         }
 
-        async function saveRecord() {
-            const data = {
-                ef: document.getElementById('out-ef').innerText,
-                prod: document.getElementById('out-h').innerText
-            };
-            await fetch('/api/save', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(data) });
-            alert("✅ Registro guardado en el historial.");
+        async function cargarUsuarios() {
+            const res = await fetch('/api/admin/usuarios');
+            const data = await res.json();
+            const list = document.getElementById('user-list');
+            list.innerHTML = '<p class="text-[10px] text-gray-500 font-bold uppercase mb-2">Usuarios Activos</p>';
+            
+            for(let token in data) {
+                list.innerHTML += `
+                    <div class="card-lion p-4 flex justify-between items-center text-[11px]">
+                        <div>
+                            <p class="font-bold text-yellow-500">${data[token].nombre}</p>
+                            <p class="opacity-50">${token} | ${data[token].id}</p>
+                        </div>
+                        ${token !== 'angel0301' ? `<button onclick="borrarUser('${token}')" class="text-red-500 font-bold">ELIMINAR</button>` : '<span class="text-yellow-600">ADMIN</span>'}
+                    </div>
+                `;
+            }
         }
 
-        function rate(n) {
-            starVal = n;
-            document.querySelectorAll('#stars-row span').forEach((s, i) => s.style.color = i < n ? '#f1c40f' : '#30363d');
+        async function borrarUser(t) {
+            if(confirm("¿Restringir acceso a este usuario?")) {
+                await fetch(`/api/admin/usuarios?token=${t}`, { method: 'DELETE' });
+                cargarUsuarios();
+            }
         }
-
-        async function submitRate() {
-            if(!starVal) return alert("Selecciona estrellas");
-            await fetch('/api/rate', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({stars: starVal, msg: document.getElementById('comment').value}) });
-            alert("⭐ ¡Gracias por tu valoración!");
-            nav('menu');
-        }
-
-        async function updateList() {
-            const r = await fetch('/api/load');
-            const data = await r.json();
-            document.getElementById('h-list').innerHTML = data.historial.map(h => `
-                <div class="card-menu p-3 flex justify-between items-center text-[11px]">
-                    <span>${h.date} | ${h.user}</span>
-                    <span class="text-green-400 font-bold">EF: ${h.ef}</span>
-                </div>
-            `).reverse().join('');
-        }
-
-        addRow(); // Carga inicial
     </script>
 </body>
 </html>
