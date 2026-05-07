@@ -3,174 +3,169 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lion Efficiency Pro</title>
+    <title>Lion Master | Production App</title>
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
     <style>
         body { 
-            background: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.9)), 
-                        url('https://images.unsplash.com/photo-1546182990-dffeafbe841d?q=80&w=2059&auto=format&fit=crop');
+            background: linear-gradient(rgba(0,0,0,0.7), rgba(0,0,0,0.7)), 
+                        url('http://googleusercontent.com/search?id=2.1.2&index=1'); 
             background-size: cover;
             background-attachment: fixed;
             color: white;
             font-family: 'Inter', sans-serif;
         }
-        .card-lion { background: rgba(22, 27, 34, 0.8); backdrop-filter: blur(10px); border: 1px solid #30363d; border-radius: 24px; transition: 0.3s; }
-        .card-lion:hover { border-color: #f1c40f; transform: scale(1.02); }
-        .input-gold { background: rgba(13, 17, 23, 0.9); border: 1px solid #30363d; color: white; border-radius: 12px; padding: 14px; width: 100%; outline: none; }
-        .input-gold:focus { border-color: #f1c40f; box-shadow: 0 0 15px rgba(241, 196, 15, 0.2); }
+        .glass-card { background: rgba(22, 27, 34, 0.85); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: 20px; }
+        .lion-icon { color: #f1c40f; font-size: 1.5rem; }
         .hidden-section { display: none; }
+        .input-pro { background: rgba(0,0,0,0.3); border: 1px solid #444; color: white; border-radius: 10px; padding: 12px; width: 100%; outline: none; }
+        .btn-lion { background: linear-gradient(145deg, #f1c40f, #d4ac0d); color: black; font-weight: 800; }
     </style>
 </head>
-<body class="p-4 max-w-lg mx-auto pb-24">
+<body class="p-4 max-w-lg mx-auto pb-10">
 
-    <div id="menu">
-        <header class="text-center my-12">
-            <div class="text-6xl mb-4 drop-shadow-lg">🦁</div>
-            <h1 class="text-3xl font-black italic uppercase tracking-tighter text-yellow-500">Lion <span class="text-white">Efficiency</span></h1>
-            <p class="text-[10px] font-bold tracking-[0.4em] text-blue-400">AHOGADOS PRODUCCIÓN VOLTEO</p>
-            <div class="mt-6 bg-yellow-600/20 py-1 px-4 rounded-full inline-block border border-yellow-600/50">
-                <p class="text-[9px] font-black uppercase">Bienvenido Rey: {{ user.nombre }}</p>
+    {% if step == 'login' %}
+    <div class="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/90">
+        <div class="glass-card p-8 w-full text-center">
+            <i class="fa-solid fa-shield-cat lion-icon mb-4"></i>
+            <h2 class="text-xl font-bold mb-4">INGRESA TU PIN DE 4 DÍGITOS</h2>
+            <input type="password" id="pin-input" maxlength="4" class="input-pro text-center text-2xl tracking-widest mb-6" placeholder="****">
+            <button onclick="verifyPin()" class="btn-lion w-full py-4 rounded-xl uppercase">Entrar</button>
+        </div>
+    </div>
+    {% endif %}
+
+    {% if usuario %}
+    <div id="main-menu">
+        <header class="text-center my-10">
+            <div class="bg-red-600/20 w-20 h-20 rounded-full flex items-center justify-center mx-auto mb-4 border-2 border-red-600 shadow-lg shadow-red-900/50">
+                <i class="fa-solid fa-cat text-4xl text-red-600"></i>
             </div>
+            <h1 class="text-2xl font-black italic tracking-tighter uppercase">Lion <span class="text-red-500">Efficiency</span></h1>
+            <p class="text-xs text-gray-400">Bienvenido, <span class="text-white">{{ usuario }}</span></p>
         </header>
 
-        <div class="grid grid-cols-2 gap-4">
-            <div onclick="nav('calc')" class="card-lion p-6 h-48 flex flex-col justify-end relative overflow-hidden">
-                <span class="absolute top-4 right-4 text-3xl opacity-20">🐾</span>
-                <h2 class="font-bold text-sm">EFICIENCIA COMPLETA</h2>
-                <p class="text-[9px] opacity-60 mt-1">Cálculo total de jornada</p>
+        <div class="grid grid-cols-2 gap-4 mb-6">
+            <div onclick="nav('calc')" class="glass-card p-6 flex flex-col items-center text-center">
+                <i class="fa-solid fa-paw lion-icon mb-2"></i>
+                <h3 class="text-[10px] font-bold">EFICIENCIA COMPLETA</h3>
             </div>
-            <div onclick="nav('tsimple')" class="card-lion p-6 h-48 flex flex-col justify-end bg-red-900/20 border-red-900/50 relative overflow-hidden">
-                <span class="absolute top-4 right-4 text-3xl opacity-20">⏱️</span>
-                <h2 class="font-bold text-sm">TIEMPO SIMPLE</h2>
-                <p class="text-[9px] opacity-60 mt-1">Cálculo rápido por carga</p>
+            <div onclick="nav('tiempo')" class="glass-card p-6 flex flex-col items-center text-center">
+                <i class="fa-solid fa-stopwatch lion-icon mb-2"></i>
+                <h3 class="text-[10px] font-bold">TIEMPO SIMPLE</h3>
             </div>
-            <div onclick="nav('historial')" class="card-lion p-6 h-48 flex flex-col justify-end relative overflow-hidden">
-                <span class="absolute top-4 right-4 text-3xl opacity-20">📂</span>
-                <h2 class="font-bold text-sm">HISTORIAL</h2>
-                <p class="text-[9px] opacity-60 mt-1">Registros de producción</p>
+            <div onclick="nav('historial')" class="glass-card p-6 flex flex-col items-center text-center text-gray-400">
+                <i class="fa-solid fa-folder-open mb-2"></i>
+                <h3 class="text-[10px] font-bold">HISTORIAL</h3>
             </div>
-            {% if user.rol == 'admin' %}
-            <div onclick="nav('admin-panel')" class="card-lion p-6 h-48 flex flex-col justify-end border-yellow-500 relative overflow-hidden">
-                <span class="absolute top-4 right-4 text-3xl text-yellow-500">👑</span>
-                <h2 class="font-bold text-sm text-yellow-500">GESTIÓN REAL</h2>
-                <p class="text-[9px] opacity-60 mt-1">Dar accesos y tokens</p>
+            {% if role == 'admin' %}
+            <div onclick="nav('admin')" class="glass-card p-6 flex flex-col items-center text-center border-yellow-600/50">
+                <i class="fa-solid fa-crown text-yellow-500 mb-2"></i>
+                <h3 class="text-[10px] font-bold text-yellow-500 uppercase">ADMINISTRACIÓN</h3>
             </div>
             {% endif %}
         </div>
-        
-        <div class="mt-10 text-center">
-            <button onclick="alert('En Chrome/Safari: Dale a Compartir > Añadir a pantalla de inicio')" class="text-[10px] text-gray-400 underline">Instalar como App en mi Celular</button>
-        </div>
     </div>
 
-    <div id="tsimple" class="hidden-section">
-        <button onclick="nav('menu')" class="text-yellow-500 text-xs font-bold mb-8">← REGRESAR AL REINO</button>
-        <h2 class="text-2xl font-black mb-6 flex items-center gap-3">⏱️ TIEMPO AL 100%</h2>
-        
-        <div class="space-y-6">
-            <div class="card-lion p-5 border-l-4 border-blue-500">
-                <label class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Meta de la Carga (Doz)</label>
-                <input type="number" id="ts-meta" placeholder="Ej: 550" oninput="calcSimple()" class="input-gold mt-2 text-xl font-bold">
-            </div>
-            
-            <div class="card-lion p-5 border-l-4 border-yellow-500">
-                <label class="text-[10px] text-gray-400 font-bold uppercase tracking-widest">Docenaje de Carga (Doz)</label>
-                <input type="number" id="ts-hecho" placeholder="Ej: 100" oninput="calcSimple()" class="input-gold mt-2 text-xl font-bold">
-            </div>
-
-            <div class="bg-yellow-600 p-8 rounded-3xl text-center shadow-2xl shadow-yellow-900/40">
-                <p class="text-[10px] font-black text-black uppercase mb-1">Tiempo Estimado de Carga</p>
-                <div id="ts-resultado" class="text-5xl font-black text-black">0H 00M</div>
-                <div class="mt-4 text-[10px] text-black/70 font-bold uppercase">
-                    Ritmo Necesario: <span id="ts-ritmo">0</span> doz/hr
+    <div id="tiempo" class="hidden-section">
+        <button onclick="nav('main-menu')" class="text-yellow-500 text-xs mb-6 font-bold">← VOLVER</button>
+        <div class="glass-card p-6">
+            <h2 class="font-bold text-center mb-6 border-b border-white/10 pb-2 uppercase text-sm">Cálculo de Tiempo (100%)</h2>
+            <div class="space-y-4">
+                <div>
+                    <label class="text-[10px] text-gray-400 font-bold uppercase">Meta de la Carga (11h)</label>
+                    <input type="number" id="simple-meta" oninput="calcSimple()" class="input-pro mt-1" placeholder="Ej: 550">
+                </div>
+                <div>
+                    <label class="text-[10px] text-gray-400 font-bold uppercase">Docenaje de la Carga</label>
+                    <input type="number" id="simple-hecho" oninput="calcSimple()" class="input-pro mt-1" placeholder="Ej: 175">
                 </div>
             </div>
-        </div>
-    </div>
 
-    <div id="admin-panel" class="hidden-section">
-        <button onclick="nav('menu')" class="text-yellow-500 text-xs font-bold mb-8">← VOLVER</button>
-        <h2 class="text-2xl font-black text-yellow-500 mb-6">👑 GESTIÓN DE ACCESOS</h2>
-        
-        <div class="card-lion p-6 mb-8">
-            <h3 class="text-xs font-bold mb-4 uppercase">Añadir Nuevo Usuario</h3>
-            <input type="text" id="adm-nombre" placeholder="Nombre completo" class="input-gold mb-3 text-sm">
-            <input type="text" id="adm-contacto" placeholder="Email o Teléfono" class="input-gold mb-4 text-sm">
-            <button onclick="crearUser()" class="w-full py-4 bg-yellow-600 rounded-xl font-black text-black text-xs uppercase">Generar Enlace y Token</button>
-        </div>
-
-        <div id="user-list" class="space-y-3">
+            <div class="mt-8 bg-blue-600 p-8 rounded-3xl text-center shadow-xl">
+                <p class="text-[10px] font-bold opacity-70 uppercase mb-1">TIEMPO REQUERIDO</p>
+                <div id="simple-res" class="text-5xl font-black">0h 00m</div>
             </div>
+        </div>
     </div>
+
+    <div id="admin" class="hidden-section">
+        <button onclick="nav('main-menu')" class="text-yellow-500 text-xs mb-6">← VOLVER</button>
+        <div class="glass-card p-6">
+            <h2 class="text-sm font-bold text-yellow-500 mb-4 uppercase">Gestión de Accesos</h2>
+            <div class="space-y-4 mb-6">
+                <input type="text" id="new-user-name" class="input-pro" placeholder="Nombre del Operador">
+                <button onclick="addUser()" class="btn-lion w-full py-3 rounded-lg text-xs uppercase">+ Crear Usuario</button>
+            </div>
+            <div id="user-list" class="space-y-2 max-h-60 overflow-y-auto">
+                </div>
+        </div>
+    </div>
+    {% endif %}
 
     <script>
         function nav(id) {
-            document.querySelectorAll('body > div').forEach(d => d.classList.add('hidden-section'));
+            document.querySelectorAll('body > div:not(.fixed)').forEach(d => d.classList.add('hidden-section'));
             document.getElementById(id).classList.remove('hidden-section');
-            if(id === 'admin-panel') cargarUsuarios();
+            if(id === 'admin') loadUserList();
         }
 
-        // LÓGICA MATEMÁTICA: TIEMPO SIMPLE
+        // LÓGICA TIEMPO SIMPLE (11 HORAS)
         function calcSimple() {
-            const meta = parseFloat(document.getElementById('ts-meta').value) || 0;
-            const hecho = parseFloat(document.getElementById('ts-hecho').value) || 0;
+            const meta = parseFloat(document.getElementById('simple-meta').value) || 0;
+            const hecho = parseFloat(document.getElementById('simple-hecho').value) || 0;
             
-            if(meta > 0 && hecho > 0) {
-                const dozHora = meta / 11; // Meta / 11 horas
-                const tiempoTotalHrs = hecho / dozHora;
-                
-                const hh = Math.floor(tiempoTotalHrs);
-                const mm = Math.round((tiempoTotalHrs - hh) * 60);
-                
-                document.getElementById('ts-resultado').innerText = `${hh}H ${mm.toString().padStart(2, '0')}M`;
-                document.getElementById('ts-ritmo').innerText = dozHora.toFixed(2);
+            if(meta > 0) {
+                const docenasPorHora = meta / 11;
+                const tiempoDecimal = hecho / docenasPorHora;
+                const hh = Math.floor(tiempoDecimal);
+                const mm = Math.round((tiempoDecimal - hh) * 60);
+                document.getElementById('simple-res').innerText = `${hh}h ${mm.toString().padStart(2, '0')}m`;
             } else {
-                document.getElementById('ts-resultado').innerText = "0H 00M";
+                document.getElementById('simple-res').innerText = "0h 00m";
             }
         }
 
-        async function crearUser() {
-            const n = document.getElementById('adm-nombre').value;
-            const c = document.getElementById('adm-contacto').value;
-            if(!n || !c) return alert("Completa los datos");
-
-            const res = await fetch('/api/admin/usuarios', {
+        // SEGURIDAD PIN
+        async function verifyPin() {
+            const pin = document.getElementById('pin-input').value;
+            const res = await fetch('/api/verify_pin', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({nombre: n, contacto: c})
+                body: JSON.stringify({pin})
             });
             const data = await res.json();
-            alert(`Token Generado: ${data.token}\nEnlace copiado al portapapeles.`);
-            navigator.clipboard.writeText(data.link);
-            cargarUsuarios();
+            if(data.status === 'success') window.location.reload();
+            else alert(data.message);
         }
 
-        async function cargarUsuarios() {
-            const res = await fetch('/api/admin/usuarios');
+        // ADMIN FUNCTIONS
+        async function addUser() {
+            const name = document.getElementById('new-user-name').value;
+            const res = await fetch('/api/admin/add_user', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({name})
+            });
             const data = await res.json();
-            const list = document.getElementById('user-list');
-            list.innerHTML = '<p class="text-[10px] text-gray-500 font-bold uppercase mb-2">Usuarios Activos</p>';
-            
-            for(let token in data) {
-                list.innerHTML += `
-                    <div class="card-lion p-4 flex justify-between items-center text-[11px]">
-                        <div>
-                            <p class="font-bold text-yellow-500">${data[token].nombre}</p>
-                            <p class="opacity-50">${token} | ${data[token].id}</p>
-                        </div>
-                        ${token !== 'angel0301' ? `<button onclick="borrarUser('${token}')" class="text-red-500 font-bold">ELIMINAR</button>` : '<span class="text-yellow-600">ADMIN</span>'}
-                    </div>
-                `;
-            }
+            alert(`USUARIO CREADO\nToken: ${data.token}\nPIN: ${data.pin}\n\nURL: ${window.location.origin}/?token=${data.token}`);
+            loadUserList();
         }
 
-        async function borrarUser(t) {
-            if(confirm("¿Restringir acceso a este usuario?")) {
-                await fetch(`/api/admin/usuarios?token=${t}`, { method: 'DELETE' });
-                cargarUsuarios();
-            }
+        async function loadUserList() {
+            const res = await fetch('/api/admin/list_users');
+            const users = await res.json();
+            const list = document.getElementById('user-list');
+            list.innerHTML = Object.entries(users).map(([token, u]) => `
+                <div class="bg-white/5 p-3 rounded-lg text-[10px] flex justify-between items-center">
+                    <div>
+                        <p class="font-bold text-white uppercase">${u.name}</p>
+                        <p class="text-gray-500">PIN: ${u.pin} | Token: ${token}</p>
+                    </div>
+                </div>
+            `).join('');
         }
     </script>
 </body>
