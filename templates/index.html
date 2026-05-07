@@ -9,238 +9,373 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
         body { 
-            background: linear-gradient(rgba(13, 37, 63, 0.85), rgba(13, 37, 63, 0.95)), 
-                        url('https://images.unsplash.com/photo-1546182990-dffeafbe841d?auto=format&fit=crop&w=1200&q=80');
-            background-size: cover; background-position: center; background-attachment: fixed;
-            color: white; font-family: 'Inter', sans-serif;
+            /* Fondo Azul Oscuro Corporativo */
+            background-color: #0b132b; 
+            color: #ffffff; 
+            font-family: 'Inter', sans-serif; 
+            overflow-x: hidden;
         }
-        .glass { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(12px); border: 1px solid rgba(255,255,255,0.1); }
+        /* Contenedores estilo cristal sobre el fondo azul */
+        .glass { background: rgba(28, 37, 65, 0.9); border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
         .view-window { 
             position: fixed; top: 0; left: 100%; width: 100%; height: 100%; 
-            background: #020c1b; transition: 0.3s ease-in-out; z-index: 50; overflow-y: auto;
+            background: #0b132b; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 50; 
+            overflow-y: auto;
         }
         .view-window.active { left: 0; }
-        .input-pro { background: #ffffff; border: 2px solid #1e3a8a; color: #020c1b; border-radius: 12px; padding: 12px; width: 100%; font-weight: 800; }
-        .lion-btn { background: #1e3a8a; border: 2px solid #facc15; transition: 0.2s; }
-        .lion-btn:active { transform: scale(0.95); background: #ef4444; }
+        .input-pro { background: #1c2541; border: 1px solid #3a506b; color: white; border-radius: 12px; padding: 15px; width: 100%; font-weight: bold; outline: none;}
+        .input-pro:focus { border-color: #ffb703; }
+        .lion-btn { transition: 0.2s; border: 2px solid transparent; cursor: pointer; }
+        .lion-btn:active { transform: scale(0.95); }
+        .lion-btn:hover { border-color: #ffb703; }
     </style>
 </head>
-<body class="max-w-md mx-auto">
+<body class="max-w-md mx-auto relative min-h-screen">
 
-    <!-- LOGIN / PIN -->
-    <div id="lock-screen" class="min-h-screen flex flex-col justify-center items-center p-6">
-        <div class="glass p-8 rounded-[32px] w-full text-center border-t-4 border-yellow-500">
-            <h1 class="text-3xl mb-4">🦁</h1>
-            <h2 class="text-xl font-black text-white mb-6 uppercase tracking-tighter">Acceso Personalizado</h2>
-            <input type="password" id="pin-input" maxlength="4" class="input-pro text-center text-3xl tracking-[0.5em] mb-6" placeholder="****">
-            <button onclick="verificarAcceso()" class="w-full py-4 bg-yellow-500 text-blue-900 rounded-2xl font-black shadow-lg">INGRESAR</button>
+    <!-- PANTALLA DE BLOQUEO -->
+    <div id="lock-screen" class="min-h-screen flex flex-col justify-center items-center p-6 text-center bg-[#0b132b] absolute w-full z-50">
+        <div class="glass p-8 rounded-[32px] w-full border-yellow-500/50 border-2">
+            <span class="text-6xl mb-4 block">🦁</span>
+            <h1 class="text-xl font-black uppercase text-yellow-500 mb-2">Acceso Protegido</h1>
+            <p class="text-xs text-gray-300 mb-6 uppercase tracking-widest">Ingresa tu PIN</p>
+            <input type="password" id="pin-input" maxlength="4" class="input-pro text-center text-3xl tracking-[0.5em] mb-6 bg-[#0b132b]" placeholder="****">
+            <button onclick="verificarAcceso()" class="w-full py-4 bg-red-600 hover:bg-red-700 rounded-2xl font-black text-white shadow-lg">ENTRAR</button>
         </div>
     </div>
 
-    <!-- HOME -->
-    <div id="app-home" class="hidden p-4">
-        <header class="my-10 text-center">
-            <h1 class="text-2xl font-black leading-tight text-white uppercase">Calculadora Eficiencias<br><span class="text-red-500">Producción Ahogados</span></h1>
-            <p class="text-[10px] font-bold text-yellow-500 mt-4 uppercase italic">Creado y Presentado por: Angel Castillo</p>
+    <!-- MENÚ PRINCIPAL -->
+    <div id="app-home" class="hidden p-6 pb-20">
+        <header class="my-8 text-center border-b border-gray-700 pb-6">
+            <h1 class="text-2xl font-black leading-tight uppercase text-white">Calculadora Eficiencias<br><span class="text-red-500">Producción Ahogados</span></h1>
+            <p class="text-[10px] font-bold text-gray-400 mt-3 uppercase tracking-tighter">Creado y Presentado por: <span class="text-yellow-500">Angel Castillo</span></p>
         </header>
 
+        <!-- BIENVENIDA PERSONALIZADA -->
+        <div class="text-center mb-8">
+            <h2 class="text-xl font-black text-yellow-500 uppercase">Hola y Bienvenido,<br><span class="text-white">{{ user.nombre }} 🦁</span></h2>
+        </div>
+
         <div class="grid grid-cols-2 gap-4">
-            <div onclick="openView('view-eficiencia')" class="lion-btn p-6 rounded-[24px] text-center">
-                <span class="text-3xl block mb-2">🦁</span>
-                <span class="text-[10px] font-black uppercase text-white">Eficiencia<br>Completa</span>
+            <div onclick="openView('view-eficiencia')" class="lion-btn glass p-6 rounded-[24px] text-center bg-blue-900/40">
+                <span class="text-4xl block mb-2">📊</span>
+                <span class="text-[11px] font-black uppercase text-white">Eficiencia<br>Completa</span>
             </div>
-            <div onclick="openView('view-tiempo')" class="lion-btn p-6 rounded-[24px] text-center">
-                <span class="text-3xl block mb-2">⏱️</span>
-                <span class="text-[10px] font-black uppercase text-white">Tiempo por<br>Docenaje</span>
+            <div onclick="openView('view-tiempo')" class="lion-btn glass p-6 rounded-[24px] text-center bg-blue-900/40">
+                <span class="text-4xl block mb-2">⏱️</span>
+                <span class="text-[11px] font-black uppercase text-white">Tiempo por<br>Docenaje</span>
             </div>
-            <div onclick="openView('view-historial')" class="lion-btn p-6 rounded-[24px] text-center">
-                <span class="text-3xl block mb-2">📂</span>
-                <span class="text-[10px] font-black uppercase text-white">Historial</span>
+            <div onclick="openView('view-historial')" class="lion-btn glass p-6 rounded-[24px] text-center bg-blue-900/40">
+                <span class="text-4xl block mb-2">📂</span>
+                <span class="text-[11px] font-black uppercase text-white">Historial<br>Guardado</span>
             </div>
-            <div onclick="openView('view-feedback')" class="lion-btn p-6 rounded-[24px] text-center">
-                <span class="text-3xl block mb-2">⭐</span>
-                <span class="text-[10px] font-black uppercase text-white">Valorar</span>
+            <div onclick="openView('view-feedback')" class="lion-btn glass p-6 rounded-[24px] text-center bg-blue-900/40">
+                <span class="text-4xl block mb-2">⭐</span>
+                <span class="text-[11px] font-black uppercase text-white">Valorar<br>App</span>
             </div>
+
             {% if user.token == 'angel0301' %}
-            <div onclick="openView('view-admin')" class="p-6 rounded-[24px] text-center col-span-2 border-2 border-red-500 bg-red-600/20">
-                <span class="text-[11px] font-black text-white uppercase italic">👑 Panel Administrativo Angel</span>
+            <div onclick="openView('view-admin')" class="lion-btn glass p-6 rounded-[24px] text-center col-span-2 border-yellow-500 bg-yellow-500/20">
+                <span class="text-4xl block mb-2">👑</span>
+                <span class="text-xs font-black text-yellow-400 uppercase italic">Control de Accesos (Angel)</span>
             </div>
             {% endif %}
         </div>
     </div>
 
-    <!-- EFICIENCIA COMPLETA -->
+    <!-- VISTA: EFICIENCIA COMPLETA -->
     <div id="view-eficiencia" class="view-window p-6">
-        <div class="flex justify-between items-center mb-6">
-            <button onclick="closeView()" class="text-white bg-blue-900 px-4 py-2 rounded-lg font-bold">← VOLVER</button>
-            <h2 class="font-black text-red-500 italic">EFICIENCIA 🦁</h2>
+        <div class="flex items-center justify-between mb-8">
+            <div class="flex items-center">
+                <button onclick="closeView()" class="text-yellow-500 font-black text-2xl mr-4 px-2 bg-blue-900 rounded-lg">←</button>
+                <h2 class="text-xl font-black text-white">EFICIENCIA COMPLETA</h2>
+            </div>
         </div>
         
         <div id="cargas-list" class="space-y-3 mb-4"></div>
-        <button onclick="addCarga()" class="w-full py-3 border-2 border-white/20 rounded-xl text-[10px] font-bold mb-6 text-yellow-500">+ AÑADIR CARGA</button>
+        <button onclick="addCarga()" class="w-full py-3 border-2 border-dashed border-yellow-500 text-yellow-500 rounded-xl text-xs font-black mb-6 hover:bg-yellow-500 hover:text-black transition-colors">+ AÑADIR CARGA</button>
         
-        <div class="glass p-4 rounded-2xl mb-6">
-            <label class="text-[10px] text-yellow-500 font-bold uppercase">Paros / Tiempo Muerto (Horas decimales)</label>
-            <input type="number" id="ef-paros" step="0.01" oninput="runLogic()" class="input-pro mt-2" placeholder="Ej: 2.5 para 2h 30m">
-            <p id="label-on" class="text-[9px] mt-2 text-white/50 italic">Tiempo Real Trabajo: 11:00h</p>
+        <label class="text-[10px] text-yellow-400 font-black uppercase">Horas de Paro (Tiempo Muerto)</label>
+        <input type="number" id="ef-paros" step="0.01" oninput="calcularEficiencia()" class="input-pro mt-2 mb-6" placeholder="Ej: 1.5 (1h 30m)">
+        
+        <div id="ef-badge" class="bg-red-600 p-8 rounded-[32px] text-center mb-6 shadow-xl transition-colors duration-500 border-2 border-transparent">
+            <div id="ef-resultado" class="text-6xl font-black text-white">0.00%</div>
+            <p class="text-[11px] font-black uppercase mt-2 text-white">Eficiencia Final</p>
         </div>
 
-        <div id="ef-badge" class="bg-blue-900 p-8 rounded-[32px] text-center mb-6 border-4 border-white/10">
-            <div id="ef-resultado" class="text-6xl font-black">0.00%</div>
-            <p class="text-xs font-bold uppercase mt-1">Eficiencia Final</p>
+        <div id="tiempos-cargas" class="mb-6 space-y-2">
+            <!-- Aquí se inyectan los tiempos calculados -->
         </div>
 
-        <div id="tiempos-cuadre" class="space-y-2 mb-6">
-            <!-- Aquí se inyectan los tiempos calculados que suman el total -->
-        </div>
-
-        <button onclick="guardarHistorial('Eficiencia')" class="w-full py-4 bg-red-600 rounded-2xl font-black text-white uppercase">Guardar Registro</button>
+        <button onclick="guardarHistorial('Eficiencia')" class="w-full py-4 bg-red-600 hover:bg-red-700 text-white rounded-2xl font-black text-sm uppercase">Guardar en Historial</button>
     </div>
 
-    <!-- TIEMPO POR DOCENAJE (SIMPLE) -->
+    <!-- VISTA: TIEMPO POR DOCENAJE -->
     <div id="view-tiempo" class="view-window p-6">
         <div class="flex items-center mb-8">
-            <button onclick="closeView()" class="text-yellow-500 text-xl mr-4">←</button>
-            <h2 class="text-xl font-black text-white uppercase">Tiempo por Docenaje</h2>
+            <button onclick="closeView()" class="text-yellow-500 font-black text-2xl mr-4 px-2 bg-blue-900 rounded-lg">←</button>
+            <h2 class="text-xl font-black uppercase text-white">Tiempo Simple ⏱️</h2>
         </div>
-        <div class="space-y-4">
-            <input type="number" id="ts-meta" oninput="calcTS()" class="input-pro" placeholder="Meta de la Carga (Total)">
-            <input type="number" id="ts-doc" oninput="calcTS()" class="input-pro" placeholder="Docenaje de Carga">
-            <div class="bg-blue-900 p-8 rounded-[32px] text-center border-4 border-yellow-500">
-                <p class="text-[10px] font-bold uppercase opacity-60">Tiempo al 100%</p>
-                <div id="ts-res" class="text-5xl font-black text-white">0H 00M</div>
+        <div class="space-y-6">
+            <div class="glass p-6 rounded-3xl border border-blue-800">
+                <label class="text-[10px] text-yellow-400 font-black uppercase">Meta de la Carga (Total 11h)</label>
+                <input type="number" id="ts-meta" oninput="calcTiempoSimple()" class="input-pro mt-2" placeholder="Ej: 550">
             </div>
-            <button onclick="guardarHistorial('Tiempo Simple')" class="w-full py-4 bg-blue-700 rounded-2xl font-black uppercase">Guardar Cálculo</button>
+            <div class="glass p-6 rounded-3xl border border-blue-800">
+                <label class="text-[10px] text-yellow-400 font-black uppercase">Docenaje de Carga Actual</label>
+                <input type="number" id="ts-doc" oninput="calcTiempoSimple()" class="input-pro mt-2" placeholder="Ej: 100">
+            </div>
+            <div class="bg-blue-600 p-8 rounded-[32px] text-center shadow-lg border-2 border-blue-400">
+                <p class="text-[10px] font-black uppercase mb-2 text-white">Tiempo Estimado al 100%</p>
+                <div id="ts-res" class="text-5xl font-black text-white">0H 00M</div>
+                <div id="ts-ritmo" class="text-[11px] mt-4 font-black bg-blue-900 py-2 rounded-lg text-yellow-400">Ritmo: 0.00 doc/hr</div>
+            </div>
+            <button onclick="guardarHistorial('Tiempo Simple')" class="w-full py-4 bg-yellow-500 hover:bg-yellow-600 text-black rounded-2xl font-black uppercase text-sm">Guardar Cálculo</button>
         </div>
     </div>
 
-    <!-- OTRAS VISTAS (HISTORIAL, ADMIN) - Simplificadas para espacio -->
-    <div id="view-historial" class="view-window p-6"><button onclick="closeView()" class="mb-4 text-yellow-500 font-bold">← VOLVER</button><div id="historial-content" class="space-y-3"></div></div>
-    <div id="view-admin" class="view-window p-6"><button onclick="closeView()" class="mb-4 text-red-500 font-bold">← VOLVER</button><div id="admin-users-list" class="space-y-3"></div></div>
+    <!-- VISTA: ADMIN (EXCLUSIVO ANGEL) -->
+    <div id="view-admin" class="view-window p-6">
+        <div class="flex items-center mb-8">
+            <button onclick="closeView()" class="text-yellow-500 font-black text-2xl mr-4 px-2 bg-blue-900 rounded-lg">←</button>
+            <h2 class="text-xl font-black text-yellow-500 uppercase">Panel Moderador 👑</h2>
+        </div>
+        <div class="glass p-6 rounded-3xl mb-8 border-yellow-500/50 border">
+            <h3 class="text-sm font-black mb-4 text-white">CREAR NUEVO USUARIO</h3>
+            <input type="text" id="adm-nombre" placeholder="Nombre completo" class="input-pro mb-3">
+            <input type="text" id="adm-cont" placeholder="Teléfono o Correo" class="input-pro mb-4">
+            <button onclick="crearUsuario()" class="w-full py-4 bg-red-600 text-white rounded-xl font-black uppercase">Generar Acceso</button>
+        </div>
+        <h3 class="text-sm font-black mb-4 text-yellow-500 uppercase border-b border-gray-700 pb-2">Usuarios Activos</h3>
+        <div id="admin-users-list" class="space-y-3"></div>
+    </div>
+
+    <!-- VISTA: HISTORIAL -->
+    <div id="view-historial" class="view-window p-6">
+        <div class="flex items-center mb-8">
+            <button onclick="closeView()" class="text-yellow-500 font-black text-2xl mr-4 px-2 bg-blue-900 rounded-lg">←</button>
+            <h2 class="text-xl font-black text-white">HISTORIAL DE CÁLCULOS 📂</h2>
+        </div>
+        <div id="historial-content" class="space-y-4"></div>
+    </div>
 
     <script>
         const PIN_CORRECTO = "{{ user.pin }}";
+        const MI_TOKEN = "{{ token }}";
+        const USER_ROL = "{{ user.rol }}";
 
         function verificarAcceso() {
             if(document.getElementById('pin-input').value === PIN_CORRECTO) {
-                document.getElementById('lock-screen').classList.add('hidden');
+                document.getElementById('lock-screen').style.display = 'none';
                 document.getElementById('app-home').classList.remove('hidden');
-            } else { alert("PIN INCORRECTO"); }
+            } else { alert("PIN INCORRECTO 🦁"); }
         }
 
-        function openView(id) { 
-            document.getElementById(id).classList.add('active'); 
-            if(id === 'view-historial') fetchHistorial();
+        function openView(id) {
+            document.getElementById(id).classList.add('active');
             if(id === 'view-admin') fetchAdminUsers();
-        }
-        function closeView() { document.querySelectorAll('.view-window').forEach(v => v.classList.remove('active')); }
-
-        function formatTime(decimalHours) {
-            const h = Math.floor(decimalHours);
-            const m = Math.round((decimalHours - h) * 60);
-            return `${h}h ${m < 10 ? '0' + m : m}m`;
+            if(id === 'view-historial') fetchHistorial();
         }
 
-        // LÓGICA MAESTRA: CUADRE DE TIEMPOS Y EFICIENCIA
-        function runLogic() {
-            const metas = document.querySelectorAll('.c-meta'), hechos = document.querySelectorAll('.c-hecho');
-            const paros = parseFloat(document.getElementById('ef-paros').value) || 0;
-            const timeON = 11 - paros;
-            
-            document.getElementById('label-on').innerText = `Tiempo Real Trabajo: ${formatTime(timeON)}`;
-
-            let sumMeta = 0, sumHecho = 0, cargasActivas = [];
-
-            metas.forEach((m, i) => {
-                const hVal = parseFloat(hechos[i].value) || 0;
-                const mVal = parseFloat(m.value) || 0;
-                if(mVal > 0) {
-                    sumMeta += mVal;
-                    sumHecho += hVal;
-                    cargasActivas.push({ meta: mVal, hecho: hVal, index: i });
-                }
-            });
-
-            // 1. Calcular Eficiencia Global
-            const mGen = cargasActivas.length > 0 ? sumMeta/cargasActivas.length : 0;
-            const mAj = mGen - (paros * (mGen/11));
-            const efGlobal = mAj > 0 ? (sumHecho / mAj) * 100 : 0;
-
-            // 2. Colores del Badge
-            const badge = document.getElementById('ef-badge');
-            const resEl = document.getElementById('ef-resultado');
-            resEl.innerText = efGlobal.toFixed(2) + "%";
-
-            let color = "bg-red-600"; // 0-64
-            if(efGlobal >= 100.01) color = "bg-blue-400"; // Azul Claro
-            else if(efGlobal >= 95) color = "bg-blue-900"; // Azul Oscuro
-            else if(efGlobal >= 85) color = "bg-green-600"; // Verde
-            else if(efGlobal >= 75) color = "bg-yellow-500"; // Amarillo
-            else if(efGlobal >= 65) color = "bg-orange-500"; // Naranja
-            badge.className = `p-8 rounded-[32px] text-center mb-6 border-4 border-white/20 transition-all ${color}`;
-
-            // 3. Cuadre de Tiempos de Carga
-            const cuadreCont = document.getElementById('tiempos-cuadre');
-            cuadreCont.innerHTML = '';
-            
-            cargasActivas.forEach(c => {
-                // El tiempo de cada carga es proporcional a su producción sobre el total, 
-                // ajustado para que la suma siempre dé el tiempo ON.
-                const proporcion = c.hecho / sumHecho;
-                const tiempoCargaDecimal = proporcion * timeON;
-                
-                cuadreCont.innerHTML += `
-                    <div class="flex justify-between glass p-3 rounded-xl text-[10px]">
-                        <span class="font-bold uppercase">Carga ${c.index + 1}</span>
-                        <span class="text-yellow-500 font-black">${formatTime(tiempoCargaDecimal)}</span>
-                    </div>
-                `;
-            });
+        function closeView() {
+            document.querySelectorAll('.view-window').forEach(v => v.classList.remove('active'));
         }
 
-        // LÓGICA TIEMPO SIMPLE (100%)
-        function calcTS() {
+        function formatTime(hoursDecimal) {
+            const h = Math.floor(hoursDecimal);
+            const m = Math.round((hoursDecimal - h) * 60);
+            return `${h}H ${m < 10 ? '0'+m : m}M`;
+        }
+
+        function calcTiempoSimple() {
             const meta = parseFloat(document.getElementById('ts-meta').value) || 0;
             const doc = parseFloat(document.getElementById('ts-doc').value) || 0;
             if(meta > 0) {
-                const ritmo = meta / 11;
-                document.getElementById('ts-res').innerText = formatTime(doc / ritmo).toUpperCase();
+                const docHora = meta / 11;
+                const horasTotales = doc / docHora;
+                document.getElementById('ts-res').innerText = formatTime(horasTotales);
+                document.getElementById('ts-ritmo').innerText = `Ritmo: ${docHora.toFixed(2)} doc/hr`;
             }
         }
 
         function addCarga() {
             const container = document.getElementById('cargas-list');
             const div = document.createElement('div');
-            div.className = "flex gap-2";
-            div.innerHTML = `<input type="number" placeholder="META" class="input-pro c-meta" oninput="runLogic()">
-                             <input type="number" placeholder="HECHO" class="input-pro c-hecho" oninput="runLogic()">`;
+            div.className = "flex gap-2 animate-slide-in";
+            div.innerHTML = `<input type="number" placeholder="META" class="input-pro c-meta" oninput="calcularEficiencia()">
+                             <input type="number" placeholder="HECHO" class="input-pro c-hecho" oninput="calcularEficiencia()">`;
             container.appendChild(div);
         }
 
-        // Funciones de Backend (API) iguales a las anteriores...
-        async function guardarHistorial(tipo) {
-            const res = (tipo === 'Eficiencia') ? document.getElementById('ef-resultado').innerText : document.getElementById('ts-res').innerText;
-            await fetch('/api/save', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({tipo, info: {res}})
+        function calcularEficiencia() {
+            const metas = document.querySelectorAll('.c-meta'), hechos = document.querySelectorAll('.c-hecho');
+            const paros = parseFloat(document.getElementById('ef-paros').value) || 0;
+            let sumMeta = 0, sumHecho = 0, count = 0;
+            let sts = []; // Tiempos estándar
+            let totalST = 0;
+
+            metas.forEach((m, i) => {
+                let metaVal = parseFloat(m.value) || 0;
+                let hechoVal = parseFloat(hechos[i].value) || 0;
+                if(metaVal > 0) { 
+                    sumMeta += metaVal; 
+                    sumHecho += hechoVal; 
+                    count++; 
+                    // Calcular tiempo estándar de esta carga (al 100%)
+                    let st = hechoVal / (metaVal / 11);
+                    sts.push(st);
+                    totalST += st;
+                } else {
+                    sts.push(0);
+                }
             });
-            alert("Guardado en tu historial 🦁");
+
+            // 1. Calcular Porcentaje de Eficiencia Final
+            const mGen = count > 0 ? sumMeta/count : 0;
+            const mAj = mGen - (paros * (mGen/11));
+            const ef = mAj > 0 ? (sumHecho / mAj) * 100 : 0;
+            
+            // Colores según escala
+            let colorClass = "bg-red-600 text-white"; // 0 - 64%
+            if (ef >= 100) colorClass = "bg-[#4cc9f0] text-blue-900 border-white"; // Azul Claro
+            else if (ef >= 95) colorClass = "bg-[#023e8a] text-white"; // Azul Oscuro
+            else if (ef >= 85) colorClass = "bg-green-600 text-white"; // Verde
+            else if (ef >= 75) colorClass = "bg-yellow-500 text-black"; // Amarillo
+            else if (ef >= 65) colorClass = "bg-orange-500 text-white"; // Naranja
+
+            document.getElementById('ef-resultado').innerText = ef.toFixed(2) + "%";
+            const badge = document.getElementById('ef-badge');
+            badge.className = `p-8 rounded-[32px] text-center mb-6 shadow-2xl transition-colors duration-500 border-2 border-transparent ${colorClass}`;
+
+            // 2. Cuadrar tiempos de las cargas (Lógica de distribución exacta)
+            const onTime = 11 - paros; // Horas trabajadas reales
+            const splitContainer = document.getElementById('tiempos-cargas');
+            splitContainer.innerHTML = '';
+
+            if (totalST > 0 && onTime > 0) {
+                sts.forEach((st, i) => {
+                    if (st > 0) {
+                        // Distribuir el tiempo ON basado en el peso de la carga
+                        let allocatedTime = st * (onTime / totalST);
+                        splitContainer.innerHTML += `
+                            <div class="flex justify-between items-center glass p-3 rounded-xl border border-blue-800">
+                                <span class="text-xs font-black text-gray-300">CARGA ${i+1}</span>
+                                <span class="text-sm font-black text-yellow-400">${formatTime(allocatedTime)}</span>
+                            </div>`;
+                    }
+                });
+                
+                // Mostrar total cuadriculado para confirmar que suma exactamente las horas ON
+                splitContainer.innerHTML += `
+                    <div class="flex justify-between items-center bg-red-600 p-3 rounded-xl mt-3 shadow-lg">
+                        <span class="text-xs font-black text-white uppercase">Suma Total (Tiempo ON)</span>
+                        <span class="text-sm font-black text-white">${formatTime(onTime)}</span>
+                    </div>`;
+            }
         }
 
-        async function fetchHistorial() {
-            const r = await fetch('/api/load');
-            const data = await r.json();
-            document.getElementById('historial-content').innerHTML = data.reverse().map(i => `
-                <div class="glass p-4 rounded-2xl border-l-4 border-red-500">
-                    <p class="text-[9px] text-yellow-500">${i.fecha_hora}</p>
-                    <p class="text-sm font-bold">${i.tipo}: ${i.info.res}</p>
+        // --- FUNCIONES ADMIN MEJORADAS ---
+        async function crearUsuario() {
+            const n = document.getElementById('adm-nombre').value;
+            const c = document.getElementById('adm-cont').value;
+            if(!n || !c) return alert("Llena los campos");
+            const res = await fetch('/api/admin/usuarios', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({nombre: n, contacto: c})
+            });
+            const d = await res.json();
+            alert(`✅ CREADO\nToken: ${d.token}\nPIN: ${d.pin}\nComparte este enlace:\n${window.location.origin}/?token=${d.token}`);
+            fetchAdminUsers();
+        }
+
+        async function fetchAdminUsers() {
+            const res = await fetch('/api/admin/usuarios');
+            const users = await res.json();
+            const list = document.getElementById('admin-users-list');
+            list.innerHTML = Object.keys(users).map(t => `
+                <div class="glass p-4 rounded-2xl border border-blue-800 mb-2">
+                    <div class="flex justify-between items-start mb-2">
+                        <div>
+                            <p class="font-black text-white text-sm">${users[t].nombre}</p>
+                            <p class="text-[10px] text-yellow-500 font-mono">${t} | PIN: ${users[t].pin}</p>
+                        </div>
+                        ${t !== 'angel0301' ? `
+                            <div class="flex gap-2">
+                                <button onclick="editarUser('${t}', '${users[t].nombre}', '${users[t].contacto}')" class="text-blue-400 text-xs font-black bg-blue-900/50 px-2 py-1 rounded">EDITAR</button>
+                                <button onclick="eliminarUser('${t}')" class="text-red-500 text-xs font-black bg-red-900/50 px-2 py-1 rounded">X</button>
+                            </div>
+                        ` : '<span class="text-xl">👑</span>'}
+                    </div>
+                    <p class="text-[10px] text-gray-400">${users[t].contacto}</p>
                 </div>
             `).join('');
         }
 
+        async function editarUser(t, nombreActual, contactoActual) {
+            const nuevoNombre = prompt("Nuevo nombre:", nombreActual);
+            const nuevoCont = prompt("Nuevo contacto:", contactoActual);
+            const nuevoPin = prompt("Nuevo PIN (deja en blanco para mantener el actual):");
+            
+            if(nuevoNombre && nuevoCont) {
+                await fetch('/api/admin/usuarios', {
+                    method: 'PUT',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({token: t, nombre: nuevoNombre, contacto: nuevoCont, nuevo_pin: nuevoPin})
+                });
+                fetchAdminUsers();
+            }
+        }
+
+        async function eliminarUser(t) {
+            if(confirm('¿Eliminar acceso definitivamente?')) {
+                await fetch(`/api/admin/eliminar/${t}`, {method: 'DELETE'});
+                fetchAdminUsers();
+            }
+        }
+
+        async function guardarHistorial(tipo) {
+            let info = {};
+            if(tipo === 'Eficiencia') {
+                info = { 
+                    res: document.getElementById('ef-resultado').innerText,
+                    detalle: document.getElementById('tiempos-cargas').innerText.replace(/\n/g, ' | ')
+                };
+            } else {
+                info = { res: document.getElementById('ts-res').innerText, meta: document.getElementById('ts-meta').value };
+            }
+            await fetch('/api/save', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({tipo, info})
+            });
+            alert("💾 Datos guardados en tu historial");
+        }
+
+        async function fetchHistorial() {
+            const res = await fetch('/api/load');
+            const data = await res.json();
+            const cont = document.getElementById('historial-content');
+            
+            if(data.length === 0) {
+                cont.innerHTML = '<p class="text-center text-gray-500 text-xs mt-10">No hay registros aún.</p>';
+                return;
+            }
+
+            cont.innerHTML = data.reverse().map(i => `
+                <div class="glass p-4 rounded-2xl border-l-4 border-yellow-500 mb-3">
+                    <div class="flex justify-between text-[10px] mb-2 font-black text-gray-400 uppercase">
+                        <span class="text-yellow-500">${i.tipo}</span>
+                        <span>${i.fecha_hora}</span>
+                    </div>
+                    ${i.usuario ? `<div class="text-[10px] text-blue-300 mb-2">Operador: ${i.usuario}</div>` : ''}
+                    <div class="text-2xl font-black text-white mb-1">${i.info.res}</div>
+                    ${i.info.detalle ? `<div class="text-[9px] text-gray-400 leading-tight">${i.info.detalle}</div>` : ''}
+                </div>
+            `).join('');
+        }
+
+        // Iniciar con una carga vacía
         addCarga();
     </script>
 </body>
 </html>
-
