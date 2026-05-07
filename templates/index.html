@@ -3,198 +3,201 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CALCULADORA EFICIENCIAS PRODUCCIÓN AHOGADOS</title>
-    <link rel="manifest" href="data:application/manifest+json,{'name':'ProduccionAhogados','short_name':'AhogadosApp','start_url':'/','display':'standalone','background_color':'#0b0e14'}" />
+    <title>Calculadora Producción Ahogados</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body { 
-            background: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.9)), url('https://images.unsplash.com/photo-1546182990-dffeafbe841d?q=80&w=1000&auto=format&fit=crop');
+        body {
+            background: linear-gradient(rgba(0,0,0,0.8), rgba(0,0,0,0.8)), 
+                        url('https://images.unsplash.com/photo-1546182990-dffeafbe841d?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');
             background-size: cover; background-position: center; background-attachment: fixed;
             color: white; font-family: 'Inter', sans-serif;
         }
-        .card-lion { background: rgba(22, 27, 34, 0.85); backdrop-filter: blur(10px); border: 1px solid #c9a227; border-radius: 20px; transition: 0.3s; }
-        .btn-gold { background: linear-gradient(135deg, #c9a227, #8e6d13); color: black; font-weight: 900; }
-        .input-dark { background: #0d1117; border: 1px solid #30363d; color: white; border-radius: 10px; padding: 12px; width: 100%; outline: none; }
+        .glass { background: rgba(22, 27, 34, 0.85); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; }
+        .card-lion { transition: 0.3s; cursor: pointer; border: 1px solid rgba(255,255,255,0.05); }
+        .card-lion:hover { border-color: #facc15; transform: translateY(-5px); }
+        .input-pro { background: rgba(13, 17, 23, 0.9); border: 1px solid #30363d; color: white; border-radius: 12px; padding: 12px; width: 100%; outline: none; }
         .hidden-section { display: none; }
-        .lion-icon { font-size: 1.5rem; filter: drop-shadow(0 0 5px #c9a227); }
     </style>
 </head>
-<body class="p-4 max-w-lg mx-auto pb-20">
+<body class="p-4 max-w-xl mx-auto pb-20">
 
-    <div id="login-check" class="fixed inset-0 bg-black flex items-center justify-center z-50">
-        <div class="card-lion p-8 text-center w-80">
-            <h2 class="text-xl font-bold mb-4 text-yellow-500">ACCESO DE SEGURIDAD</h2>
-            <input type="password" id="pass-code" class="input-dark text-center text-2xl tracking-widest mb-4" placeholder="****" maxlength="4">
-            <button onclick="checkPass()" class="w-full py-3 btn-gold rounded-xl">INGRESAR</button>
+    <div id="login-screen" class="min-h-screen flex flex-col justify-center items-center text-center">
+        <div class="glass p-8 w-full">
+            <h1 class="text-3xl font-black mb-2 uppercase italic text-yellow-500">BIENVENIDO 🦁</h1>
+            <p class="text-xs text-gray-400 mb-6">INGRESA TU PIN DE 4 DÍGITOS</p>
+            <input type="password" id="pin-input" maxlength="4" class="input-pro text-center text-3xl tracking-[1em] mb-6" placeholder="****">
+            <button onclick="checkPin()" class="w-full py-4 bg-yellow-600 rounded-xl font-black">ACCEDER</button>
         </div>
     </div>
 
-    <div id="menu" class="hidden-section">
+    <div id="main-app" class="hidden-section">
         <header class="text-center my-10">
-            <img src="https://cdn-icons-png.flaticon.com/512/616/616412.png" class="w-20 mx-auto mb-4 lion-icon" alt="León">
-            <h1 class="text-xl font-black italic leading-tight uppercase">CALCULADORA <span class="text-red-500">EFICIENCIAS</span><br>PRODUCCIÓN AHOGADOS</h1>
-            <p class="text-yellow-500 text-[10px] font-bold tracking-[0.2em] mt-2">INDUSTRIAL PERFORMANCE - LION STYLE</p>
+            <h1 class="text-2xl font-black italic uppercase tracking-tighter">CALCULADORA EFICIENCIAS <span class="text-red-500">AHOGADOS</span></h1>
+            <p class="text-[10px] text-gray-400 font-bold uppercase mt-2">PRESENTADO POR: <span class="text-yellow-500 font-black">ANGEL CASTILLO</span></p>
         </header>
 
-        <div class="grid grid-cols-2 gap-4">
-            <div onclick="nav('calc')" class="card-lion p-6 h-40 flex flex-col justify-center items-center text-center">
-                <span class="mb-2">🦁📊</span>
-                <h2 class="font-bold text-xs">EFICIENCIA COMPLETA</h2>
+        <div id="menu-grid" class="grid grid-cols-2 gap-4 mb-8">
+            <div onclick="nav('calc')" class="card-lion glass p-6 flex flex-col items-center">
+                <span class="text-3xl mb-2">🦁</span>
+                <h2 class="font-bold text-[10px] text-center">EFICIENCIA COMPLETA</h2>
             </div>
-            <div onclick="nav('simple')" class="card-lion p-6 h-40 flex flex-col justify-center items-center text-center border-red-500">
-                <span class="mb-2">🦁⏱️</span>
-                <h2 class="font-bold text-xs">TIEMPO SIMPLE</h2>
+            <div onclick="nav('tiempo')" class="card-lion glass p-6 flex flex-col items-center">
+                <span class="text-3xl mb-2">⏱️</span>
+                <h2 class="font-bold text-[10px] text-center uppercase">Tiempo por Docenaje</h2>
             </div>
-            <div onclick="nav('historial')" class="card-lion p-6 h-40 flex flex-col justify-center items-center text-center">
-                <span class="mb-2">🦁📂</span>
-                <h2 class="font-bold text-xs">HISTORIAL</h2>
+            <div onclick="nav('historial')" class="card-lion glass p-6 flex flex-col items-center">
+                <span class="text-3xl mb-2">📂</span>
+                <h2 class="font-bold text-[10px] text-center">HISTORIAL</h2>
             </div>
-            {% if rol == 'admin' %}
-            <div onclick="nav('admin')" class="card-lion p-6 h-40 flex flex-col justify-center items-center text-center border-blue-500">
-                <span class="mb-2">🦁👑</span>
-                <h2 class="font-bold text-xs text-blue-400">ADMINISTRADOR</h2>
+            <div onclick="nav('feedback')" class="card-lion glass p-6 flex flex-col items-center">
+                <span class="text-3xl mb-2">⭐</span>
+                <h2 class="font-bold text-[10px] text-center uppercase">Valoraciones</h2>
+            </div>
+            {% if user.rol == 'admin' %}
+            <div onclick="nav('admin')" class="card-lion glass p-6 col-span-2 border-yellow-500 border-2 flex flex-col items-center">
+                <span class="text-3xl mb-2">👑</span>
+                <h2 class="font-bold text-[11px] text-yellow-500 uppercase">Administrar Usuarios (Exclusivo Angel)</h2>
             </div>
             {% endif %}
         </div>
     </div>
 
-    <div id="simple" class="hidden-section">
-        <button onclick="nav('menu')" class="text-yellow-500 text-xs font-bold mb-6">← VOLVER</button>
-        <h2 class="text-lg font-black mb-6 border-l-4 border-yellow-500 pl-2">CÁLCULO TIEMPO SIMPLE (100%)</h2>
+    <div id="tiempo" class="hidden-section glass p-6">
+        <button onclick="nav('main-app')" class="text-blue-400 text-xs font-bold mb-6 italic">← REGRESAR</button>
+        <h2 class="text-xl font-black mb-6">TIEMPO AL 100% 🦁</h2>
+        <div class="space-y-4 mb-6">
+            <div>
+                <label class="text-[10px] text-gray-400 font-bold uppercase">Meta de la Carga (Total)</label>
+                <input type="number" id="t-meta" oninput="calcTiempoSimple()" class="input-pro mt-2" placeholder="Ej: 550">
+            </div>
+            <div>
+                <label class="text-[10px] text-gray-400 font-bold uppercase">Docenaje de Carga (Actual)</label>
+                <input type="number" id="t-doc" oninput="calcTiempoSimple()" class="input-pro mt-2" placeholder="Ej: 100">
+            </div>
+        </div>
+        <div class="bg-blue-600 p-6 rounded-2xl text-center shadow-xl">
+            <p class="text-[10px] font-bold uppercase opacity-80 mb-1">Resultado del Tiempo</p>
+            <div id="res-tiempo" class="text-4xl font-black">0H 00M</div>
+            <p id="res-ritmo" class="text-[9px] mt-2 opacity-70">Ritmo: 0 doc/hr</p>
+        </div>
+    </div>
+
+    <div id="admin" class="hidden-section glass p-6">
+        <button onclick="nav('main-app')" class="text-blue-400 text-xs mb-6 italic">← REGRESAR</button>
+        <h2 class="text-xl font-black mb-6 text-yellow-500 uppercase">Gestionar Accesos</h2>
+        <div class="space-y-3 mb-8">
+            <input type="text" id="adm-nombre" placeholder="Nombre completo del usuario" class="input-pro">
+            <input type="text" id="adm-contacto" placeholder="Correo o Teléfono" class="input-pro">
+            <button onclick="crearUser()" class="w-full py-3 bg-yellow-600 rounded-xl font-bold uppercase text-xs">Generar Token y PIN</button>
+        </div>
+        <div id="user-list" class="space-y-2"></div>
+    </div>
+
+    <div id="calc" class="hidden-section glass p-6">
+        <button onclick="nav('main-app')" class="text-blue-400 text-xs font-bold mb-6 italic">← REGRESAR</button>
+        <div id="inputs-cargas" class="space-y-2 mb-4"></div>
+        <button onclick="addCargaRow()" class="w-full py-2 bg-gray-700 rounded-lg text-[10px] font-bold mb-4">+ AÑADIR CARGA</button>
+        <input type="number" id="paros" value="0" step="0.01" oninput="runLogic()" class="input-pro mb-4" placeholder="Paros (Hrs)">
         
-        <div class="card-lion p-4 space-y-4">
-            <div>
-                <label class="text-[10px] text-gray-400 font-bold">META DE LA CARGA (DZ)</label>
-                <input type="number" id="s-meta" oninput="calcSimple()" class="input-dark mt-1" placeholder="Ej: 550">
-            </div>
-            <div>
-                <label class="text-[10px] text-gray-400 font-bold">DOCENAJE DE CARGA (DZ)</label>
-                <input type="number" id="s-hecho" oninput="calcSimple()" class="input-dark mt-1" placeholder="Ej: 100">
-            </div>
+        <div id="badge-ef" class="bg-red-600 p-8 rounded-3xl text-center mb-4 transition-all">
+            <div id="ef-val" class="text-5xl font-black">0.00%</div>
+            <p class="text-[10px] font-bold mt-2 uppercase">Eficiencia General</p>
         </div>
-
-        <div class="mt-6 p-10 rounded-3xl text-center bg-gradient-to-br from-yellow-600 to-yellow-900 shadow-2xl">
-            <p class="text-[10px] font-bold uppercase mb-1">Tiempo al 100%</p>
-            <div id="s-res" class="text-5xl font-black">0H 00M</div>
-            <p class="text-[9px] mt-4 opacity-70">Ritmo: <span id="s-ritmo">0</span> dz/hr</p>
-        </div>
-    </div>
-
-    <div id="admin" class="hidden-section">
-        <button onclick="nav('menu')" class="text-yellow-500 text-xs font-bold mb-6">← VOLVER</button>
-        <div class="card-lion p-6">
-            <h3 class="font-bold mb-4">GESTIÓN DE ACCESOS</h3>
-            <input type="text" id="adm-nombre" placeholder="Nombre de usuario" class="input-dark mb-2">
-            <input type="text" id="adm-contacto" placeholder="Correo o Teléfono" class="input-dark mb-4">
-            <button onclick="crearUser()" class="w-full py-3 btn-gold rounded-xl mb-6">GENERAR TOKEN Y PASS</button>
-            
-            <div id="adm-resultado" class="text-[10px] bg-black p-4 rounded-lg hidden"></div>
-        </div>
-    </div>
-
-    <div id="calc" class="hidden-section">
-        <button onclick="nav('menu')" class="text-yellow-500 text-xs font-bold mb-6">← VOLVER</button>
-        <div id="dynamic-inputs" class="space-y-2 mb-4"></div>
-        <button onclick="addRow()" class="w-full py-2 bg-blue-900 rounded-lg text-[10px] font-bold mb-4">+ CARGA</button>
-        <input type="number" id="paros" value="0" step="0.01" oninput="runLogic()" class="input-dark mb-4" placeholder="Paros (Hrs)">
-        <div id="badge-ef" class="p-6 rounded-2xl text-center bg-red-600 text-3xl font-black">0.00%</div>
-        <div id="time-split" class="mt-4 text-[10px] space-y-1"></div>
-        <button onclick="saveRec()" class="w-full py-4 btn-gold rounded-xl mt-6">GUARDAR</button>
-    </div>
-
-    <div id="historial" class="hidden-section">
-        <button onclick="nav('menu')" class="text-yellow-500 text-xs font-bold mb-6">← VOLVER</button>
-        <div id="h-list" class="space-y-2"></div>
+        <div id="split-h" class="space-y-1"></div>
+        <button onclick="save()" class="w-full py-4 bg-green-600 rounded-xl font-bold mt-6">GUARDAR HISTORIAL</button>
     </div>
 
     <script>
-        const userPass = "{{ db['usuarios']['angel0301']['pass'] if usuario == 'Angel Castillo' else '0000' }}"; 
+        const USER_PIN = "{{ user.pin }}";
+        const USER_ROL = "{{ user.rol }}";
 
-        function checkPass() {
-            const p = document.getElementById('pass-code').value;
-            // En un sistema real, esto se valida en el servidor, aquí es visual
-            if(p.length === 4) {
-                document.getElementById('login-check').style.display = 'none';
-                document.getElementById('menu').style.display = 'block';
+        function checkPin() {
+            if(document.getElementById('pin-input').value === USER_PIN) {
+                document.getElementById('login-screen').classList.add('hidden-section');
+                document.getElementById('main-app').classList.remove('hidden-section');
+            } else {
+                alert("PIN INCORRECTO");
             }
         }
 
         function nav(id) {
-            document.querySelectorAll('body > div:not(#login-check)').forEach(d => d.classList.add('hidden-section'));
+            document.querySelectorAll('body > div').forEach(d => {
+                if(d.id !== 'login-screen') d.classList.add('hidden-section');
+            });
             document.getElementById(id).classList.remove('hidden-section');
-            if(id === 'historial') loadH();
+            if(id === 'admin') cargarUsuarios();
         }
 
-        // LÓGICA DE TIEMPO SIMPLE (TU FÓRMULA)
-        function calcSimple() {
-            const meta = parseFloat(document.getElementById('s-meta').value) || 0;
-            const hecho = parseFloat(document.getElementById('s-hecho').value) || 0;
+        // LÓGICA DE TIEMPO SIMPLE (PEDIDA POR ANGEL)
+        function calcTiempoSimple() {
+            const meta = parseFloat(document.getElementById('t-meta').value) || 0;
+            const docenaje = parseFloat(document.getElementById('t-doc').value) || 0;
             
             if(meta > 0) {
-                const dzHora = meta / 11;
-                const tiempoTotal = hecho / dzHora; // Horas decimales
-                
-                const hh = Math.floor(tiempoTotal);
-                const mm = Math.round((tiempoTotal - hh) * 60);
-                
-                document.getElementById('s-res').innerText = `${hh}H ${mm.toString().padStart(2, '0')}M`;
-                document.getElementById('s-ritmo').innerText = dzHora.toFixed(2);
+                const docHora = meta / 11;
+                const tiempoTotal = docenaje / docHora;
+                const h = Math.floor(tiempoTotal);
+                const m = Math.round((tiempoTotal - h) * 60);
+                document.getElementById('res-tiempo').innerText = `${h}H ${m < 10 ? '0'+m : m}M`;
+                document.getElementById('res-ritmo').innerText = `Ritmo: ${docHora.toFixed(2)} doc/hr`;
             }
         }
 
-        async function crearUser() {
-            const res = await fetch('/api/admin/crear', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({
-                    nombre: document.getElementById('adm-nombre').value,
-                    contacto: document.getElementById('adm-contacto').value
-                })
-            });
-            const d = await res.json();
-            const out = document.getElementById('adm-resultado');
-            out.classList.remove('hidden');
-            out.innerHTML = `✅ USUARIO CREADO:<br>Token: ${d.token}<br>Pass: ${d.pass}<br>Enlace: https://tu-app.onrender.com/?token=${d.token}`;
-        }
-
-        // --- LÓGICA DE EFICIENCIA COMPLETA (SIMILAR A LA ANTERIOR) ---
-        let rows = 0;
-        function addRow() {
-            rows++;
-            const div = document.createElement('div');
-            div.className = "card-lion p-3 grid grid-cols-2 gap-2";
-            div.innerHTML = `<input type="number" placeholder="META" class="input-dark in-m" oninput="runLogic()">
-                             <input type="number" placeholder="HECHO" class="input-dark in-h" oninput="runLogic()">`;
-            document.getElementById('dynamic-inputs').appendChild(div);
-        }
-
+        // LÓGICA DE EFICIENCIA (11 HORAS)
         function runLogic() {
-            const ms = document.querySelectorAll('.in-m'), hs = document.querySelectorAll('.in-h');
+            const ms = document.querySelectorAll('.m-val'), hs = document.querySelectorAll('.h-val');
             const p = parseFloat(document.getElementById('paros').value) || 0;
-            let sm = 0, sh = 0, n = 0;
+            let sm=0, sh=0, n=0;
             ms.forEach((m, i) => { if(m.value > 0){ sm += parseFloat(m.value); sh += parseFloat(hs[i].value); n++; }});
-            const mG = n > 0 ? sm/n : 0;
-            const mA = mG - (p * (mG/11));
-            const ef = mA > 0 ? (sh/mA)*100 : 0;
-            document.getElementById('badge-ef').innerText = ef.toFixed(2) + "%";
+            const mGen = n > 0 ? sm/n : 0;
+            const mAj = mGen - (p * (mGen/11));
+            const ef = mAj > 0 ? (sh/mAj)*100 : 0;
+            document.getElementById('ef-val').innerText = ef.toFixed(2) + "%";
+            
+            const split = document.getElementById('split-h');
+            split.innerHTML = '';
+            hs.forEach((h, i) => {
+                if(sh > 0) {
+                    let tc = (parseFloat(h.value)/sh) * (11-p);
+                    split.innerHTML += `<div class="flex justify-between bg-white/5 p-2 rounded text-[10px]"><span>CARGA ${i+1}</span><b>${Math.floor(tc)}H ${Math.round((tc%1)*60)}M</b></div>`;
+                }
+            });
         }
 
-        async function saveRec() {
-            await fetch('/api/save', {
+        function addCargaRow() {
+            const div = document.createElement('div');
+            div.className = "flex gap-2";
+            div.innerHTML = `<input type="number" placeholder="META" class="input-pro m-val" oninput="runLogic()">
+                             <input type="number" placeholder="HECHO" class="input-pro h-val" oninput="runLogic()">`;
+            document.getElementById('inputs-cargas').appendChild(div);
+        }
+
+        // ADMIN FUNCTIONS
+        async function crearUser() {
+            const n = document.getElementById('adm-nombre').value;
+            const c = document.getElementById('adm-contacto').value;
+            const r = await fetch('/api/admin/crear', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ef: document.getElementById('badge-ef').innerText})
+                body: JSON.stringify({nombre: n, contacto: c})
             });
-            alert("Guardado");
-        }
-
-        async function loadH() {
-            const r = await fetch('/api/load');
             const d = await r.json();
-            document.getElementById('h-list').innerHTML = d.historial.map(h => `<div class="card-lion p-2 text-[10px]">${h.date} - ${h.user}: ${h.ef}</div>`).reverse().join('');
+            alert(`USUARIO CREADO\nToken: ${d.token}\nPIN: ${d.pin}\nEnlace: https://tu-app.onrender.com/?token=${d.token}`);
+            cargarUsuarios();
         }
 
-        addRow();
+        async function cargarUsuarios() {
+            const r = await fetch('/api/admin/usuarios');
+            const users = await r.json();
+            document.getElementById('user-list').innerHTML = Object.keys(users).map(t => `
+                <div class="glass p-3 flex justify-between items-center text-[10px]">
+                    <div><b>${users[t].nombre}</b><br><span class="text-yellow-500">${t}</span> | PIN: ${users[t].pin}</div>
+                    ${t !== 'angel0301' ? `<button onclick="eliminar('${t}')" class="text-red-500">Eliminar</button>` : ''}
+                </div>
+            `).join('');
+        }
+
+        addCargaRow();
     </script>
 </body>
 </html>
