@@ -11,7 +11,7 @@ app.secret_key = os.environ.get('SECRET_KEY', 'uth_lion_key_2026')
 # Angel es el ADMIN único
 db = {
     "usuarios": {
-        "angel0301": {"nombre": "Angel Castillo", "rol": "admin", "pin": "0000"}
+        "angel0301": {"nombre": "Angel Castillo", "rol": "admin", "pin": "2004"}
     },
     "historial": {}, # {token: []}
     "feedback": []
