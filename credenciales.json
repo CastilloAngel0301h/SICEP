@@ -1,0 +1,13 @@
+{
+  "type": "service_account",
+  "project_id": "calculadora-produccion",
+  "private_key_id": "5635a793bfe360783ba56b82a27c9c14c4a72ee1",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQDfkePCuL8BAMHU\n1WgOfTxyhXlcEB+GxcvX3R2ft9uLiVXPAqQbt1cGamdxI8nmAeCmoAS6HoTGJHA4\n9hZLv9C4NOdZ0B4j9WqUVo4oLLIDUatWnbF3oxNlchzEfQ+z0UfmGNsh9shrpBWu\nR+hwWE7oCvdcCiocvaDafZhGW23Js3wI9yqYtXZiXqMdFzLjaDSNfC+2mGW4LYY+\n9ArIvCrG2/IgKTgcVcV3BEdFnn1rt/jLVlyOYZADKpDgZI0AbXhvnXv2LqGmfCEM\naaJcRzzJ0hHOwblWxjr8g4xF5hvzQJk52XQSS/86hEPjmFmztXuWyLAB1PMtgL3J\npsA7s/JTAgMBAAECggEANKr6u/Gn1YWnJAuOMvOf3N7Cw0RtGOPZ7KWDiA/ZIZsd\n4uGdZYYgczt32Ph0ZMIGeVpzIqFz5/XHljOq9vdeJTcZVVgo8ZGsJPvrC13UJeIE\neig2GZgKRrjGPCe2HkdsJ7GtVef8ORdzoBYClQzIsfN7aGxglVq63R3/VHvPdldo\nY/nnMvvz37MT9sOzaBdAlK9muenS9V2rjqpWmweAkQziyLKZ3802pig/Rsgh4avF\n7ifNHMJPZM2jcs8vRhM6vMhPPgHhYMl14nZuT7JNAqtAxrdSPVK/aXWUxEFu5quV\n/LKll603Cv24TW2WPzbtsZMBBS6DzvWzvOzsWulX6QKBgQDyFELTzR4FtgAomWBh\npgiSF7gxWKIWWkeNigMT2BiBu/WdEaWwl4o+QLALgTeELFufPyuQB2urVV8SRRDZ\naZiXnhddTZYpXj27PbujAD9ZAEYakkHhD0npIGkOXj1MAozV7p/CFKBSaRAdyfuo\n/bADEY6I4o8uHHxQWupLf8pDVwKBgQDsbSWSBp5oG0Qi5q1psUQ7JHelZxbgxAu6\nhWM48cPZ+05EYfpkT01R3R923N6dKGJ5lX2JHVSBDlkHcgue8OjtnnxR20ynQ0Wh\n8wVV3MqtGjX3ooGnJ4zSmB6zIkV0OhVVWsSot29fi6Zm8ogVwuK3vKWsWbrI583Y\nuGVy5XAHZQKBgQDCqnJW2cJDu2iDPVtZCugnevV+kRS+vth9RDdXVNXYNaq8JP3F\ndQcRKnmmtsFLA1SmSWkhiCYYAC3Uhj+XZaf0fIezWvneyE8B7BGgcUl/q420PlrF\nvcKkupBgon3OStqwChTkQCvwOVZhbhR2f5Jz1UF2aCHVZci94W45Skj/PwJ/UUUz\npP6hdSfqRBUHh01oJuxiNHk7ZAgAAB3Z/bkdmdDJFriXWePosDtSlYlW/K7lKuY4\nQOnUIojMEcMiO4CUkRnpojnAH78AMKtZKiq7gMWBx54U82ClB79CzlD5jvpoWu7Y\nqyZjInTevoSgQtq7FG3EhXpSurz0BYtdVCGKYQKBgQDQOK6reI6NoeQGk656Yz0T\nPtNpXC3pqGAhnljrosRt521si+HXfkCVn6YEAhEWZ+wJzi23TaNYgjGN+PPbYbhm\nC/xq2vgYCpX+GtdaJ4ZaBA6VaK0Z/GhS2A8rTW6mgZ8H3+BgmgrZusOSekzC5rdY\nsNVofu+6iiHj9UhiJs4puA==\n-----END PRIVATE KEY-----\n",
+  "client_email": "calculadoraeficiente@calculadora-produccion.iam.gserviceaccount.com",
+  "client_id": "110281322835323340340",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/calculadoraeficiente%40calculadora-produccion.iam.gserviceaccount.com",
+  "universe_domain": "googleapis.com"
+}
