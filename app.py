@@ -5,65 +5,82 @@ import string
 from datetime import datetime
 
 app = Flask(__name__)
-app.secret_key = os.environ.get('SECRET_KEY', 'angel_lion_king_2026')
+app.secret_key = os.environ.get('SECRET_KEY', 'uth_lion_key_2026')
 
-# Base de datos en memoria (Se reinicia con el servidor)
-# Angel es el único ADMIN por defecto
+# Base de datos en memoria (Se resetea al reiniciar Render)
+# Angel es el ADMIN único
 db = {
     "usuarios": {
-        "angel0301": {"nombre": "Angel Castillo", "rol": "admin", "pass": "2026"}
+        "angel0301": {"nombre": "Angel Castillo", "rol": "admin", "pin": "0000"}
     },
-    "historial": [],
+    "historial": {}, # {token: []}
     "feedback": []
 }
 
 def generar_token(nombre):
-    nums = ''.join(random.choices(string.digits, k=3))
-    return f"{nombre.lower().replace(' ', '')}{nums}"
+    num = "".join(random.choices(string.digits, k=3))
+    return f"{nombre.split()[0].lower()}{num}"
 
-def generar_pass():
-    return ''.join(random.choices(string.digits, k=4))
+def generar_pin():
+    return "".join(random.choices(string.digits, k=4))
 
 @app.route('/')
 def index():
     token = request.args.get('token')
     if token in db["usuarios"]:
-        session['user_id'] = token
+        session['user_token'] = token
         session['user_name'] = db["usuarios"][token]["nombre"]
-        session['rol'] = db["usuarios"][token]["rol"]
-        return render_template('index.html', usuario=session['user_name'], rol=session['rol'])
-    
-    return "<h1 style='color:red;text-align:center;margin-top:50px;'>ACCESO DENEGADO: TOKEN INVÁLIDO</h1>", 403
+        session['user_rol'] = db["usuarios"][token]["rol"]
+        return render_template('index.html', user=db["usuarios"][token], token=token)
+    return "<h1 style='color:red;text-align:center;'>ACCESO DENEGADO: TOKEN INVÁLIDO</h1>", 403
 
+# --- RUTAS DE ADMINISTRACIÓN (SOLO ANGEL) ---
 @app.route('/api/admin/crear', methods=['POST'])
 def crear_usuario():
-    if session.get('rol') != 'admin': return jsonify({"error": "No autorizado"}), 403
+    if session.get('user_rol') != 'admin': return jsonify({"error": "No autorizado"}), 403
     data = request.json
     nuevo_token = generar_token(data['nombre'])
-    nueva_pass = generar_pass()
+    pin = generar_pin()
     db["usuarios"][nuevo_token] = {
         "nombre": data['nombre'],
-        "identificador": data['contacto'], # Correo o Tel
-        "rol": "user",
-        "pass": nueva_pass
+        "id_contacto": data['contacto'],
+        "rol": "operador",
+        "pin": pin
     }
-    return jsonify({"token": nuevo_token, "pass": nueva_pass})
+    return jsonify({"token": nuevo_token, "pin": pin})
 
+@app.route('/api/admin/usuarios', methods=['GET'])
+def listar_usuarios():
+    if session.get('user_rol') != 'admin': return jsonify([]), 403
+    return jsonify(db["usuarios"])
+
+@app.route('/api/admin/eliminar/<tkn>', methods=['DELETE'])
+def eliminar_usuario(tkn):
+    if session.get('user_rol') != 'admin' or tkn == "angel0301": return jsonify({"error": "No"}), 403
+    del db["usuarios"][tkn]
+    return jsonify({"status": "deleted"})
+
+# --- RUTAS DE OPERACIÓN ---
 @app.route('/api/save', methods=['POST'])
 def save_data():
-    if 'user_id' not in session: return jsonify({"status": "error"}), 403
+    tkn = session.get('user_token')
+    if not tkn: return jsonify({"error": "Sesion expirada"}), 403
+    if tkn not in db["historial"]: db["historial"][tkn] = []
+    
     data = request.json
-    data['user'] = session['user_name']
-    data['date'] = datetime.now().strftime("%d/%m %H:%M")
-    db['historial'].append(data)
+    data['hora'] = datetime.now().strftime("%H:%M")
+    db["historial"][tkn].append(data)
     return jsonify({"status": "success"})
 
 @app.route('/api/load')
 def load_data():
-    return jsonify({
-        "historial": db["historial"],
-        "usuarios": db["usuarios"] if session.get('rol') == 'admin' else {}
-    })
+    tkn = session.get('user_token')
+    return jsonify(db["historial"].get(tkn, []))
+
+@app.route('/api/rate', methods=['POST'])
+def rate_app():
+    db["feedback"].append(request.json)
+    return jsonify({"status": "success"})
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
