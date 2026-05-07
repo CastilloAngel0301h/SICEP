@@ -139,13 +139,17 @@
             <button onclick="closeView()" class="text-yellow-500 font-black text-2xl mr-4 px-2 bg-blue-900 rounded-lg">←</button>
             <h2 class="text-xl font-black text-yellow-500 uppercase">Panel Moderador 👑</h2>
         </div>
+        
+        <!-- Formulario de Creación -->
         <div class="glass p-6 rounded-3xl mb-8 border-yellow-500/50 border">
-            <h3 class="text-sm font-black mb-4 text-white">CREAR NUEVO USUARIO</h3>
-            <input type="text" id="adm-nombre" placeholder="Nombre completo" class="input-pro mb-3">
+            <h3 class="text-sm font-black mb-4 text-white uppercase">Crear Nuevo Usuario</h3>
+            <input type="text" id="adm-nombre" placeholder="Nombre (Ej: Juan Perez)" class="input-pro mb-3">
             <input type="text" id="adm-cont" placeholder="Teléfono o Correo" class="input-pro mb-4">
-            <button onclick="crearUsuario()" class="w-full py-4 bg-red-600 text-white rounded-xl font-black uppercase">Generar Acceso</button>
+            <button onclick="crearUsuario()" class="w-full py-4 bg-red-600 hover:bg-red-700 text-white rounded-xl font-black uppercase shadow-lg">Generar Acceso y Link</button>
         </div>
-        <h3 class="text-sm font-black mb-4 text-yellow-500 uppercase border-b border-gray-700 pb-2">Usuarios Activos</h3>
+        
+        <!-- Lista de Usuarios -->
+        <h3 class="text-sm font-black mb-4 text-yellow-500 uppercase border-b border-gray-700 pb-2">Gestión de Usuarios</h3>
         <div id="admin-users-list" class="space-y-3"></div>
     </div>
 
@@ -273,18 +277,29 @@
             }
         }
 
-        // --- FUNCIONES ADMIN MEJORADAS ---
+// --- FUNCIONES EXCLUSIVAS DE ANGEL (ADMIN) ---
         async function crearUsuario() {
             const n = document.getElementById('adm-nombre').value;
             const c = document.getElementById('adm-cont').value;
-            if(!n || !c) return alert("Llena los campos");
+            
+            if(!n || !c) return alert("⚠️ Por favor ingresa el nombre y el contacto.");
+            
             const res = await fetch('/api/admin/usuarios', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({nombre: n, contacto: c})
             });
             const d = await res.json();
-            alert(`✅ CREADO\nToken: ${d.token}\nPIN: ${d.pin}\nComparte este enlace:\n${window.location.origin}/?token=${d.token}`);
+            
+            const enlacePersonal = `${window.location.origin}/?token=${d.token}`;
+            
+            // Muestra la alerta con los datos claros
+            alert(`✅ USUARIO CREADO CON ÉXITO\n\nNombre: ${n}\nToken Único: ${d.token}\nPIN de Acceso: ${d.pin}\n\nEnlace (Cópialo y envíaselo al usuario):\n${enlacePersonal}`);
+            
+            // Limpia los campos
+            document.getElementById('adm-nombre').value = '';
+            document.getElementById('adm-cont').value = '';
+            
             fetchAdminUsers();
         }
 
@@ -292,42 +307,46 @@
             const res = await fetch('/api/admin/usuarios');
             const users = await res.json();
             const list = document.getElementById('admin-users-list');
+            
             list.innerHTML = Object.keys(users).map(t => `
                 <div class="glass p-4 rounded-2xl border border-blue-800 mb-2">
                     <div class="flex justify-between items-start mb-2">
                         <div>
-                            <p class="font-black text-white text-sm">${users[t].nombre}</p>
-                            <p class="text-[10px] text-yellow-500 font-mono">${t} | PIN: ${users[t].pin}</p>
+                            <p class="font-black text-white text-sm uppercase">${users[t].nombre}</p>
+                            <p class="text-[11px] text-yellow-500 font-mono tracking-wider">${t} | PIN: ${users[t].pin}</p>
                         </div>
                         ${t !== 'angel0301' ? `
                             <div class="flex gap-2">
-                                <button onclick="editarUser('${t}', '${users[t].nombre}', '${users[t].contacto}')" class="text-blue-400 text-xs font-black bg-blue-900/50 px-2 py-1 rounded">EDITAR</button>
-                                <button onclick="eliminarUser('${t}')" class="text-red-500 text-xs font-black bg-red-900/50 px-2 py-1 rounded">X</button>
+                                <button onclick="editarUser('${t}', '${users[t].nombre}', '${users[t].contacto}')" class="text-blue-100 text-[10px] font-black bg-blue-600 px-3 py-2 rounded uppercase">Editar</button>
+                                <button onclick="eliminarUser('${t}')" class="text-white text-[10px] font-black bg-red-600 px-3 py-2 rounded uppercase">Borrar</button>
                             </div>
-                        ` : '<span class="text-xl">👑</span>'}
+                        ` : '<span class="text-2xl" title="Admin Principal">👑</span>'}
                     </div>
-                    <p class="text-[10px] text-gray-400">${users[t].contacto}</p>
+                    <p class="text-[10px] text-gray-400 font-bold">Contacto: ${users[t].contacto}</p>
                 </div>
             `).join('');
         }
 
         async function editarUser(t, nombreActual, contactoActual) {
-            const nuevoNombre = prompt("Nuevo nombre:", nombreActual);
-            const nuevoCont = prompt("Nuevo contacto:", contactoActual);
-            const nuevoPin = prompt("Nuevo PIN (deja en blanco para mantener el actual):");
+            const nuevoNombre = prompt("EDITAR USUARIO\nNuevo nombre:", nombreActual);
+            if(nuevoNombre === null) return; // Si cancela
             
-            if(nuevoNombre && nuevoCont) {
-                await fetch('/api/admin/usuarios', {
-                    method: 'PUT',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({token: t, nombre: nuevoNombre, contacto: nuevoCont, nuevo_pin: nuevoPin})
-                });
-                fetchAdminUsers();
-            }
+            const nuevoCont = prompt("Nuevo contacto (Teléfono/Correo):", contactoActual);
+            if(nuevoCont === null) return;
+            
+            const nuevoPin = prompt("Nuevo PIN de 4 dígitos\n(Deja en blanco si NO quieres cambiar el PIN actual):");
+            
+            await fetch('/api/admin/usuarios', {
+                method: 'PUT',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({token: t, nombre: nuevoNombre, contacto: nuevoCont, nuevo_pin: nuevoPin})
+            });
+            alert("✅ Usuario actualizado correctamente.");
+            fetchAdminUsers();
         }
 
         async function eliminarUser(t) {
-            if(confirm('¿Eliminar acceso definitivamente?')) {
+            if(confirm('⚠️ ¿Estás seguro de que deseas ELIMINAR este usuario y revocar su acceso a la plataforma?')) {
                 await fetch(`/api/admin/eliminar/${t}`, {method: 'DELETE'});
                 fetchAdminUsers();
             }
