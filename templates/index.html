@@ -72,13 +72,13 @@
                 <span class="text-4xl block mb-2">⭐</span>
                 <span class="text-[11px] font-black uppercase text-white">Valorar<br>App</span>
             </div>
-
-            {% if user.token == 'angel0301' %}
-            <div onclick="openView('view-admin')" class="lion-btn glass p-6 rounded-[24px] text-center col-span-2 border-yellow-500 bg-yellow-500/20">
-                <span class="text-4xl block mb-2">👑</span>
-                <span class="text-xs font-black text-yellow-400 uppercase italic">Control de Accesos (Angel)</span>
-            </div>
-            {% endif %}
+<!-- Busca la línea 75-80 aproximadamente en tu HTML -->
+{% if token == 'angel0301' %}
+<div onclick="openView('view-admin')" class="lion-btn glass p-6 rounded-[24px] text-center col-span-2 border-yellow-500 bg-yellow-500/20 shadow-[0_0_15px_rgba(234,179,8,0.3)]">
+    <span class="text-4xl block mb-2">👑</span>
+    <span class="text-xs font-black text-yellow-400 uppercase italic">Panel de Moderador (Exclusivo Angel)</span>
+</div>
+{% endif %}
         </div>
     </div>
 
