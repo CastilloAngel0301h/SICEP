@@ -5,21 +5,21 @@ import string
 from datetime import datetime
 
 app = Flask(__name__)
-app.secret_key = os.environ.get('SECRET_KEY', 'uth_lion_key_2026')
+app.secret_key = os.environ.get('SECRET_KEY', 'angel_admin_2026_secure')
 
-# Base de datos en memoria (Se resetea al reiniciar Render)
-# Angel es el ADMIN único
+# Base de datos en memoria (Se recomienda usar DB externa para producción real)
 db = {
     "usuarios": {
-        "angel0301": {"nombre": "Angel Castillo", "rol": "admin", "pin": "2004"}
+        "angel0301": {"nombre": "Angel Castillo", "rol": "admin", "pin": "0000", "contacto": "Admin Principal"}
     },
-    "historial": {}, # {token: []}
+    "historial": {}, # {token: [{"tipo": "eficiencia/tiempo", "datos": {...}}]}
     "feedback": []
 }
 
 def generar_token(nombre):
+    prefijo = nombre.split()[0].lower()
     num = "".join(random.choices(string.digits, k=3))
-    return f"{nombre.split()[0].lower()}{num}"
+    return f"{prefijo}{num}"
 
 def generar_pin():
     return "".join(random.choices(string.digits, k=4))
@@ -32,35 +32,39 @@ def index():
         session['user_name'] = db["usuarios"][token]["nombre"]
         session['user_rol'] = db["usuarios"][token]["rol"]
         return render_template('index.html', user=db["usuarios"][token], token=token)
-    return "<h1 style='color:red;text-align:center;'>ACCESO DENEGADO: TOKEN INVÁLIDO</h1>", 403
+    return "<h1 style='color:white;background:black;text-align:center;padding:50px;'>ACCESO DENEGADO: TOKEN INVÁLIDO</h1>", 403
 
-# --- RUTAS DE ADMINISTRACIÓN (SOLO ANGEL) ---
-@app.route('/api/admin/crear', methods=['POST'])
-def crear_usuario():
-    if session.get('user_rol') != 'admin': return jsonify({"error": "No autorizado"}), 403
-    data = request.json
-    nuevo_token = generar_token(data['nombre'])
-    pin = generar_pin()
-    db["usuarios"][nuevo_token] = {
-        "nombre": data['nombre'],
-        "id_contacto": data['contacto'],
-        "rol": "operador",
-        "pin": pin
-    }
-    return jsonify({"token": nuevo_token, "pin": pin})
-
-@app.route('/api/admin/usuarios', methods=['GET'])
-def listar_usuarios():
-    if session.get('user_rol') != 'admin': return jsonify([]), 403
+# --- GESTIÓN DE ADMINISTRADOR (EXCLUSIVO ANGEL) ---
+@app.route('/api/admin/usuarios', methods=['GET', 'POST'])
+def admin_users():
+    if session.get('user_token') != 'angel0301': return jsonify({"error": "No autorizado"}), 403
+    
+    if request.method == 'POST':
+        data = request.json
+        nuevo_tkn = generar_token(data['nombre'])
+        pin = generar_pin()
+        db["usuarios"][nuevo_tkn] = {
+            "nombre": data['nombre'],
+            "contacto": data['contacto'],
+            "rol": "operador",
+            "pin": pin
+        }
+        return jsonify({"token": nuevo_tkn, "pin": pin})
+    
     return jsonify(db["usuarios"])
 
 @app.route('/api/admin/eliminar/<tkn>', methods=['DELETE'])
 def eliminar_usuario(tkn):
-    if session.get('user_rol') != 'admin' or tkn == "angel0301": return jsonify({"error": "No"}), 403
-    del db["usuarios"][tkn]
+    if session.get('user_token') != 'angel0301' or tkn == "angel0301": return jsonify({"error": "Prohibido"}), 403
+    if tkn in db["usuarios"]: del db["usuarios"][tkn]
     return jsonify({"status": "deleted"})
 
-# --- RUTAS DE OPERACIÓN ---
+@app.route('/api/admin/historial_global')
+def historial_global():
+    if session.get('user_token') != 'angel0301': return jsonify({}), 403
+    return jsonify({"historial": db["historial"], "usuarios": db["usuarios"]})
+
+# --- OPERACIONES DE USUARIO ---
 @app.route('/api/save', methods=['POST'])
 def save_data():
     tkn = session.get('user_token')
@@ -68,7 +72,7 @@ def save_data():
     if tkn not in db["historial"]: db["historial"][tkn] = []
     
     data = request.json
-    data['hora'] = datetime.now().strftime("%H:%M")
+    data['fecha_hora'] = datetime.now().strftime("%d/%m %H:%M")
     db["historial"][tkn].append(data)
     return jsonify({"status": "success"})
 
@@ -79,7 +83,11 @@ def load_data():
 
 @app.route('/api/rate', methods=['POST'])
 def rate_app():
-    db["feedback"].append(request.json)
+    db["feedback"].append({
+        "usuario": session.get('user_name'),
+        "estrellas": request.json.get('estrellas'),
+        "comentario": request.json.get('comentario')
+    })
     return jsonify({"status": "success"})
 
 if __name__ == '__main__':
