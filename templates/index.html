@@ -3,32 +3,44 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <!-- CONFIGURACIÓN PARA INSTALAR COMO APP (PWA) -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <title>CALCULADORA EFICIENCIAS PRODUCCION AHOGADOS</title>
-    <!-- Configuración para PWA -->
-    <link rel="manifest" href="data:application/manifest+json,{%20%22name%22:%20%22Calculadora%20Eficiencias%22,%20%22short_name%22:%20%22Eficiencia%22,%20%22start_url%22:%20%22.%22,%20%22display%22:%20%22standalone%22,%20%22background_color%22:%20%22#0b132b%22,%20%22theme_color%22:%20%22#0b132b%22%20}">
+    <meta name="apple-mobile-web-app-title" content="Eficiencia Lion">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="theme-color" content="#0b132b">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/3022/3022578.png">
     
+    <title>CALCULADORA EFICIENCIAS PRODUCCION AHOGADOS</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
-        body { background-color: #0b132b; color: #ffffff; font-family: 'Inter', sans-serif; overflow-x: hidden; }
+        body { 
+            background-color: #0b132b; 
+            color: #ffffff; 
+            font-family: 'Inter', sans-serif; 
+            overflow-x: hidden;
+            -webkit-tap-highlight-color: transparent;
+        }
         .glass { background: rgba(28, 37, 65, 0.9); border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
-        .view-window { position: fixed; top: 0; left: 100%; width: 100%; height: 100%; background: #0b132b; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 50; overflow-y: auto; }
+        .view-window { 
+            position: fixed; top: 0; left: 100%; width: 100%; height: 100%; 
+            background: #0b132b; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 50; 
+            overflow-y: auto;
+        }
         .view-window.active { left: 0; }
         .input-pro { background: #1c2541; border: 1px solid #3a506b; color: white; border-radius: 12px; padding: 15px; width: 100%; font-weight: bold; outline: none;}
         .input-pro:focus { border-color: #ffb703; }
         .lion-btn { transition: 0.2s; border: 2px solid transparent; cursor: pointer; }
         .lion-btn:active { transform: scale(0.95); }
         .lion-btn:hover { border-color: #ffb703; }
+        
+        /* Animación para el badge de resultado */
+        .result-detail { font-size: 0.65rem; font-weight: 900; letter-spacing: 0.05em; opacity: 0.9; }
     </style>
 </head>
 <body class="max-w-md mx-auto relative min-h-screen">
-
-    <!-- BOTÓN INSTALAR APP (Solo aparece si es posible) -->
-    <button id="btnInstalar" class="hidden fixed bottom-24 right-6 z-[100] bg-yellow-500 text-black font-black p-4 rounded-full shadow-2xl animate-bounce">
-        📲 INSTALAR APP
-    </button>
 
     <!-- PANTALLA DE BLOQUEO -->
     <div id="lock-screen" class="min-h-screen flex flex-col justify-center items-center p-6 text-center bg-[#0b132b] absolute w-full z-50">
@@ -51,6 +63,11 @@
         <div class="text-center mb-8">
             <h2 class="text-xl font-black text-yellow-500 uppercase">Hola y Bienvenido,<br><span class="text-white">{{ user.nombre }} 🦁</span></h2>
         </div>
+
+        <!-- Botón de Instalación (Solo visible si el navegador lo permite) -->
+        <button id="btn-install" class="hidden w-full mb-6 py-3 bg-yellow-500 text-black font-black rounded-xl text-xs uppercase animate-pulse">
+            📲 Instalar Aplicación en Inicio
+        </button>
 
         <div class="grid grid-cols-2 gap-4">
             <div onclick="openView('view-eficiencia')" class="lion-btn glass p-6 rounded-[24px] text-center bg-blue-900/40">
@@ -83,62 +100,151 @@
         <div class="flex items-center justify-between mb-8">
             <div class="flex items-center">
                 <button onclick="closeView()" class="text-yellow-500 font-black text-2xl mr-4 px-2 bg-blue-900 rounded-lg">←</button>
-                <h2 class="text-xl font-black text-white uppercase">Eficiencia Completa</h2>
+                <h2 class="text-xl font-black text-white">EFICIENCIA COMPLETA</h2>
             </div>
         </div>
         
         <div id="cargas-list" class="space-y-3 mb-4"></div>
         <button onclick="addCarga()" class="w-full py-3 border-2 border-dashed border-yellow-500 text-yellow-500 rounded-xl text-xs font-black mb-6 hover:bg-yellow-500 hover:text-black transition-colors">+ AÑADIR CARGA</button>
         
-        <label class="text-[10px] text-yellow-400 font-black uppercase tracking-widest">Horas de Paro (Tiempo Muerto)</label>
-        <input type="number" id="ef-paros" step="0.01" oninput="calcularEficiencia()" class="input-pro mt-2 mb-6" placeholder="Ej: 1.5">
+        <label class="text-[10px] text-yellow-400 font-black uppercase">Horas de Paro (Tiempo Muerto)</label>
+        <input type="number" id="ef-paros" step="0.01" oninput="calcularEficiencia()" class="input-pro mt-2 mb-6" placeholder="Ej: 1.5 (1h 30m)">
         
         <!-- CUADRO DE RESULTADO EDITADO -->
         <div id="ef-badge" class="bg-red-600 p-6 rounded-[32px] text-center mb-6 shadow-xl transition-colors duration-500 border-2 border-transparent">
-            <div class="flex justify-between mb-4 px-2 border-b border-white/20 pb-2">
+            <div id="ef-resultado" class="text-6xl font-black text-white leading-none">0.00%</div>
+            <p class="text-[11px] font-black uppercase mt-1 mb-4 text-white opacity-80">Eficiencia Final</p>
+            
+            <div class="grid grid-cols-2 gap-2 pt-4 border-t border-white/20">
                 <div class="text-left">
-                    <p class="text-[9px] font-black uppercase opacity-80 text-white">Meta Final</p>
-                    <p id="res-meta-total" class="text-sm font-black text-white">0.00</p>
+                    <p class="result-detail text-white/70 uppercase">Meta Final</p>
+                    <p id="res-meta-final" class="text-xl font-black text-white">0</p>
                 </div>
                 <div class="text-right">
-                    <p class="text-[9px] font-black uppercase opacity-80 text-white">Docenas Hechas</p>
-                    <p id="res-hecho-total" class="text-sm font-black text-white">0.00</p>
+                    <p class="result-detail text-white/70 uppercase">Suma Hechas</p>
+                    <p id="res-hechas-total" class="text-xl font-black text-white">0</p>
                 </div>
             </div>
-            <div id="ef-resultado" class="text-6xl font-black text-white drop-shadow-md">0.00%</div>
-            <p class="text-[11px] font-black uppercase mt-2 text-white tracking-widest">Eficiencia Final</p>
         </div>
 
         <div id="tiempos-cargas" class="mb-6 space-y-2"></div>
-        <button onclick="guardarHistorial('Eficiencia')" class="w-full py-4 bg-red-600 hover:bg-red-700 text-white rounded-2xl font-black text-sm uppercase mb-10">Guardar en Historial</button>
+        <button onclick="guardarHistorial('Eficiencia')" class="w-full py-4 bg-red-600 hover:bg-red-700 text-white rounded-2xl font-black text-sm uppercase">Guardar en Historial</button>
     </div>
 
-    <!-- (Resto de vistas: Tiempo Simple, Admin, Historial se mantienen igual...) -->
-    <!-- ... Copia aquí las vistas de tu código original para no perderlas ... -->
+    <!-- [Resto de las vistas: Tiempo Simple, Admin, Historial se mantienen igual] -->
+    <div id="view-tiempo" class="view-window p-6">
+        <div class="flex items-center mb-8">
+            <button onclick="closeView()" class="text-yellow-500 font-black text-2xl mr-4 px-2 bg-blue-900 rounded-lg">←</button>
+            <h2 class="text-xl font-black uppercase text-white">Tiempo Simple ⏱️</h2>
+        </div>
+        <div class="space-y-6">
+            <div class="glass p-6 rounded-3xl border border-blue-800">
+                <label class="text-[10px] text-yellow-400 font-black uppercase">Meta de la Carga (Total 11h)</label>
+                <input type="number" id="ts-meta" oninput="calcTiempoSimple()" class="input-pro mt-2" placeholder="Ej: 550">
+            </div>
+            <div class="glass p-6 rounded-3xl border border-blue-800">
+                <label class="text-[10px] text-yellow-400 font-black uppercase">Docenaje de Carga Actual</label>
+                <input type="number" id="ts-doc" oninput="calcTiempoSimple()" class="input-pro mt-2" placeholder="Ej: 100">
+            </div>
+            <div class="bg-blue-600 p-8 rounded-[32px] text-center shadow-lg border-2 border-blue-400">
+                <p class="text-[10px] font-black uppercase mb-2 text-white">Tiempo Estimado al 100%</p>
+                <div id="ts-res" class="text-5xl font-black text-white">0H 00M</div>
+                <div id="ts-ritmo" class="text-[11px] mt-4 font-black bg-blue-900 py-2 rounded-lg text-yellow-400">Ritmo: 0.00 doc/hr</div>
+            </div>
+            <button onclick="guardarHistorial('Tiempo Simple')" class="w-full py-4 bg-yellow-500 hover:bg-yellow-600 text-black rounded-2xl font-black uppercase text-sm">Guardar Cálculo</button>
+        </div>
+    </div>
+
+    <div id="view-admin" class="view-window p-6">
+        <div class="flex items-center mb-8">
+            <button onclick="closeView()" class="text-yellow-500 font-black text-2xl mr-4 px-2 bg-blue-900 rounded-lg">←</button>
+            <h2 class="text-xl font-black uppercase text-yellow-500">Panel Moderador 👑</h2>
+        </div>
+        <div class="glass p-6 rounded-3xl mb-8 border-yellow-500/50 border">
+            <h3 class="text-sm font-black mb-4 text-white uppercase">Crear Nuevo Usuario</h3>
+            <input type="text" id="adm-nombre" placeholder="Nombre (Ej: Juan Perez)" class="input-pro mb-3">
+            <input type="text" id="adm-cont" placeholder="Teléfono o Correo" class="input-pro mb-4">
+            <button onclick="crearUsuario()" class="w-full py-4 bg-red-600 hover:bg-red-700 text-white rounded-xl font-black uppercase shadow-lg">Generar Acceso y Link</button>
+        </div>
+        <h3 class="text-sm font-black mb-4 text-yellow-500 uppercase border-b border-gray-700 pb-2">Gestión de Usuarios</h3>
+        <div id="admin-users-list" class="space-y-3"></div>
+    </div>
+
+    <div id="view-historial" class="view-window p-6">
+        <div class="flex items-center mb-8">
+            <button onclick="closeView()" class="text-yellow-500 font-black text-2xl mr-4 px-2 bg-blue-900 rounded-lg">←</button>
+            <h2 class="text-xl font-black text-white">HISTORIAL DE CÁLCULOS 📂</h2>
+        </div>
+        <div id="historial-content" class="space-y-4"></div>
+    </div>
 
     <script>
-        // Lógica de Instalación PWA
+        const PIN_CORRECTO = "{{ user.pin }}";
+        const MI_TOKEN = "{{ token }}";
+        const USER_ROL = "{{ user.rol }}";
+
+        // LÓGICA DE INSTALACIÓN (PWA)
         let deferredPrompt;
-        const btnInstalar = document.getElementById('btnInstalar');
+        const btnInstall = document.getElementById('btn-install');
 
         window.addEventListener('beforeinstallprompt', (e) => {
             e.preventDefault();
             deferredPrompt = e;
-            btnInstalar.classList.remove('hidden');
+            btnInstall.classList.remove('hidden');
         });
 
-        btnInstalar.addEventListener('click', async () => {
+        btnInstall.addEventListener('click', async () => {
             if (deferredPrompt) {
                 deferredPrompt.prompt();
                 const { outcome } = await deferredPrompt.userChoice;
-                if (outcome === 'accepted') {
-                    btnInstalar.classList.add('hidden');
-                }
+                if (outcome === 'accepted') btnInstall.classList.add('hidden');
                 deferredPrompt = null;
             }
         });
 
-        // Lógica de la Calculadora (Actualizada con los nuevos campos)
+        function verificarAcceso() {
+            if(document.getElementById('pin-input').value === PIN_CORRECTO) {
+                document.getElementById('lock-screen').style.display = 'none';
+                document.getElementById('app-home').classList.remove('hidden');
+            } else { alert("PIN INCORRECTO 🦁"); }
+        }
+
+        function openView(id) {
+            document.getElementById(id).classList.add('active');
+            if(id === 'view-admin') fetchAdminUsers();
+            if(id === 'view-historial') fetchHistorial();
+        }
+
+        function closeView() {
+            document.querySelectorAll('.view-window').forEach(v => v.classList.remove('active'));
+        }
+
+        function formatTime(hoursDecimal) {
+            const h = Math.floor(hoursDecimal);
+            const m = Math.round((hoursDecimal - h) * 60);
+            return `${h}H ${m < 10 ? '0'+m : m}M`;
+        }
+
+        function calcTiempoSimple() {
+            const meta = parseFloat(document.getElementById('ts-meta').value) || 0;
+            const doc = parseFloat(document.getElementById('ts-doc').value) || 0;
+            if(meta > 0) {
+                const docHora = meta / 11;
+                const horasTotales = doc / docHora;
+                document.getElementById('ts-res').innerText = formatTime(horasTotales);
+                document.getElementById('ts-ritmo').innerText = `Ritmo: ${docHora.toFixed(2)} doc/hr`;
+            }
+        }
+
+        function addCarga() {
+            const container = document.getElementById('cargas-list');
+            const div = document.createElement('div');
+            div.className = "flex gap-2 animate-slide-in";
+            div.innerHTML = `<input type="number" placeholder="META" class="input-pro c-meta" oninput="calcularEficiencia()">
+                             <input type="number" placeholder="HECHO" class="input-pro c-hecho" oninput="calcularEficiencia()">`;
+            container.appendChild(div);
+        }
+
         function calcularEficiencia() {
             const metas = document.querySelectorAll('.c-meta'), hechos = document.querySelectorAll('.c-hecho');
             const paros = parseFloat(document.getElementById('ef-paros').value) || 0;
@@ -156,12 +262,14 @@
                     let st = hechoVal / (metaVal / 11);
                     sts.push(st);
                     totalST += st;
-                } else { sts.push(0); }
+                } else {
+                    sts.push(0);
+                }
             });
 
-            // Actualizar etiquetas de Meta y Hecho en el cuadro grande
-            document.getElementById('res-meta-total').innerText = sumMeta.toFixed(2);
-            document.getElementById('res-hecho-total').innerText = sumHecho.toFixed(2);
+            // Actualizar datos en el cuadro de resultado
+            document.getElementById('res-meta-final').innerText = sumMeta.toLocaleString();
+            document.getElementById('res-hechas-total').innerText = sumHecho.toLocaleString();
 
             const mGen = count > 0 ? sumMeta/count : 0;
             const mAj = mGen - (paros * (mGen/11));
@@ -178,54 +286,101 @@
             const badge = document.getElementById('ef-badge');
             badge.className = `p-6 rounded-[32px] text-center mb-6 shadow-2xl transition-colors duration-500 border-2 border-transparent ${colorClass}`;
 
-            // Lógica de distribución de tiempos...
-            const onTime = 11 - paros;
+            const onTime = 11 - paros; 
             const splitContainer = document.getElementById('tiempos-cargas');
             splitContainer.innerHTML = '';
+
             if (totalST > 0 && onTime > 0) {
                 sts.forEach((st, i) => {
                     if (st > 0) {
                         let allocatedTime = st * (onTime / totalST);
                         splitContainer.innerHTML += `
                             <div class="flex justify-between items-center glass p-3 rounded-xl border border-blue-800">
-                                <span class="text-xs font-black text-gray-400 uppercase">Carga ${i+1}</span>
+                                <span class="text-xs font-black text-gray-300">CARGA ${i+1}</span>
                                 <span class="text-sm font-black text-yellow-400">${formatTime(allocatedTime)}</span>
                             </div>`;
                     }
                 });
+                
+                splitContainer.innerHTML += `
+                    <div class="flex justify-between items-center bg-red-600 p-3 rounded-xl mt-3 shadow-lg">
+                        <span class="text-xs font-black text-white uppercase">Suma Total (Tiempo ON)</span>
+                        <span class="text-sm font-black text-white">${formatTime(onTime)}</span>
+                    </div>`;
             }
         }
 
-        // Mantener tus funciones originales: verificarAcceso, openView, closeView, formatTime, addCarga, etc.
-        // Asegúrate de incluir la función addCarga() para que el botón funcione al inicio.
-        
-        function formatTime(hoursDecimal) {
-            const h = Math.floor(hoursDecimal);
-            const m = Math.round((hoursDecimal - h) * 60);
-            return `${h}H ${m < 10 ? '0'+m : m}M`;
+        // --- Funciones de historial y admin se mantienen iguales para no romper el flujo ---
+        async function crearUsuario() {
+            const n = document.getElementById('adm-nombre').value;
+            const c = document.getElementById('adm-cont').value;
+            if(!n || !c) return alert("⚠️ Por favor ingresa el nombre y el contacto.");
+            const res = await fetch('/api/admin/usuarios', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({nombre: n, contacto: c})
+            });
+            const d = await res.json();
+            const enlacePersonal = `${window.location.origin}/?token=${d.token}`;
+            alert(`✅ USUARIO CREADO\nPIN: ${d.pin}\nEnlace: ${enlacePersonal}`);
+            fetchAdminUsers();
         }
 
-        function addCarga() {
-            const container = document.getElementById('cargas-list');
-            const div = document.createElement('div');
-            div.className = "flex gap-2 mb-2";
-            div.innerHTML = `<input type="number" placeholder="META" class="input-pro c-meta" oninput="calcularEficiencia()">
-                             <input type="number" placeholder="HECHO" class="input-pro c-hecho" oninput="calcularEficiencia()">`;
-            container.appendChild(div);
+        async function fetchAdminUsers() {
+            const res = await fetch('/api/admin/usuarios');
+            const users = await res.json();
+            const list = document.getElementById('admin-users-list');
+            list.innerHTML = Object.keys(users).map(t => `
+                <div class="glass p-4 rounded-2xl border border-blue-800 mb-2">
+                    <div class="flex justify-between items-start mb-2">
+                        <div>
+                            <p class="font-black text-white text-sm uppercase">${users[t].nombre}</p>
+                            <p class="text-[11px] text-yellow-500 font-mono">${t} | PIN: ${users[t].pin}</p>
+                        </div>
+                    </div>
+                </div>`).join('');
         }
 
-        const PIN_CORRECTO = "{{ user.pin }}";
-        function verificarAcceso() {
-            if(document.getElementById('pin-input').value === PIN_CORRECTO) {
-                document.getElementById('lock-screen').classList.add('hidden');
-                document.getElementById('app-home').classList.remove('hidden');
-            } else { alert("PIN INCORRECTO 🦁"); }
+        async function guardarHistorial(tipo) {
+            let info = {};
+            if(tipo === 'Eficiencia') {
+                info = { 
+                    res: document.getElementById('ef-resultado').innerText,
+                    meta_total: document.getElementById('res-meta-final').innerText,
+                    hecho_total: document.getElementById('res-hechas-total').innerText,
+                    detalle: document.getElementById('tiempos-cargas').innerText.replace(/\n/g, ' | ')
+                };
+            } else {
+                info = { res: document.getElementById('ts-res').innerText, meta: document.getElementById('ts-meta').value };
+            }
+            await fetch('/api/save', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({tipo, info})
+            });
+            alert("💾 Datos guardados en tu historial");
         }
 
-        function openView(id) { document.getElementById(id).classList.add('active'); }
-        function closeView() { document.querySelectorAll('.view-window').forEach(v => v.classList.remove('active')); }
+        async function fetchHistorial() {
+            const res = await fetch('/api/load');
+            const data = await res.json();
+            const cont = document.getElementById('historial-content');
+            if(data.length === 0) {
+                cont.innerHTML = '<p class="text-center text-gray-500 text-xs mt-10">No hay registros aún.</p>';
+                return;
+            }
+            cont.innerHTML = data.reverse().map(i => `
+                <div class="glass p-4 rounded-2xl border-l-4 border-yellow-500 mb-3">
+                    <div class="flex justify-between text-[10px] mb-2 font-black text-gray-400 uppercase">
+                        <span class="text-yellow-500">${i.tipo}</span>
+                        <span>${i.fecha_hora}</span>
+                    </div>
+                    <div class="text-2xl font-black text-white mb-1">${i.info.res}</div>
+                    <div class="text-[9px] text-gray-400 uppercase">Metas: ${i.info.meta_total || 'N/A'} | Hecho: ${i.info.hecho_total || 'N/A'}</div>
+                </div>`).join('');
+        }
 
-        addCarga(); // Iniciar con una carga
+        addCarga();
     </script>
 </body>
 </html>
