@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Acceso - Calculadora Ahogados</title>
+    <style>
+        body {
+            background: #0b132b;
+            color: white;
+            font-family: 'Segoe UI', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .login-card {
+            background: #1c2541;
+            padding: 2rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            text-align: center;
+            width: 300px;
+        }
+        h2 { color: #5bc0be; margin-bottom: 0.5rem; }
+        p { color: #6c757d; font-size: 0.9rem; margin-bottom: 1.5rem; }
+        input {
+            width: 80%;
+            padding: 12px;
+            border-radius: 8px;
+            border: none;
+            background: #0b132b;
+            color: #5bc0be;
+            font-size: 1.2rem;
+            text-align: center;
+            letter-spacing: 5px;
+            margin-bottom: 1rem;
+        }
+        button {
+            background: #5bc0be;
+            color: #0b132b;
+            border: none;
+            padding: 12px 30px;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+        }
+        button:hover { background: #3a506b; color: white; }
+        #mensaje { color: #ff4d4d; margin-top: 1rem; font-size: 0.8rem; }
+    </style>
+</head>
+<body>
+    <div class="login-card">
+        <h2>Bienvenido</h2>
+        <p>{{ nombre }}</p>
+        <input type="password" id="pin" placeholder="PIN" maxlength="4" inputmode="numeric">
+        <button onclick="validar()">ENTRAR</button>
+        <div id="mensaje"></div>
+    </div>
+
+    <script>
+        async function validar() {
+            const pin = document.getElementById('pin').value;
+            const token = new URLSearchParams(window.location.search).get('token');
+            const btn = document.querySelector('button');
+            const msg = document.getElementById('mensaje');
+
+            btn.disabled = true;
+            msg.innerText = "Verificando...";
+
+            const res = await fetch('/api/login', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ token: token, pin: pin })
+            });
+
+            if (res.ok) {
+                window.location.reload(); // Recarga para entrar a la calculadora
+            } else {
+                msg.innerText = "PIN INCORRECTO";
+                btn.disabled = false;
+            }
+        }
+    </script>
+</body>
+</html>
