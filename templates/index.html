@@ -7,89 +7,87 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#001C44">
+    <meta name="theme-color" content="#0b132b">
     
     <title>CALCULADORA EFICIENCIAS PRODUCCION AHOGADOS</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
         body { 
-            /* Fondo Azul Real Madrid profundo */
-            background-color: #001C44; 
-            background-image: linear-gradient(180deg, #001C44 0%, #000b1a 100%);
+            /* Fondo Azul Oscuro Corporativo */
+            background-color: #0b132b; 
             color: #ffffff; 
             font-family: 'Inter', sans-serif; 
             overflow-x: hidden;
         }
-        /* Contenedores estilo cristal con borde dorado */
-        .glass { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(206, 171, 93, 0.2); box-shadow: 0 4px 15px rgba(0,0,0,0.5); backdrop-filter: blur(10px); }
-        
+        /* Contenedores estilo cristal sobre el fondo azul */
+        .glass { background: rgba(28, 37, 65, 0.9); border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
         .view-window { 
             position: fixed; top: 0; left: 100%; width: 100%; height: 100%; 
-            background: #001C44; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 50; 
+            background: #0b132b; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 50; 
             overflow-y: auto;
         }
         .view-window.active { left: 0; }
-        
-        .input-pro { background: rgba(255,255,255,0.1); border: 1px solid #CEAB5D; color: white; border-radius: 12px; padding: 15px; width: 100%; font-weight: bold; outline: none;}
-        .input-pro:focus { border-color: #ffffff; box-shadow: 0 0 10px rgba(206, 171, 93, 0.5); }
-        
-        .madrid-btn { transition: 0.2s; border: 2px solid transparent; cursor: pointer; }
-        .madrid-btn:active { transform: scale(0.95); }
-        .madrid-btn:hover { border-color: #CEAB5D; }
+        .input-pro { background: #1c2541; border: 1px solid #3a506b; color: white; border-radius: 12px; padding: 15px; width: 100%; font-weight: bold; outline: none;}
+        .input-pro:focus { border-color: #ffb703; }
+        .lion-btn { transition: 0.2s; border: 2px solid transparent; cursor: pointer; }
+        .lion-btn:active { transform: scale(0.95); }
+        .lion-btn:hover { border-color: #ffb703; }
 
-        .gold-text { color: #CEAB5D; }
-        .bg-gold { background-color: #CEAB5D; }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-slide-in { animation: slideIn 0.3s ease-out forwards; }
     </style>
 </head>
 <body class="max-w-md mx-auto relative min-h-screen">
 
     <!-- PANTALLA DE BLOQUEO -->
-    <div id="lock-screen" class="min-h-screen flex flex-col justify-center items-center p-6 text-center bg-[#001C44] absolute w-full z-50">
-        <div class="glass p-8 rounded-[32px] w-full border-[#CEAB5D]/50 border-2">
-            <img src="https://upload.wikimedia.org/wikipedia/en/5/56/Real_Madrid_CF.svg" class="w-24 mx-auto mb-6 drop-shadow-lg" alt="Real Madrid Logo">
-            <h1 class="text-xl font-black uppercase gold-text mb-2 tracking-widest">Acceso Protegido</h1>
+    <div id="lock-screen" class="min-h-screen flex flex-col justify-center items-center p-6 text-center bg-[#0b132b] absolute w-full z-50">
+        <div class="glass p-8 rounded-[32px] w-full border-yellow-500/50 border-2">
+            <span class="text-6xl mb-4 block">🦁</span>
+            <h1 class="text-xl font-black uppercase text-yellow-500 mb-2">Acceso Protegido</h1>
             <p class="text-xs text-gray-300 mb-6 uppercase tracking-widest">Ingresa tu PIN</p>
-            <input type="password" id="pin-input" maxlength="4" class="input-pro text-center text-3xl tracking-[0.5em] mb-6 bg-transparent" placeholder="****">
-            <button onclick="verificarAcceso()" class="w-full py-4 bg-white hover:bg-gray-100 rounded-2xl font-black text-[#001C44] shadow-lg uppercase tracking-wider transition-all">ENTRAR</button>
+            <input type="password" id="pin-input" maxlength="4" class="input-pro text-center text-3xl tracking-[0.5em] mb-6 bg-[#0b132b]" placeholder="****">
+            <button onclick="verificarAcceso()" class="w-full py-4 bg-red-600 hover:bg-red-700 rounded-2xl font-black text-white shadow-lg">ENTRAR</button>
         </div>
     </div>
 
     <!-- MENÚ PRINCIPAL -->
     <div id="app-home" class="hidden p-6 pb-20">
-        <header class="my-8 text-center border-b border-[#CEAB5D]/30 pb-6">
-            <img src="https://upload.wikimedia.org/wikipedia/en/5/56/Real_Madrid_CF.svg" class="w-16 mx-auto mb-4" alt="RM">
-            <h1 class="text-2xl font-black leading-tight uppercase text-white">Calculadora Eficiencias<br><span class="gold-text">Producción Ahogados</span></h1>
-            <p class="text-[10px] font-bold text-gray-400 mt-3 uppercase tracking-tighter">Creado y Presentado por: <span class="text-white">Angel Castillo</span></p>
+        <header class="my-8 text-center border-b border-gray-700 pb-6">
+            <h1 class="text-2xl font-black leading-tight uppercase text-white">Calculadora Eficiencias<br><span class="text-red-500">Producción Ahogados</span></h1>
+            <p class="text-[10px] font-bold text-gray-400 mt-3 uppercase tracking-tighter">Creado y Presentado por: <span class="text-yellow-500">Angel Castillo</span></p>
         </header>
 
         <!-- BIENVENIDA PERSONALIZADA -->
         <div class="text-center mb-8">
-            <h2 class="text-xl font-black gold-text uppercase italic">Hola y Bienvenido,<br><span class="text-white">{{ user.nombre }} 🏆</span></h2>
+            <h2 class="text-xl font-black text-yellow-500 uppercase">Hola y Bienvenido,<br><span class="text-white">{{ user.nombre }} 🦁</span></h2>
         </div>
 
         <div class="grid grid-cols-2 gap-4">
-            <div onclick="openView('view-eficiencia')" class="madrid-btn glass p-6 rounded-[24px] text-center bg-white/5">
+            <div onclick="openView('view-eficiencia')" class="lion-btn glass p-6 rounded-[24px] text-center bg-blue-900/40">
                 <span class="text-4xl block mb-2">📊</span>
                 <span class="text-[11px] font-black uppercase text-white">Eficiencia<br>Completa</span>
             </div>
-            <div onclick="openView('view-tiempo')" class="madrid-btn glass p-6 rounded-[24px] text-center bg-white/5">
+            <div onclick="openView('view-tiempo')" class="lion-btn glass p-6 rounded-[24px] text-center bg-blue-900/40">
                 <span class="text-4xl block mb-2">⏱️</span>
                 <span class="text-[11px] font-black uppercase text-white">Tiempo por<br>Docenaje</span>
             </div>
-            <div onclick="openView('view-historial')" class="madrid-btn glass p-6 rounded-[24px] text-center bg-white/5">
+            <div onclick="openView('view-historial')" class="lion-btn glass p-6 rounded-[24px] text-center bg-blue-900/40">
                 <span class="text-4xl block mb-2">📂</span>
                 <span class="text-[11px] font-black uppercase text-white">Historial<br>Guardado</span>
             </div>
-            <div onclick="openView('view-feedback')" class="madrid-btn glass p-6 rounded-[24px] text-center bg-white/5">
-                <span class="text-4xl block mb-2">⚽</span>
+            <div onclick="openView('view-feedback')" class="lion-btn glass p-6 rounded-[24px] text-center bg-blue-900/40">
+                <span class="text-4xl block mb-2">⭐</span>
                 <span class="text-[11px] font-black uppercase text-white">Valorar<br>App</span>
             </div>
 
             {% if token == 'angel0301' %}
-            <div onclick="openView('view-admin')" class="madrid-btn glass p-6 rounded-[24px] text-center col-span-2 border-[#CEAB5D] bg-[#CEAB5D]/10 shadow-[0_0_15px_rgba(206,171,93,0.2)]">
+            <div onclick="openView('view-admin')" class="lion-btn glass p-6 rounded-[24px] text-center col-span-2 border-yellow-500 bg-yellow-500/20 shadow-[0_0_15px_rgba(234,179,8,0.3)]">
                 <span class="text-4xl block mb-2">👑</span>
-                <span class="text-xs font-black gold-text uppercase italic">Panel de Moderador (Exclusivo Angel)</span>
+                <span class="text-xs font-black text-yellow-400 uppercase italic">Panel de Moderador (Exclusivo Angel)</span>
             </div>
             {% endif %}
         </div>
@@ -99,88 +97,85 @@
     <div id="view-eficiencia" class="view-window p-6">
         <div class="flex items-center justify-between mb-8">
             <div class="flex items-center">
-                <button onclick="closeView()" class="gold-text font-black text-2xl mr-4 px-3 py-1 bg-white/10 rounded-lg">←</button>
-                <h2 class="text-xl font-black text-white uppercase tracking-wider">Eficiencia Completa</h2>
+                <button onclick="closeView()" class="text-yellow-500 font-black text-2xl mr-4 px-2 bg-blue-900 rounded-lg">←</button>
+                <h2 class="text-xl font-black text-white uppercase">Eficiencia Completa</h2>
             </div>
         </div>
         
         <div id="cargas-list" class="space-y-3 mb-4"></div>
-        <button onclick="addCarga()" class="w-full py-3 border-2 border-dashed border-[#CEAB5D] text-[#CEAB5D] rounded-xl text-xs font-black mb-6 hover:bg-[#CEAB5D] hover:text-black transition-colors uppercase">+ Añadir Carga</button>
+        <button onclick="addCarga()" class="w-full py-3 border-2 border-dashed border-yellow-500 text-yellow-500 rounded-xl text-xs font-black mb-6 hover:bg-yellow-500 hover:text-black transition-colors">+ AÑADIR CARGA</button>
         
-        <label class="text-[10px] gold-text font-black uppercase tracking-widest">Horas de Paro (Tiempo Muerto)</label>
+        <label class="text-[10px] text-yellow-400 font-black uppercase">Horas de Paro (Tiempo Muerto)</label>
         <input type="number" id="ef-paros" step="0.01" oninput="calcularEficiencia()" class="input-pro mt-2 mb-6" placeholder="Ej: 1.5 (1h 30m)">
         
-        <!-- EDICIÓN DEL RECUADRITO GRANDE -->
-        <div id="ef-badge" class="bg-white p-8 rounded-[32px] text-center mb-6 shadow-xl transition-colors duration-500 border-4 border-[#CEAB5D]">
-            <div id="ef-resultado" class="text-6xl font-black text-[#001C44]">0.00%</div>
-            <p class="text-[11px] font-black uppercase mt-2 text-[#001C44]/70 tracking-widest">Eficiencia Final</p>
+        <div id="ef-badge" class="bg-red-600 p-8 rounded-[32px] text-center mb-6 shadow-xl transition-colors duration-500 border-2 border-transparent">
+            <div id="ef-resultado" class="text-6xl font-black text-white">0.00%</div>
+            <p class="text-[11px] font-black uppercase mt-2 text-white">Eficiencia Final</p>
             
-            <div class="flex justify-between border-t border-[#001C44]/10 pt-4 mt-4">
+            <div class="flex justify-between border-t border-white/20 pt-4 mt-4">
                 <div class="text-left">
-                    <p class="text-[10px] font-black uppercase text-[#001C44]/50">Meta Final</p>
-                    <p id="ui-meta" class="text-2xl font-black text-[#001C44]">0</p>
+                    <p class="text-[10px] font-black uppercase text-gray-200">Meta Final</p>
+                    <p id="ui-meta" class="text-2xl font-black text-white">0</p>
                 </div>
                 <div class="text-right">
-                    <p class="text-[10px] font-black uppercase text-[#001C44]/50">Suma Docenas</p>
-                    <p id="ui-hecho" class="text-2xl font-black text-[#001C44]">0</p>
+                    <p class="text-[10px] font-black uppercase text-gray-200">Suma Docenas</p>
+                    <p id="ui-hecho" class="text-2xl font-black text-white">0</p>
                 </div>
             </div>
         </div>
 
         <div id="tiempos-cargas" class="mb-6 space-y-2"></div>
 
-        <button onclick="guardarHistorial('Eficiencia')" class="w-full py-4 bg-[#CEAB5D] hover:bg-[#b89a50] text-[#001C44] rounded-2xl font-black text-sm uppercase tracking-widest shadow-lg">Guardar en Historial</button>
+        <button onclick="guardarHistorial('Eficiencia')" class="w-full py-4 bg-red-600 hover:bg-red-700 text-white rounded-2xl font-black text-sm uppercase">Guardar en Historial</button>
     </div>
 
     <!-- VISTA: TIEMPO POR DOCENAJE -->
     <div id="view-tiempo" class="view-window p-6">
         <div class="flex items-center mb-8">
-            <button onclick="closeView()" class="gold-text font-black text-2xl mr-4 px-3 py-1 bg-white/10 rounded-lg">←</button>
-            <h2 class="text-xl font-black uppercase text-white tracking-wider">Tiempo Simple ⏱️</h2>
+            <button onclick="closeView()" class="text-yellow-500 font-black text-2xl mr-4 px-2 bg-blue-900 rounded-lg">←</button>
+            <h2 class="text-xl font-black uppercase text-white">Tiempo Simple ⏱️</h2>
         </div>
         <div class="space-y-6">
-            <div class="glass p-6 rounded-3xl border border-[#CEAB5D]/30">
-                <label class="text-[10px] gold-text font-black uppercase">Meta de la Carga (Total 11h)</label>
+            <div class="glass p-6 rounded-3xl border border-blue-800">
+                <label class="text-[10px] text-yellow-400 font-black uppercase">Meta de la Carga (Total 11h)</label>
                 <input type="number" id="ts-meta" oninput="calcTiempoSimple()" class="input-pro mt-2" placeholder="Ej: 550">
             </div>
-            <div class="glass p-6 rounded-3xl border border-[#CEAB5D]/30">
-                <label class="text-[10px] gold-text font-black uppercase">Docenaje de Carga Actual</label>
+            <div class="glass p-6 rounded-3xl border border-blue-800">
+                <label class="text-[10px] text-yellow-400 font-black uppercase">Docenaje de Carga Actual</label>
                 <input type="number" id="ts-doc" oninput="calcTiempoSimple()" class="input-pro mt-2" placeholder="Ej: 100">
             </div>
-            <div class="bg-white p-8 rounded-[32px] text-center shadow-lg border-4 border-[#CEAB5D]">
-                <p class="text-[10px] font-black uppercase mb-2 text-[#001C44]/60">Tiempo Estimado al 100%</p>
-                <div id="ts-res" class="text-5xl font-black text-[#001C44]">0H 00M</div>
-                <div id="ts-ritmo" class="text-[11px] mt-4 font-black bg-[#001C44] py-2 rounded-lg text-white uppercase tracking-widest italic">Ritmo: 0.00 doc/hr</div>
+            <div class="bg-blue-600 p-8 rounded-[32px] text-center shadow-lg border-2 border-blue-400">
+                <p class="text-[10px] font-black uppercase mb-2 text-white">Tiempo Estimado al 100%</p>
+                <div id="ts-res" class="text-5xl font-black text-white">0H 00M</div>
+                <div id="ts-ritmo" class="text-[11px] mt-4 font-black bg-blue-900 py-2 rounded-lg text-yellow-400">Ritmo: 0.00 doc/hr</div>
             </div>
-            <button onclick="guardarHistorial('Tiempo Simple')" class="w-full py-4 bg-white text-[#001C44] rounded-2xl font-black uppercase text-sm tracking-widest shadow-lg">Guardar Cálculo</button>
+            <button onclick="guardarHistorial('Tiempo Simple')" class="w-full py-4 bg-yellow-500 hover:bg-yellow-600 text-black rounded-2xl font-black uppercase text-sm">Guardar Cálculo</button>
         </div>
     </div>
 
     <!-- VISTA: ADMIN (EXCLUSIVO ANGEL) -->
     <div id="view-admin" class="view-window p-6">
         <div class="flex items-center mb-8">
-            <button onclick="closeView()" class="gold-text font-black text-2xl mr-4 px-3 py-1 bg-white/10 rounded-lg">←</button>
-            <h2 class="text-xl font-black text-white uppercase tracking-widest">Panel Moderador 👑</h2>
+            <button onclick="closeView()" class="text-yellow-500 font-black text-2xl mr-4 px-2 bg-blue-900 rounded-lg">←</button>
+            <h2 class="text-xl font-black text-yellow-500 uppercase">Panel Moderador 👑</h2>
         </div>
         
-        <!-- Formulario de Creación -->
-        <div class="glass p-6 rounded-3xl mb-8 border-[#CEAB5D]/50 border">
-            <h3 class="text-sm font-black mb-4 text-white uppercase italic">Fichar Nuevo Usuario</h3>
-            <input type="text" id="adm-nombre" placeholder="Nombre Completo" class="input-pro mb-3">
+        <div class="glass p-6 rounded-3xl mb-8 border-yellow-500/50 border">
+            <h3 class="text-sm font-black mb-4 text-white uppercase">Crear Nuevo Usuario</h3>
+            <input type="text" id="adm-nombre" placeholder="Nombre (Ej: Juan Perez)" class="input-pro mb-3">
             <input type="text" id="adm-cont" placeholder="Teléfono o Correo" class="input-pro mb-4">
-            <button onclick="crearUsuario()" class="w-full py-4 bg-[#CEAB5D] text-[#001C44] rounded-xl font-black uppercase shadow-lg tracking-widest">Generar Acceso</button>
+            <button onclick="crearUsuario()" class="w-full py-4 bg-red-600 hover:bg-red-700 text-white rounded-xl font-black uppercase shadow-lg">Generar Acceso y Link</button>
         </div>
         
-        <!-- Lista de Usuarios -->
-        <h3 class="text-sm font-black mb-4 gold-text uppercase border-b border-white/10 pb-2">Gestión de Plantilla</h3>
+        <h3 class="text-sm font-black mb-4 text-yellow-500 uppercase border-b border-gray-700 pb-2">Gestión de Usuarios</h3>
         <div id="admin-users-list" class="space-y-3"></div>
     </div>
 
     <!-- VISTA: HISTORIAL -->
     <div id="view-historial" class="view-window p-6">
         <div class="flex items-center mb-8">
-            <button onclick="closeView()" class="gold-text font-black text-2xl mr-4 px-3 py-1 bg-white/10 rounded-lg">←</button>
-            <h2 class="text-xl font-black text-white uppercase tracking-widest">Historial 📂</h2>
+            <button onclick="closeView()" class="text-yellow-500 font-black text-2xl mr-4 px-2 bg-blue-900 rounded-lg">←</button>
+            <h2 class="text-xl font-black text-white uppercase">Historial de Cálculos 📂</h2>
         </div>
         <div id="historial-content" class="space-y-4"></div>
     </div>
@@ -194,7 +189,7 @@
             if(document.getElementById('pin-input').value === PIN_CORRECTO) {
                 document.getElementById('lock-screen').style.display = 'none';
                 document.getElementById('app-home').classList.remove('hidden');
-            } else { alert("PIN INCORRECTO - ¡HALA MADRID! ⚽"); }
+            } else { alert("PIN INCORRECTO 🦁"); }
         }
 
         function openView(id) {
@@ -250,7 +245,9 @@
                     let st = hechoVal / (metaVal / 11);
                     sts.push(st);
                     totalST += st;
-                } else { sts.push(0); }
+                } else {
+                    sts.push(0);
+                }
             });
 
             const mGen = count > 0 ? sumMeta/count : 0;
@@ -260,17 +257,16 @@
             document.getElementById('ui-meta').innerText = mAj > 0 ? mAj.toFixed(2) : '0';
             document.getElementById('ui-hecho').innerText = sumHecho;
             
-            // Colores según escala Madridista
             let colorClass = "bg-red-600 text-white"; 
-            if (ef >= 100) colorClass = "bg-white text-[#001C44] border-[#CEAB5D]"; 
-            else if (ef >= 95) colorClass = "bg-[#001C44] text-white border-[#CEAB5D]"; 
-            else if (ef >= 85) colorClass = "bg-green-600 text-white"; 
-            else if (ef >= 75) colorClass = "bg-[#CEAB5D] text-black"; 
-            else if (ef >= 65) colorClass = "bg-orange-500 text-white"; 
+            if (ef >= 100) colorClass = "bg-[#4cc9f0] text-blue-900 border-white";
+            else if (ef >= 95) colorClass = "bg-[#023e8a] text-white";
+            else if (ef >= 85) colorClass = "bg-green-600 text-white";
+            else if (ef >= 75) colorClass = "bg-yellow-500 text-black";
+            else if (ef >= 65) colorClass = "bg-orange-500 text-white";
 
             document.getElementById('ef-resultado').innerText = ef.toFixed(2) + "%";
             const badge = document.getElementById('ef-badge');
-            badge.className = `p-8 rounded-[32px] text-center mb-6 shadow-2xl transition-colors duration-500 border-4 ${colorClass}`;
+            badge.className = `p-8 rounded-[32px] text-center mb-6 shadow-2xl transition-colors duration-500 border-2 border-transparent ${colorClass}`;
 
             const onTime = 11 - paros; 
             const splitContainer = document.getElementById('tiempos-cargas');
@@ -281,17 +277,17 @@
                     if (st > 0) {
                         let allocatedTime = st * (onTime / totalST);
                         splitContainer.innerHTML += `
-                            <div class="flex justify-between items-center glass p-3 rounded-xl border border-[#CEAB5D]/20">
-                                <span class="text-xs font-black text-gray-300 italic uppercase">Carga ${i+1}</span>
-                                <span class="text-sm font-black gold-text">${formatTime(allocatedTime)}</span>
+                            <div class="flex justify-between items-center glass p-3 rounded-xl border border-blue-800">
+                                <span class="text-xs font-black text-gray-300 uppercase">Carga ${i+1}</span>
+                                <span class="text-sm font-black text-yellow-400">${formatTime(allocatedTime)}</span>
                             </div>`;
                     }
                 });
                 
                 splitContainer.innerHTML += `
-                    <div class="flex justify-between items-center bg-[#001C44] border border-[#CEAB5D] p-3 rounded-xl mt-3 shadow-lg">
-                        <span class="text-xs font-black text-white uppercase italic tracking-widest">Tiempo Total (ON)</span>
-                        <span class="text-sm font-black gold-text">${formatTime(onTime)}</span>
+                    <div class="flex justify-between items-center bg-red-600 p-3 rounded-xl mt-3 shadow-lg">
+                        <span class="text-xs font-black text-white uppercase">Suma Total (Tiempo ON)</span>
+                        <span class="text-sm font-black text-white">${formatTime(onTime)}</span>
                     </div>`;
             }
         }
@@ -299,7 +295,8 @@
         async function crearUsuario() {
             const n = document.getElementById('adm-nombre').value;
             const c = document.getElementById('adm-cont').value;
-            if(!n || !c) return alert("⚠️ Ingresa nombre y contacto para el fichaje.");
+            if(!n || !c) return alert("⚠️ Por favor ingresa el nombre y el contacto.");
+            
             const res = await fetch('/api/admin/usuarios', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
@@ -307,7 +304,7 @@
             });
             const d = await res.json();
             const enlacePersonal = `${window.location.origin}/?token=${d.token}`;
-            alert(`✅ FICHAJE REALIZADO\n\nNombre: ${n}\nPIN: ${d.pin}\n\nEnlace:\n${enlacePersonal}`);
+            alert(`✅ USUARIO CREADO CON ÉXITO\n\nNombre: ${n}\nToken Único: ${d.token}\nPIN: ${d.pin}\n\nEnlace:\n${enlacePersonal}`);
             document.getElementById('adm-nombre').value = '';
             document.getElementById('adm-cont').value = '';
             fetchAdminUsers();
@@ -318,41 +315,42 @@
             const users = await res.json();
             const list = document.getElementById('admin-users-list');
             list.innerHTML = Object.keys(users).map(t => `
-                <div class="glass p-4 rounded-2xl border border-white/10 mb-2">
+                <div class="glass p-4 rounded-2xl border border-blue-800 mb-2">
                     <div class="flex justify-between items-start mb-2">
                         <div>
-                            <p class="font-black text-white text-sm uppercase italic">${users[t].nombre}</p>
-                            <p class="text-[11px] gold-text font-mono tracking-wider">${t} | PIN: ${users[t].pin}</p>
+                            <p class="font-black text-white text-sm uppercase">${users[t].nombre}</p>
+                            <p class="text-[11px] text-yellow-500 font-mono tracking-wider">${t} | PIN: ${users[t].pin}</p>
                         </div>
                         ${t !== 'angel0301' ? `
                             <div class="flex gap-2">
-                                <button onclick="editarUser('${t}', '${users[t].nombre}', '${users[t].contacto}')" class="text-white text-[10px] font-black bg-blue-600 px-3 py-2 rounded uppercase italic">Editar</button>
-                                <button onclick="eliminarUser('${t}')" class="text-white text-[10px] font-black bg-red-600 px-3 py-2 rounded uppercase italic">Baja</button>
+                                <button onclick="editarUser('${t}', '${users[t].nombre}', '${users[t].contacto}')" class="text-blue-100 text-[10px] font-black bg-blue-600 px-3 py-2 rounded uppercase">Editar</button>
+                                <button onclick="eliminarUser('${t}')" class="text-white text-[10px] font-black bg-red-600 px-3 py-2 rounded uppercase">Borrar</button>
                             </div>
                         ` : '<span class="text-2xl">👑</span>'}
                     </div>
-                    <p class="text-[10px] text-gray-400 font-bold italic opacity-60">Contacto: ${users[t].contacto}</p>
+                    <p class="text-[10px] text-gray-400 font-bold uppercase">Contacto: ${users[t].contacto}</p>
                 </div>
             `).join('');
         }
 
         async function editarUser(t, nombreActual, contactoActual) {
-            const nuevoNombre = prompt("EDITAR FICHAJE\nNuevo nombre:", nombreActual);
+            const nuevoNombre = prompt("Nuevo nombre:", nombreActual);
             if(nuevoNombre === null) return;
             const nuevoCont = prompt("Nuevo contacto:", contactoActual);
             if(nuevoCont === null) return;
-            const nuevoPin = prompt("Nuevo PIN (4 dígitos):");
+            const nuevoPin = prompt("Nuevo PIN (4 dígitos) o vacío para mantener:");
+            
             await fetch('/api/admin/usuarios', {
                 method: 'PUT',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({token: t, nombre: nuevoNombre, contacto: nuevoCont, nuevo_pin: nuevoPin})
             });
-            alert("✅ Registro actualizado.");
+            alert("✅ Usuario actualizado.");
             fetchAdminUsers();
         }
 
         async function eliminarUser(t) {
-            if(confirm('⚠️ ¿Dar de baja a este usuario?')) {
+            if(confirm('⚠️ ¿Eliminar este usuario definitivamente?')) {
                 await fetch(`/api/admin/eliminar/${t}`, {method: 'DELETE'});
                 fetchAdminUsers();
             }
@@ -373,7 +371,7 @@
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({tipo, info})
             });
-            alert("💾 Récord guardado en el historial.");
+            alert("💾 Guardado en Historial");
         }
 
         async function fetchHistorial() {
@@ -381,22 +379,22 @@
             const data = await res.json();
             const cont = document.getElementById('historial-content');
             if(data.length === 0) {
-                cont.innerHTML = '<p class="text-center text-gray-500 text-xs mt-10 italic">No hay registros en el palmarés.</p>';
+                cont.innerHTML = '<p class="text-center text-gray-500 text-xs mt-10 uppercase font-black">No hay registros aún.</p>';
                 return;
             }
             cont.innerHTML = data.reverse().map(i => `
-                <div class="glass p-4 rounded-2xl border-l-4 border-[#CEAB5D] mb-3">
-                    <div class="flex justify-between text-[10px] mb-2 font-black text-gray-400 uppercase italic">
-                        <span class="gold-text">${i.tipo}</span>
+                <div class="glass p-4 rounded-2xl border-l-4 border-yellow-500 mb-3">
+                    <div class="flex justify-between text-[10px] mb-2 font-black text-gray-400 uppercase">
+                        <span class="text-yellow-500">${i.tipo}</span>
                         <span>${i.fecha_hora}</span>
                     </div>
-                    ${i.usuario ? `<div class="text-[10px] text-white/60 mb-2 italic">Operador: ${i.usuario}</div>` : ''}
-                    <div class="text-2xl font-black text-white mb-1 tracking-tight">${i.info.res}</div>
-                    ${i.info.detalle ? `<div class="text-[9px] text-gray-400 leading-tight italic opacity-70">${i.info.detalle}</div>` : ''}
+                    <div class="text-2xl font-black text-white mb-1">${i.info.res}</div>
+                    ${i.info.detalle ? `<div class="text-[9px] text-gray-400 leading-tight uppercase font-bold">${i.info.detalle}</div>` : ''}
                 </div>
             `).join('');
         }
 
+        // Iniciar con una carga vacía
         addCarga();
     </script>
 </body>
