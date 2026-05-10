@@ -6,8 +6,7 @@ import random
 import string
 
 app = Flask(__name__)
-# Cambia esto por una palabra secreta muy difícil de adivinar
-app.secret_key = os.environ.get('SECRET_KEY', 'angel_admin_2026_secure')
+app.secret_key = os.environ.get('SECRET_KEY', 'madrid_cr7_2026_secure')
 
 # --- CONFIGURACIÓN DE GOOGLE SHEETS ---
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
@@ -16,34 +15,34 @@ try:
     client = gspread.authorize(creds)
     sheet = client.open("Base_Datos_Calculadora").sheet1
 except Exception as e:
-    print(f"Error de conexión a Google: {e}")
+    print(f"Error de conexión: {e}")
 
 def cargar_usuarios_drive():
     try:
         records = sheet.get_all_records()
-        # Limpiamos espacios en blanco de los tokens y pines por seguridad
         return {str(r['token']).strip(): r for r in records}
     except:
         return {}
 
-# --- RUTAS DE ACCESO Y SEGURIDAD ---
-
 @app.route('/')
 def index():
     token = request.args.get('token')
-    
-    # 1. Verificar si el token existe en la URL
     usuarios_actuales = cargar_usuarios_drive()
+    
     if not token or token not in usuarios_actuales:
-        return "<h1 style='color:white;background:#0b132b;text-align:center;padding:50px;font-family:sans-serif;'>ACCESO DENEGADO: TOKEN INVÁLIDO</h1>", 403
+        error_html = f"""
+        <div style='background: #001c44; color:white; text-align:center; padding:100px; font-family:sans-serif; height:100vh;'>
+            <img src='https://upload.wikimedia.org/wikipedia/en/5/56/Real_Madrid_CF.svg' style='width:100px;'>
+            <h1>ACCESO DENEGADO</h1>
+            <p>Token inválido para el Bernabéu.</p>
+        </div>
+        """
+        return error_html, 403
 
-    # 2. Verificar si ya tiene la sesión iniciada para este token
     if session.get('user_token') == token and session.get('auth_logged'):
         user_data = usuarios_actuales[token]
         return render_template('index.html', user=user_data, token=token)
     
-    # 3. Si el token es válido pero no ha puesto el PIN, mostrar pantalla de login
-    # Pasamos el nombre del usuario para que aparezca en la bienvenida
     user_name = usuarios_actuales[token]['nombre']
     return render_template('login.html', token=token, nombre=user_name)
 
@@ -52,32 +51,31 @@ def login_verificar():
     data = request.json
     token = data.get('token')
     pin_ingresado = str(data.get('pin')).strip()
-    
     usuarios_actuales = cargar_usuarios_drive()
     
     if token in usuarios_actuales:
         user_data = usuarios_actuales[token]
-        pin_correcto = str(user_data['pin']).strip()
-        
-        if pin_ingresado == pin_correcto:
-            # Guardamos en la sesión que este usuario ya se autenticó
+        if pin_ingresado == str(user_data['pin']).strip():
             session['user_token'] = token
             session['user_name'] = user_data['nombre']
             session['auth_logged'] = True
             return jsonify({"status": "success"})
     
-    return jsonify({"status": "error", "message": "PIN Incorrecto"}), 401
+    # Mensaje especial si Fernando falla el PIN
+    msg = "PIN Incorrecto"
+    if token == 'amigazo020':
+        msg = "¡SIUUU! PIN EQUIVOCADO, COMANDANTE"
+        
+    return jsonify({"status": "error", "message": msg}), 401
 
 @app.route('/logout')
 def logout():
     session.clear()
-    return "Sesión cerrada. Cierre esta ventana."
+    return "Sesión cerrada."
 
-# --- API DE ADMINISTRADOR (ANGEL) ---
-
+# --- API DE ADMINISTRADOR ---
 @app.route('/api/admin/usuarios', methods=['GET', 'POST', 'PUT'])
 def admin_drive():
-    # Solo angel0301 puede gestionar usuarios
     if session.get('user_token') != 'angel0301': 
         return jsonify({"error": "No autorizado"}), 403
     
@@ -85,9 +83,7 @@ def admin_drive():
         return jsonify(cargar_usuarios_drive())
 
     data = request.json
-    
     if request.method == 'POST':
-        # Al crear usuarios, ahora el administrador puede elegir el PIN o dejar uno al azar
         nuevo_tkn = generar_token(data['nombre'])
         nuevo_pin = data.get('pin') if data.get('pin') else "".join(random.choices(string.digits, k=4))
         sheet.append_row([nuevo_tkn, data['nombre'], data['contacto'], nuevo_pin, "operador"])
