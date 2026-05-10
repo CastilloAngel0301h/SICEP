@@ -203,6 +203,202 @@
         </div>
     </div>
 
+    <!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#001c44">
+    
+    <title>CALCULADORA EFICIENCIAS - RM & CR7</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&family=Inter:wght@400;700;900&display=swap');
+        
+        :root {
+            /* Colores Real Madrid por defecto */
+            --primary: #001c44;
+            --accent: #ceab5d;
+            --secondary: #00468b;
+            --text-color: #ffffff;
+        }
+
+        /* CAMBIO DE TEMA PARA FERNANDO (CR7) */
+        {% if token == 'amigazo020' %}
+        :root {
+            --primary: #8b0000; /* Rojo Portugal */
+            --accent: #ffcf00;  /* Oro CR7 */
+            --secondary: #006233; /* Verde Portugal */
+        }
+        {% endif %}
+
+        body { 
+            background-color: var(--primary); 
+            background-image: linear-gradient(180deg, var(--primary) 0%, #000000 100%);
+            color: var(--text-color); 
+            font-family: 'Inter', sans-serif; 
+        }
+
+        h1, h2, .font-madrid { font-family: 'Oswald', sans-serif; }
+        .glass { 
+            background: rgba(255, 255, 255, 0.05); 
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1); 
+        }
+
+        .view-window { 
+            position: fixed; top: 0; left: 100%; width: 100%; height: 100%; 
+            background: var(--primary); transition: 0.4s ease; z-index: 50; overflow-y: auto;
+        }
+        .view-window.active { left: 0; }
+
+        .input-pro { background: rgba(255,255,255,0.1); border: 2px solid var(--secondary); color: white; border-radius: 12px; padding: 15px; width: 100%; outline: none; }
+        .input-pro:focus { border-color: var(--accent); }
+
+        .btn-main { background: var(--accent); color: var(--primary); font-weight: 900; text-transform: uppercase; padding: 1rem; border-radius: 16px; width: 100%; transition: 0.2s; }
+        .btn-main:active { transform: scale(0.95); }
+    </style>
+</head>
+<body class="max-w-md mx-auto relative min-h-screen">
+
+    <!-- PANTALLA DE BLOQUEO -->
+    <div id="lock-screen" class="min-h-screen flex flex-col justify-center items-center p-6 text-center absolute w-full z-50 bg-[#001c44]">
+        <div class="glass p-8 rounded-[32px] w-full border-2 border-white/20">
+            {% if token == 'amigazo020' %}
+                <div class="text-6xl mb-4">🇵🇹</div>
+                <h1 class="text-2xl font-madrid text-white mb-2 uppercase">Modo Comandante</h1>
+            {% else %}
+                <img src="https://upload.wikimedia.org/wikipedia/en/5/56/Real_Madrid_CF.svg" class="w-20 mx-auto mb-4">
+                <h1 class="text-2xl font-madrid text-white mb-2 uppercase">Acceso Bernabéu</h1>
+            {% endif %}
+            <input type="password" id="pin-input" maxlength="4" class="input-pro text-center text-3xl tracking-[0.5em] mb-6" placeholder="****">
+            <button onclick="verificarAcceso()" class="btn-main">ENTRAR</button>
+        </div>
+    </div>
+
+    <!-- MENÚ PRINCIPAL -->
+    <div id="app-home" class="hidden p-6 pb-20">
+        <header class="my-8 text-center border-b border-white/10 pb-6">
+            {% if token == 'amigazo020' %}
+                <img src="https://e00-marca.uecdn.es/assets/multimedia/imagenes/2023/01/03/16727575607316.png" class="w-20 h-20 rounded-full mx-auto mb-4 border-2 border-[#ffcf00] object-cover">
+                <h1 class="text-2xl font-black uppercase font-madrid">Calculadora <span class="text-[#ffcf00]">SIUUU</span></h1>
+                <p class="text-[10px] font-bold text-gray-400 mt-2 uppercase">Operador: Fernando Sánchez 🐐</p>
+            {% else %}
+                <img src="https://upload.wikimedia.org/wikipedia/en/5/56/Real_Madrid_CF.svg" class="w-16 mx-auto mb-4">
+                <h1 class="text-2xl font-black uppercase font-madrid text-white">Eficiencia <span class="text-[#ceab5d]">Madridista</span></h1>
+                <p class="text-[10px] font-bold text-gray-400 mt-2 uppercase">Delegado: Angel Castillo</p>
+            {% endif %}
+        </header>
+
+        <div class="grid grid-cols-2 gap-4">
+            <div onclick="openView('view-eficiencia')" class="glass p-6 rounded-3xl text-center border-b-4 border-white">
+                <span class="text-3xl block mb-2">📊</span>
+                <span class="text-[10px] font-black uppercase">Eficiencia</span>
+            </div>
+            <div onclick="openView('view-tiempo')" class="glass p-6 rounded-3xl text-center border-b-4 border-accent">
+                <span class="text-3xl block mb-2">⏱️</span>
+                <span class="text-[10px] font-black uppercase">Tiempos</span>
+            </div>
+            <div onclick="openView('view-historial')" class="glass p-6 rounded-3xl text-center border-b-4 border-secondary">
+                <span class="text-3xl block mb-2">📂</span>
+                <span class="text-[10px] font-black uppercase">Historial</span>
+            </div>
+            <div onclick="openView('view-feedback')" class="glass p-6 rounded-3xl text-center border-b-4 border-purple-500">
+                <span class="text-3xl block mb-2">⭐</span>
+                <span class="text-[10px] font-black uppercase">Valorar</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- VISTA: EFICIENCIA (RESUMIDA POR ESPACIO) -->
+    <div id="view-eficiencia" class="view-window p-6">
+        <button onclick="closeView()" class="text-white text-3xl mb-6">✕</button>
+        <h2 class="text-xl font-black uppercase font-madrid mb-6">Panel de Rendimiento</h2>
+        <div id="cargas-list" class="space-y-3 mb-6"></div>
+        <button onclick="addCarga()" class="w-full py-3 border-2 border-dashed border-accent text-accent rounded-xl font-black text-xs mb-6">+ AÑADIR JORNADA</button>
+        
+        <input type="number" id="ef-paros" step="0.01" oninput="calcularEficiencia()" class="input-pro mb-6" placeholder="Horas de Paro">
+        
+        <div id="ef-badge" class="p-8 rounded-[32px] text-center mb-6 shadow-xl border-2 border-white/20">
+            <div id="ef-resultado" class="text-6xl font-black font-madrid">0.00%</div>
+            <p class="text-xs uppercase mt-2 opacity-70">Eficiencia Final</p>
+        </div>
+        <div id="tiempos-cargas" class="space-y-2 mb-6"></div>
+        <button onclick="guardarHistorial('Eficiencia')" class="btn-main">GUARDAR RÉCORD</button>
+    </div>
+
+    <!-- EL RESTO DE LAS VISTAS (TIEMPO, ADMIN, HISTORIAL) SIGUEN EL MISMO ESTILO -->
+
+    <script>
+        const PIN_CORRECTO = "{{ user.pin }}";
+
+        function verificarAcceso() {
+            if(document.getElementById('pin-input').value === PIN_CORRECTO) {
+                document.getElementById('lock-screen').style.display = 'none';
+                document.getElementById('app-home').classList.remove('hidden');
+                if("{{token}}" === 'amigazo020') alert("¡BIENVENIDO COMANDANTE! SIUUUUU");
+            } else {
+                alert("PIN INCORRECTO");
+            }
+        }
+
+        function openView(id) { document.getElementById(id).classList.add('active'); }
+        function closeView() { document.querySelectorAll('.view-window').forEach(v => v.classList.remove('active')); }
+
+        function formatTime(hDecimal) {
+            const h = Math.floor(hDecimal);
+            const m = Math.round((hDecimal - h) * 60);
+            return `${h}H ${m < 10 ? '0'+m : m}M`;
+        }
+
+        function addCarga() {
+            const container = document.getElementById('cargas-list');
+            const div = document.createElement('div');
+            div.className = "flex gap-2";
+            div.innerHTML = `<input type="number" placeholder="META" class="input-pro c-meta" oninput="calcularEficiencia()">
+                             <input type="number" placeholder="HECHO" class="input-pro c-hecho" oninput="calcularEficiencia()">`;
+            container.appendChild(div);
+        }
+
+        function calcularEficiencia() {
+            const metas = document.querySelectorAll('.c-meta'), hechos = document.querySelectorAll('.c-hecho');
+            const paros = parseFloat(document.getElementById('ef-paros').value) || 0;
+            let sumMeta = 0, sumHecho = 0, count = 0, totalST = 0, sts = [];
+
+            metas.forEach((m, i) => {
+                let metaVal = parseFloat(m.value) || 0;
+                let hechoVal = parseFloat(hechos[i].value) || 0;
+                if(metaVal > 0) { 
+                    sumMeta += metaVal; sumHecho += hechoVal; count++;
+                    let st = hechoVal / (metaVal / 11);
+                    sts.push(st); totalST += st;
+                } else { sts.push(0); }
+            });
+
+            const mAj = (count > 0 ? sumMeta/count : 0) - (paros * ((count > 0 ? sumMeta/count : 0)/11));
+            const ef = mAj > 0 ? (sumHecho / mAj) * 100 : 0;
+            document.getElementById('ef-resultado').innerText = ef.toFixed(2) + "%";
+
+            const onTime = 11 - paros;
+            const splitCont = document.getElementById('tiempos-cargas');
+            splitCont.innerHTML = '';
+            if (totalST > 0) {
+                sts.forEach((st, i) => {
+                    if (st > 0) {
+                        splitCont.innerHTML += `<div class="glass p-3 rounded-xl flex justify-between text-xs font-bold">
+                            <span>CARGA ${i+1}</span><span>${formatTime(st * (onTime / totalST))}</span></div>`;
+                    }
+                });
+            }
+        }
+
+        addCarga();
+    </script>
+</body>
+</html>
     <!-- VISTA: ADMIN -->
     <div id="view-admin" class="view-window p-6">
         <div class="flex items-center mb-8">
