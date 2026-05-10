@@ -1,5 +1,3 @@
-app.py
-
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
