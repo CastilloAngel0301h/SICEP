@@ -9,134 +9,80 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#001c44">
     
-    <title>CALCULADORA EFICIENCIAS PRODUCCION AHOGADOS</title>
+    <title>CALCULADORA EFICIENCIAS PRODUCCIÓN AHOGADOS</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&family=Inter:wght@400;700;900&display=swap');
-        
-        :root {
-            --madrid-blue: #001c44;
-            --madrid-gold: #ceab5d;
-            --madrid-white: #ffffff;
-            --madrid-secondary: #00468b;
-        }
-
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
         body { 
-            background-color: var(--madrid-blue); 
-            background-image: linear-gradient(180deg, #001c44 0%, #00468b 100%);
+            /* Fondo Azul Madridista */
+            background-color: #001c44; 
             color: #ffffff; 
             font-family: 'Inter', sans-serif; 
             overflow-x: hidden;
-            min-height: screen;
+            background-image: radial-gradient(circle at top right, #00529f 0%, #001c44 70%);
         }
-
-        h1, h2, .font-madrid { font-family: 'Oswald', sans-serif; }
-
-        /* Estilo Cristal Madridista */
-        .glass { 
-            background: rgba(255, 255, 255, 0.05); 
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(206, 171, 93, 0.3); 
-            box-shadow: 0 8px 32px rgba(0,0,0,0.5); 
-        }
-
+        /* Contenedores estilo cristal con borde dorado */
+        .glass { background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(254, 190, 16, 0.2); box-shadow: 0 4px 15px rgba(0,0,0,0.4); backdrop-filter: blur(5px); }
         .view-window { 
             position: fixed; top: 0; left: 100%; width: 100%; height: 100%; 
-            background: linear-gradient(180deg, #001c44 0%, #000c1d 100%); 
-            transition: 0.4s cubic-bezier(0.4, 0, 0.2, 1); z-index: 50; 
+            background: #001c44; transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 50; 
             overflow-y: auto;
         }
         .view-window.active { left: 0; }
-
-        .input-pro { 
-            background: rgba(255,255,255,0.1); 
-            border: 2px solid var(--madrid-secondary); 
-            color: white; 
-            border-radius: 12px; 
-            padding: 15px; 
-            width: 100%; 
-            font-weight: bold; 
-            outline: none;
-            transition: 0.3s;
-        }
-        .input-pro:focus { border-color: var(--madrid-gold); background: rgba(255,255,255,0.15); }
-
-        .madrid-btn { 
-            transition: 0.2s; 
-            cursor: pointer; 
-            border-radius: 16px;
-            text-transform: uppercase;
-            font-weight: 900;
-            letter-spacing: 1px;
-        }
+        .input-pro { background: #002b66; border: 1px solid #00529f; color: white; border-radius: 12px; padding: 15px; width: 100%; font-weight: bold; outline: none; transition: 0.3s;}
+        .input-pro:focus { border-color: #febe10; box-shadow: 0 0 10px rgba(254, 190, 16, 0.3); }
+        .madrid-btn { transition: 0.2s; border: 2px solid transparent; cursor: pointer; }
         .madrid-btn:active { transform: scale(0.95); }
-
-        .rm-logo {
-            width: 80px;
-            height: auto;
-            filter: drop-shadow(0 0 8px rgba(206, 171, 93, 0.5));
-            margin-bottom: 1rem;
-        }
-
-        /* Colores de Eficiencia Real Madrid */
-        .ef-excelente { background: linear-gradient(135deg, #ceab5d 0%, #8e6d28 100%); color: #000; } /* Oro */
-        .ef-buena { background: #ffffff; color: #001c44; } /* Blanco */
-        .ef-media { background: #00468b; color: #ffffff; } /* Azul */
-        .ef-baja { background: #4b0082; color: #ffffff; } /* Morado histórico */
-        
-        .animate-fade-in { animation: fadeIn 0.5s ease-out; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .madrid-btn:hover { border-color: #febe10; }
     </style>
 </head>
 <body class="max-w-md mx-auto relative min-h-screen">
 
     <!-- PANTALLA DE BLOQUEO -->
     <div id="lock-screen" class="min-h-screen flex flex-col justify-center items-center p-6 text-center bg-[#001c44] absolute w-full z-50">
-        <div class="glass p-8 rounded-[32px] w-full border-gold-500/50 border-2 relative overflow-hidden">
-            <div class="absolute -top-10 -right-10 w-32 h-32 bg-white/5 rounded-full"></div>
-            <img src="https://upload.wikimedia.org/wikipedia/en/5/56/Real_Madrid_CF.svg" alt="Real Madrid" class="rm-logo mx-auto">
-            <h1 class="text-2xl font-madrid font-black uppercase text-white mb-2">Área VIP Bernabéu</h1>
-            <p class="text-xs text-gray-300 mb-6 uppercase tracking-widest font-bold">Identificación de Socio</p>
+        <div class="glass p-8 rounded-[32px] w-full border-[#febe10]/50 border-2">
+            <img src="https://upload.wikimedia.org/wikipedia/en/5/56/Real_Madrid_CF.svg" class="w-24 mx-auto mb-6 drop-shadow-lg" alt="Escudo Real Madrid">
+            <h1 class="text-xl font-black uppercase text-[#febe10] mb-2">Acceso Protegido</h1>
+            <p class="text-xs text-gray-300 mb-6 uppercase tracking-widest">Ingresa tu PIN</p>
             <input type="password" id="pin-input" maxlength="4" class="input-pro text-center text-3xl tracking-[0.5em] mb-6" placeholder="****">
-            <button onclick="verificarAcceso()" class="madrid-btn w-full py-4 bg-white text-[#001c44] hover:bg-gold-500 shadow-xl">ACCEDER AL CAMPO</button>
+            <button onclick="verificarAcceso()" class="w-full py-4 bg-[#00529f] hover:bg-[#003d7a] border-b-4 border-[#002b66] rounded-2xl font-black text-white shadow-lg uppercase">ENTRAR</button>
         </div>
     </div>
 
     <!-- MENÚ PRINCIPAL -->
-    <div id="app-home" class="hidden p-6 pb-20 animate-fade-in">
-        <header class="my-8 text-center border-b border-white/10 pb-6">
-            <img src="https://upload.wikimedia.org/wikipedia/en/5/56/Real_Madrid_CF.svg" class="w-16 mx-auto mb-4" alt="RM">
-            <h1 class="text-2xl font-black leading-tight uppercase text-white font-madrid">Calculadora Eficiencias<br><span class="text-[#ceab5d]">Producción Ahogados</span></h1>
-            <p class="text-[10px] font-bold text-gray-400 mt-3 uppercase tracking-widest">Delegado de Equipo: <span class="text-white">Angel Castillo</span></p>
+    <div id="app-home" class="hidden p-6 pb-20">
+        <header class="my-8 text-center border-b border-[#febe10]/20 pb-6">
+            <h1 class="text-2xl font-black leading-tight uppercase text-white">Calculadora Eficiencias<br><span class="text-[#febe10]">Producción Ahogados</span></h1>
+            <p class="text-[10px] font-bold text-gray-400 mt-3 uppercase tracking-tighter">Creado y Presentado por: <span class="text-[#febe10]">Angel Castillo</span></p>
         </header>
 
         <!-- BIENVENIDA PERSONALIZADA -->
         <div class="text-center mb-8">
-            <h2 class="text-xl font-black text-white uppercase">Hala Madrid,<br><span class="text-[#ceab5d] font-madrid">{{ user.nombre }} 🏆</span></h2>
+            <h2 class="text-xl font-black text-[#febe10] uppercase">Hola y Bienvenido,<br><span class="text-white">{{ user.nombre }} 👑</span></h2>
         </div>
 
         <div class="grid grid-cols-2 gap-4">
-            <div onclick="openView('view-eficiencia')" class="madrid-btn glass p-6 text-center border-b-4 border-white">
-                <span class="text-4xl block mb-2">📈</span>
-                <span class="text-[11px] font-black uppercase text-white">Eficiencia<br>Partido</span>
+            <div onclick="openView('view-eficiencia')" class="madrid-btn glass p-6 rounded-[24px] text-center bg-[#00529f]/20">
+                <span class="text-4xl block mb-2">⚽</span>
+                <span class="text-[11px] font-black uppercase text-white">Eficiencia<br>Completa</span>
             </div>
-            <div onclick="openView('view-tiempo')" class="madrid-btn glass p-6 text-center border-b-4 border-[#ceab5d]">
+            <div onclick="openView('view-tiempo')" class="madrid-btn glass p-6 rounded-[24px] text-center bg-[#00529f]/20">
                 <span class="text-4xl block mb-2">⏱️</span>
                 <span class="text-[11px] font-black uppercase text-white">Tiempo por<br>Docenaje</span>
             </div>
-            <div onclick="openView('view-historial')" class="madrid-btn glass p-6 text-center border-b-4 border-[#00468b]">
-                <span class="text-4xl block mb-2">📚</span>
-                <span class="text-[11px] font-black uppercase text-white">Archivo de<br>Títulos</span>
+            <div onclick="openView('view-historial')" class="madrid-btn glass p-6 rounded-[24px] text-center bg-[#00529f]/20">
+                <span class="text-4xl block mb-2">🏆</span>
+                <span class="text-[11px] font-black uppercase text-white">Historial<br>Guardado</span>
             </div>
-            <div onclick="openView('view-feedback')" class="madrid-btn glass p-6 text-center border-b-4 border-purple-500">
+            <div onclick="openView('view-feedback')" class="madrid-btn glass p-6 rounded-[24px] text-center bg-[#00529f]/20">
                 <span class="text-4xl block mb-2">⭐</span>
                 <span class="text-[11px] font-black uppercase text-white">Valorar<br>App</span>
             </div>
 
             {% if token == 'angel0301' %}
-            <div onclick="openView('view-admin')" class="madrid-btn glass p-6 text-center col-span-2 border-2 border-[#ceab5d] bg-gradient-to-r from-[#ceab5d]/20 to-transparent shadow-[0_0_20px_rgba(206,171,93,0.2)]">
-                <span class="text-4xl block mb-2">👑</span>
-                <span class="text-xs font-black text-[#ceab5d] uppercase italic font-madrid">Palco Presidencial (Angel)</span>
+            <div onclick="openView('view-admin')" class="madrid-btn glass p-6 rounded-[24px] text-center col-span-2 border-[#febe10] bg-[#febe10]/10 shadow-[0_0_15px_rgba(254,190,16,0.2)]">
+                <span class="text-4xl block mb-2">🥇</span>
+                <span class="text-xs font-black text-[#febe10] uppercase italic">Panel de Moderador (Exclusivo Angel)</span>
             </div>
             {% endif %}
         </div>
@@ -146,288 +92,91 @@
     <div id="view-eficiencia" class="view-window p-6">
         <div class="flex items-center justify-between mb-8">
             <div class="flex items-center">
-                <button onclick="closeView()" class="text-[#ceab5d] font-black text-2xl mr-4 px-3 py-1 bg-white/10 rounded-full">✕</button>
-                <h2 class="text-xl font-black text-white font-madrid">ESTADÍSTICAS DEL PARTIDO</h2>
+                <button onclick="closeView()" class="text-[#febe10] font-black text-2xl mr-4 px-3 py-1 bg-[#00529f] rounded-lg">←</button>
+                <h2 class="text-xl font-black text-white">EFICIENCIA COMPLETA</h2>
             </div>
         </div>
         
         <div id="cargas-list" class="space-y-3 mb-4"></div>
-        <button onclick="addCarga()" class="w-full py-3 border-2 border-dashed border-[#ceab5d] text-[#ceab5d] rounded-xl text-xs font-black mb-6 hover:bg-[#ceab5d] hover:text-black transition-colors uppercase">+ Alinear Nueva Carga</button>
+        <button onclick="addCarga()" class="w-full py-3 border-2 border-dashed border-[#febe10] text-[#febe10] rounded-xl text-xs font-black mb-6 hover:bg-[#febe10] hover:text-black transition-colors uppercase">+ AÑADIR CARGA</button>
         
-        <label class="text-[10px] text-[#ceab5d] font-black uppercase tracking-widest">Minutos de Descuento (Tiempo Muerto)</label>
-        <input type="number" id="ef-paros" step="0.01" oninput="calcularEficiencia()" class="input-pro mt-2 mb-6" placeholder="Ej: 1.5">
+        <label class="text-[10px] text-[#febe10] font-black uppercase tracking-widest">Horas de Paro (Tiempo Muerto)</label>
+        <input type="number" id="ef-paros" step="0.01" oninput="calcularEficiencia()" class="input-pro mt-2 mb-6" placeholder="Ej: 1.5 (1h 30m)">
         
-        <!-- CUADRO DE RESULTADO -->
-        <div id="ef-badge" class="p-8 rounded-[32px] text-center mb-6 shadow-2xl transition-all duration-500 border-2 border-white/20">
-            <div id="ef-resultado" class="text-6xl font-black text-white font-madrid">0.00%</div>
-            <p class="text-[11px] font-black uppercase mt-2 opacity-80">Rendimiento Total</p>
+        <!-- BADGE DE RESULTADOS MADRIDISTA -->
+        <div id="ef-badge" class="bg-[#00529f] p-8 rounded-[32px] text-center mb-6 shadow-xl transition-colors duration-500 border-2 border-[#febe10]/30">
+            <div id="ef-resultado" class="text-6xl font-black text-white">0.00%</div>
+            <p class="text-[11px] font-black uppercase mt-2 text-[#febe10]">Eficiencia Final</p>
             
-            <div class="flex justify-between border-t border-white/20 pt-4 mt-4">
+            <div class="flex justify-between border-t border-white/10 pt-4 mt-4">
                 <div class="text-left">
-                    <p class="text-[10px] font-black uppercase opacity-70">Goles Esperados</p>
-                    <p id="ui-meta" class="text-2xl font-black">0</p>
+                    <p class="text-[10px] font-black uppercase text-gray-300">Meta Final</p>
+                    <p id="ui-meta" class="text-2xl font-black text-white">0</p>
                 </div>
                 <div class="text-right">
-                    <p class="text-[10px] font-black uppercase opacity-70">Goles Marcados</p>
-                    <p id="ui-hecho" class="text-2xl font-black">0</p>
+                    <p class="text-[10px] font-black uppercase text-gray-300">Suma Docenas</p>
+                    <p id="ui-hecho" class="text-2xl font-black text-white">0</p>
                 </div>
             </div>
         </div>
 
         <div id="tiempos-cargas" class="mb-6 space-y-2"></div>
 
-        <button onclick="guardarHistorial('Eficiencia')" class="madrid-btn w-full py-4 bg-white text-[#001c44] shadow-lg">Subir al Marcador</button>
+        <button onclick="guardarHistorial('Eficiencia')" class="w-full py-4 bg-[#00529f] hover:bg-[#003d7a] border-b-4 border-[#002b66] text-white rounded-2xl font-black text-sm uppercase">Guardar en Historial</button>
     </div>
 
     <!-- VISTA: TIEMPO POR DOCENAJE -->
     <div id="view-tiempo" class="view-window p-6">
         <div class="flex items-center mb-8">
-            <button onclick="closeView()" class="text-[#ceab5d] font-black text-2xl mr-4 px-3 py-1 bg-white/10 rounded-full">✕</button>
-            <h2 class="text-xl font-black uppercase text-white font-madrid">Cronómetro de Juego ⏱️</h2>
+            <button onclick="closeView()" class="text-[#febe10] font-black text-2xl mr-4 px-3 py-1 bg-[#00529f] rounded-lg">←</button>
+            <h2 class="text-xl font-black uppercase text-white">Tiempo Simple ⏱️</h2>
         </div>
         <div class="space-y-6">
-            <div class="glass p-6 rounded-3xl border border-white/10">
-                <label class="text-[10px] text-[#ceab5d] font-black uppercase">Meta del Partido (11h)</label>
+            <div class="glass p-6 rounded-3xl border border-[#00529f]">
+                <label class="text-[10px] text-[#febe10] font-black uppercase">Meta de la Carga (Total 11h)</label>
                 <input type="number" id="ts-meta" oninput="calcTiempoSimple()" class="input-pro mt-2" placeholder="Ej: 550">
             </div>
-            <div class="glass p-6 rounded-3xl border border-white/10">
-                <label class="text-[10px] text-[#ceab5d] font-black uppercase">Docenas a Producir</label>
+            <div class="glass p-6 rounded-3xl border border-[#00529f]">
+                <label class="text-[10px] text-[#febe10] font-black uppercase">Docenaje de Carga Actual</label>
                 <input type="number" id="ts-doc" oninput="calcTiempoSimple()" class="input-pro mt-2" placeholder="Ej: 100">
             </div>
-            <div class="bg-gradient-to-br from-[#00468b] to-[#001c44] p-8 rounded-[32px] text-center shadow-lg border-2 border-[#ceab5d]">
-                <p class="text-[10px] font-black uppercase mb-2 text-white/70">Final del Partido en:</p>
-                <div id="ts-res" class="text-5xl font-black text-white font-madrid">0H 00M</div>
-                <div id="ts-ritmo" class="text-[11px] mt-4 font-black bg-black/30 py-2 rounded-lg text-[#ceab5d] uppercase tracking-tighter">Ritmo: 0.00 doc/hr</div>
+            <div class="bg-[#00529f] p-8 rounded-[32px] text-center shadow-lg border-2 border-[#febe10]/20">
+                <p class="text-[10px] font-black uppercase mb-2 text-[#febe10]">Tiempo Estimado al 100%</p>
+                <div id="ts-res" class="text-5xl font-black text-white">0H 00M</div>
+                <div id="ts-ritmo" class="text-[11px] mt-4 font-black bg-[#002b66] py-2 rounded-lg text-[#febe10]">Ritmo: 0.00 doc/hr</div>
             </div>
-            <button onclick="guardarHistorial('Tiempo Simple')" class="madrid-btn w-full py-4 bg-[#ceab5d] text-white shadow-lg">Guardar Cronometraje</button>
+            <button onclick="guardarHistorial('Tiempo Simple')" class="w-full py-4 bg-[#febe10] hover:bg-[#e5aa0e] text-[#001c44] rounded-2xl font-black uppercase text-sm">Guardar Cálculo</button>
         </div>
     </div>
 
-    <!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="theme-color" content="#001c44">
-    
-    <title>CALCULADORA EFICIENCIAS - RM & CR7</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Oswald:wght@400;700&family=Inter:wght@400;700;900&display=swap');
-        
-        :root {
-            /* Colores Real Madrid por defecto */
-            --primary: #001c44;
-            --accent: #ceab5d;
-            --secondary: #00468b;
-            --text-color: #ffffff;
-        }
-
-        /* CAMBIO DE TEMA PARA FERNANDO (CR7) */
-        {% if token == 'amigazo020' %}
-        :root {
-            --primary: #8b0000; /* Rojo Portugal */
-            --accent: #ffcf00;  /* Oro CR7 */
-            --secondary: #006233; /* Verde Portugal */
-        }
-        {% endif %}
-
-        body { 
-            background-color: var(--primary); 
-            background-image: linear-gradient(180deg, var(--primary) 0%, #000000 100%);
-            color: var(--text-color); 
-            font-family: 'Inter', sans-serif; 
-        }
-
-        h1, h2, .font-madrid { font-family: 'Oswald', sans-serif; }
-        .glass { 
-            background: rgba(255, 255, 255, 0.05); 
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1); 
-        }
-
-        .view-window { 
-            position: fixed; top: 0; left: 100%; width: 100%; height: 100%; 
-            background: var(--primary); transition: 0.4s ease; z-index: 50; overflow-y: auto;
-        }
-        .view-window.active { left: 0; }
-
-        .input-pro { background: rgba(255,255,255,0.1); border: 2px solid var(--secondary); color: white; border-radius: 12px; padding: 15px; width: 100%; outline: none; }
-        .input-pro:focus { border-color: var(--accent); }
-
-        .btn-main { background: var(--accent); color: var(--primary); font-weight: 900; text-transform: uppercase; padding: 1rem; border-radius: 16px; width: 100%; transition: 0.2s; }
-        .btn-main:active { transform: scale(0.95); }
-    </style>
-</head>
-<body class="max-w-md mx-auto relative min-h-screen">
-
-    <!-- PANTALLA DE BLOQUEO -->
-    <div id="lock-screen" class="min-h-screen flex flex-col justify-center items-center p-6 text-center absolute w-full z-50 bg-[#001c44]">
-        <div class="glass p-8 rounded-[32px] w-full border-2 border-white/20">
-            {% if token == 'amigazo020' %}
-                <div class="text-6xl mb-4">🇵🇹</div>
-                <h1 class="text-2xl font-madrid text-white mb-2 uppercase">Modo Comandante</h1>
-            {% else %}
-                <img src="https://upload.wikimedia.org/wikipedia/en/5/56/Real_Madrid_CF.svg" class="w-20 mx-auto mb-4">
-                <h1 class="text-2xl font-madrid text-white mb-2 uppercase">Acceso Bernabéu</h1>
-            {% endif %}
-            <input type="password" id="pin-input" maxlength="4" class="input-pro text-center text-3xl tracking-[0.5em] mb-6" placeholder="****">
-            <button onclick="verificarAcceso()" class="btn-main">ENTRAR</button>
-        </div>
-    </div>
-
-    <!-- MENÚ PRINCIPAL -->
-    <div id="app-home" class="hidden p-6 pb-20">
-        <header class="my-8 text-center border-b border-white/10 pb-6">
-            {% if token == 'amigazo020' %}
-                <img src="https://e00-marca.uecdn.es/assets/multimedia/imagenes/2023/01/03/16727575607316.png" class="w-20 h-20 rounded-full mx-auto mb-4 border-2 border-[#ffcf00] object-cover">
-                <h1 class="text-2xl font-black uppercase font-madrid">Calculadora <span class="text-[#ffcf00]">SIUUU</span></h1>
-                <p class="text-[10px] font-bold text-gray-400 mt-2 uppercase">Operador: Fernando Sánchez 🐐</p>
-            {% else %}
-                <img src="https://upload.wikimedia.org/wikipedia/en/5/56/Real_Madrid_CF.svg" class="w-16 mx-auto mb-4">
-                <h1 class="text-2xl font-black uppercase font-madrid text-white">Eficiencia <span class="text-[#ceab5d]">Madridista</span></h1>
-                <p class="text-[10px] font-bold text-gray-400 mt-2 uppercase">Delegado: Angel Castillo</p>
-            {% endif %}
-        </header>
-
-        <div class="grid grid-cols-2 gap-4">
-            <div onclick="openView('view-eficiencia')" class="glass p-6 rounded-3xl text-center border-b-4 border-white">
-                <span class="text-3xl block mb-2">📊</span>
-                <span class="text-[10px] font-black uppercase">Eficiencia</span>
-            </div>
-            <div onclick="openView('view-tiempo')" class="glass p-6 rounded-3xl text-center border-b-4 border-accent">
-                <span class="text-3xl block mb-2">⏱️</span>
-                <span class="text-[10px] font-black uppercase">Tiempos</span>
-            </div>
-            <div onclick="openView('view-historial')" class="glass p-6 rounded-3xl text-center border-b-4 border-secondary">
-                <span class="text-3xl block mb-2">📂</span>
-                <span class="text-[10px] font-black uppercase">Historial</span>
-            </div>
-            <div onclick="openView('view-feedback')" class="glass p-6 rounded-3xl text-center border-b-4 border-purple-500">
-                <span class="text-3xl block mb-2">⭐</span>
-                <span class="text-[10px] font-black uppercase">Valorar</span>
-            </div>
-        </div>
-    </div>
-
-    <!-- VISTA: EFICIENCIA (RESUMIDA POR ESPACIO) -->
-    <div id="view-eficiencia" class="view-window p-6">
-        <button onclick="closeView()" class="text-white text-3xl mb-6">✕</button>
-        <h2 class="text-xl font-black uppercase font-madrid mb-6">Panel de Rendimiento</h2>
-        <div id="cargas-list" class="space-y-3 mb-6"></div>
-        <button onclick="addCarga()" class="w-full py-3 border-2 border-dashed border-accent text-accent rounded-xl font-black text-xs mb-6">+ AÑADIR JORNADA</button>
-        
-        <input type="number" id="ef-paros" step="0.01" oninput="calcularEficiencia()" class="input-pro mb-6" placeholder="Horas de Paro">
-        
-        <div id="ef-badge" class="p-8 rounded-[32px] text-center mb-6 shadow-xl border-2 border-white/20">
-            <div id="ef-resultado" class="text-6xl font-black font-madrid">0.00%</div>
-            <p class="text-xs uppercase mt-2 opacity-70">Eficiencia Final</p>
-        </div>
-        <div id="tiempos-cargas" class="space-y-2 mb-6"></div>
-        <button onclick="guardarHistorial('Eficiencia')" class="btn-main">GUARDAR RÉCORD</button>
-    </div>
-
-    <!-- EL RESTO DE LAS VISTAS (TIEMPO, ADMIN, HISTORIAL) SIGUEN EL MISMO ESTILO -->
-
-    <script>
-        const PIN_CORRECTO = "{{ user.pin }}";
-
-        function verificarAcceso() {
-            if(document.getElementById('pin-input').value === PIN_CORRECTO) {
-                document.getElementById('lock-screen').style.display = 'none';
-                document.getElementById('app-home').classList.remove('hidden');
-                if("{{token}}" === 'amigazo020') alert("¡BIENVENIDO COMANDANTE! SIUUUUU");
-            } else {
-                alert("PIN INCORRECTO");
-            }
-        }
-
-        function openView(id) { document.getElementById(id).classList.add('active'); }
-        function closeView() { document.querySelectorAll('.view-window').forEach(v => v.classList.remove('active')); }
-
-        function formatTime(hDecimal) {
-            const h = Math.floor(hDecimal);
-            const m = Math.round((hDecimal - h) * 60);
-            return `${h}H ${m < 10 ? '0'+m : m}M`;
-        }
-
-        function addCarga() {
-            const container = document.getElementById('cargas-list');
-            const div = document.createElement('div');
-            div.className = "flex gap-2";
-            div.innerHTML = `<input type="number" placeholder="META" class="input-pro c-meta" oninput="calcularEficiencia()">
-                             <input type="number" placeholder="HECHO" class="input-pro c-hecho" oninput="calcularEficiencia()">`;
-            container.appendChild(div);
-        }
-
-        function calcularEficiencia() {
-            const metas = document.querySelectorAll('.c-meta'), hechos = document.querySelectorAll('.c-hecho');
-            const paros = parseFloat(document.getElementById('ef-paros').value) || 0;
-            let sumMeta = 0, sumHecho = 0, count = 0, totalST = 0, sts = [];
-
-            metas.forEach((m, i) => {
-                let metaVal = parseFloat(m.value) || 0;
-                let hechoVal = parseFloat(hechos[i].value) || 0;
-                if(metaVal > 0) { 
-                    sumMeta += metaVal; sumHecho += hechoVal; count++;
-                    let st = hechoVal / (metaVal / 11);
-                    sts.push(st); totalST += st;
-                } else { sts.push(0); }
-            });
-
-            const mAj = (count > 0 ? sumMeta/count : 0) - (paros * ((count > 0 ? sumMeta/count : 0)/11));
-            const ef = mAj > 0 ? (sumHecho / mAj) * 100 : 0;
-            document.getElementById('ef-resultado').innerText = ef.toFixed(2) + "%";
-
-            const onTime = 11 - paros;
-            const splitCont = document.getElementById('tiempos-cargas');
-            splitCont.innerHTML = '';
-            if (totalST > 0) {
-                sts.forEach((st, i) => {
-                    if (st > 0) {
-                        splitCont.innerHTML += `<div class="glass p-3 rounded-xl flex justify-between text-xs font-bold">
-                            <span>CARGA ${i+1}</span><span>${formatTime(st * (onTime / totalST))}</span></div>`;
-                    }
-                });
-            }
-        }
-
-        addCarga();
-    </script>
-</body>
-</html>
     <!-- VISTA: ADMIN -->
     <div id="view-admin" class="view-window p-6">
         <div class="flex items-center mb-8">
-            <button onclick="closeView()" class="text-[#ceab5d] font-black text-2xl mr-4 px-3 py-1 bg-white/10 rounded-full">✕</button>
-            <h2 class="text-xl font-black text-[#ceab5d] uppercase font-madrid">Gestión de Cantera 👑</h2>
+            <button onclick="closeView()" class="text-[#febe10] font-black text-2xl mr-4 px-3 py-1 bg-[#00529f] rounded-lg">←</button>
+            <h2 class="text-xl font-black text-[#febe10] uppercase">Panel Moderador 👑</h2>
         </div>
         
-        <div class="glass p-6 rounded-3xl mb-8 border-[#ceab5d]/50">
-            <h3 class="text-sm font-black mb-4 text-white uppercase">Fichar Nuevo Operador</h3>
-            <input type="text" id="adm-nombre" placeholder="Nombre del Socio" class="input-pro mb-3">
+        <div class="glass p-6 rounded-3xl mb-8 border-[#febe10]/30 border">
+            <h3 class="text-sm font-black mb-4 text-white uppercase tracking-widest">Crear Nuevo Usuario</h3>
+            <input type="text" id="adm-nombre" placeholder="Nombre (Ej: Juan Perez)" class="input-pro mb-3">
             <input type="text" id="adm-cont" placeholder="Teléfono o Correo" class="input-pro mb-4">
-            <button onclick="crearUsuario()" class="madrid-btn w-full py-4 bg-white text-[#001c44] shadow-lg">Generar Carnet y Link</button>
+            <button onclick="crearUsuario()" class="w-full py-4 bg-[#00529f] hover:bg-[#003d7a] text-white rounded-xl font-black uppercase shadow-lg">Generar Acceso y Link</button>
         </div>
         
-        <h3 class="text-sm font-black mb-4 text-[#ceab5d] uppercase border-b border-white/10 pb-2">Lista de Socios VIP</h3>
+        <h3 class="text-sm font-black mb-4 text-[#febe10] uppercase border-b border-[#febe10]/20 pb-2">Gestión de Usuarios</h3>
         <div id="admin-users-list" class="space-y-3"></div>
     </div>
 
     <!-- VISTA: HISTORIAL -->
     <div id="view-historial" class="view-window p-6">
         <div class="flex items-center mb-8">
-            <button onclick="closeView()" class="text-[#ceab5d] font-black text-2xl mr-4 px-3 py-1 bg-white/10 rounded-full">✕</button>
-            <h2 class="text-xl font-black text-white font-madrid">SALA DE TROFEOS 🏆</h2>
+            <button onclick="closeView()" class="text-[#febe10] font-black text-2xl mr-4 px-3 py-1 bg-[#00529f] rounded-lg">←</button>
+            <h2 class="text-xl font-black text-white">HISTORIAL DE CÁLCULOS 🏆</h2>
         </div>
         <div id="historial-content" class="space-y-4"></div>
     </div>
 
     <script>
-        // MANTENIENDO TU LOGICA ORIGINAL INTACTA
         const PIN_CORRECTO = "{{ user.pin }}";
         const MI_TOKEN = "{{ token }}";
         const USER_ROL = "{{ user.rol }}";
@@ -436,7 +185,7 @@
             if(document.getElementById('pin-input').value === PIN_CORRECTO) {
                 document.getElementById('lock-screen').style.display = 'none';
                 document.getElementById('app-home').classList.remove('hidden');
-            } else { alert("ACCESO DENEGADO - NO ERES SOCIO ⚽"); }
+            } else { alert("PIN INCORRECTO ⚽"); }
         }
 
         function openView(id) {
@@ -462,14 +211,14 @@
                 const docHora = meta / 11;
                 const horasTotales = doc / docHora;
                 document.getElementById('ts-res').innerText = formatTime(horasTotales);
-                document.getElementById('ts-ritmo').innerText = `RITMO: ${docHora.toFixed(2)} DOC/HR`;
+                document.getElementById('ts-ritmo').innerText = `Ritmo: ${docHora.toFixed(2)} doc/hr`;
             }
         }
 
         function addCarga() {
             const container = document.getElementById('cargas-list');
             const div = document.createElement('div');
-            div.className = "flex gap-2 animate-fade-in";
+            div.className = "flex gap-2 animate-slide-in";
             div.innerHTML = `<input type="number" placeholder="META" class="input-pro c-meta" oninput="calcularEficiencia()">
                              <input type="number" placeholder="HECHO" class="input-pro c-hecho" oninput="calcularEficiencia()">`;
             container.appendChild(div);
@@ -479,7 +228,7 @@
             const metas = document.querySelectorAll('.c-meta'), hechos = document.querySelectorAll('.c-hecho');
             const paros = parseFloat(document.getElementById('ef-paros').value) || 0;
             let sumMeta = 0, sumHecho = 0, count = 0;
-            let sts = [];
+            let sts = []; 
             let totalST = 0;
 
             metas.forEach((m, i) => {
@@ -492,7 +241,9 @@
                     let st = hechoVal / (metaVal / 11);
                     sts.push(st);
                     totalST += st;
-                } else { sts.push(0); }
+                } else {
+                    sts.push(0);
+                }
             });
 
             const mGen = count > 0 ? sumMeta/count : 0;
@@ -502,19 +253,18 @@
             document.getElementById('ui-meta').innerText = mAj > 0 ? mAj.toFixed(2) : '0';
             document.getElementById('ui-hecho').innerText = sumHecho;
             
-            // Lógica de Colores Madridistas
-            let colorClass = "bg-purple-900 text-white"; // 0-64% (Morado oscuro)
-            if (ef >= 100) colorClass = "ef-excelente"; // Oro
-            else if (ef >= 95) colorClass = "ef-buena"; // Blanco
-            else if (ef >= 85) colorClass = "ef-media"; // Azul
-            else if (ef >= 75) colorClass = "bg-yellow-100 text-black"; 
-            else if (ef >= 65) colorClass = "bg-orange-200 text-black";
+            // Colores Madridistas para el badge
+            let colorClass = "bg-[#00529f] text-white border-[#febe10]"; 
+            if (ef >= 95) colorClass = "bg-[#00529f] text-white border-white"; 
+            else if (ef >= 85) colorClass = "bg-green-700 text-white border-[#febe10]"; 
+            else if (ef < 75) colorClass = "bg-orange-700 text-white border-[#febe10]";
+            if (ef < 65) colorClass = "bg-red-800 text-white border-white";
 
             document.getElementById('ef-resultado').innerText = ef.toFixed(2) + "%";
             const badge = document.getElementById('ef-badge');
-            badge.className = `p-8 rounded-[32px] text-center mb-6 shadow-2xl transition-all duration-500 border-2 ${colorClass}`;
+            badge.className = `p-8 rounded-[32px] text-center mb-6 shadow-2xl transition-colors duration-500 border-2 ${colorClass}`;
 
-            const onTime = 11 - paros;
+            const onTime = 11 - paros; 
             const splitContainer = document.getElementById('tiempos-cargas');
             splitContainer.innerHTML = '';
 
@@ -523,26 +273,25 @@
                     if (st > 0) {
                         let allocatedTime = st * (onTime / totalST);
                         splitContainer.innerHTML += `
-                            <div class="flex justify-between items-center glass p-3 rounded-xl border-l-4 border-[#ceab5d]">
-                                <span class="text-xs font-black text-gray-300 uppercase">Jornada ${i+1}</span>
-                                <span class="text-sm font-black text-white">${formatTime(allocatedTime)}</span>
+                            <div class="flex justify-between items-center glass p-3 rounded-xl border border-[#00529f]">
+                                <span class="text-xs font-black text-gray-300 uppercase italic tracking-tighter">CARGA ${i+1}</span>
+                                <span class="text-sm font-black text-[#febe10]">${formatTime(allocatedTime)}</span>
                             </div>`;
                     }
                 });
                 
                 splitContainer.innerHTML += `
-                    <div class="flex justify-between items-center bg-white/10 p-3 rounded-xl mt-3 border border-white/20">
-                        <span class="text-xs font-black text-white uppercase">Tiempo Efectivo (ON)</span>
-                        <span class="text-sm font-black text-[#ceab5d]">${formatTime(onTime)}</span>
+                    <div class="flex justify-between items-center bg-[#febe10] p-3 rounded-xl mt-3 shadow-lg">
+                        <span class="text-xs font-black text-[#001c44] uppercase tracking-tighter">Suma Total (Tiempo Real)</span>
+                        <span class="text-sm font-black text-[#001c44]">${formatTime(onTime)}</span>
                     </div>`;
             }
         }
 
-        // FUNCIONES ADMIN MANTENIDAS
         async function crearUsuario() {
             const n = document.getElementById('adm-nombre').value;
             const c = document.getElementById('adm-cont').value;
-            if(!n || !c) return alert("⚠️ Datos incompletos.");
+            if(!n || !c) return alert("⚠️ Ingresa nombre y contacto.");
             const res = await fetch('/api/admin/usuarios', {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
@@ -550,7 +299,9 @@
             });
             const d = await res.json();
             const enlacePersonal = `${window.location.origin}/?token=${d.token}`;
-            alert(`✅ NUEVO SOCIO REGISTRADO\n\nNombre: ${n}\nToken: ${d.token}\nPIN: ${d.pin}\n\nEnlace:\n${enlacePersonal}`);
+            alert(`✅ USUARIO REGISTRADO\n\nNombre: ${n}\nPIN: ${d.pin}\nLink: ${enlacePersonal}`);
+            document.getElementById('adm-nombre').value = '';
+            document.getElementById('adm-cont').value = '';
             fetchAdminUsers();
         }
 
@@ -559,24 +310,40 @@
             const users = await res.json();
             const list = document.getElementById('admin-users-list');
             list.innerHTML = Object.keys(users).map(t => `
-                <div class="glass p-4 rounded-2xl border border-white/5 mb-2">
+                <div class="glass p-4 rounded-2xl border border-[#00529f] mb-2">
                     <div class="flex justify-between items-start mb-2">
                         <div>
                             <p class="font-black text-white text-sm uppercase">${users[t].nombre}</p>
-                            <p class="text-[11px] text-[#ceab5d] font-mono">${t} | PIN: ${users[t].pin}</p>
+                            <p class="text-[11px] text-[#febe10] font-mono tracking-wider">${t} | PIN: ${users[t].pin}</p>
                         </div>
                         ${t !== 'angel0301' ? `
                             <div class="flex gap-2">
-                                <button onclick="eliminarUser('${t}')" class="text-white text-[10px] font-black bg-red-900/50 px-2 py-1 rounded">BAJA</button>
+                                <button onclick="editarUser('${t}', '${users[t].nombre}', '${users[t].contacto}')" class="text-white text-[10px] font-black bg-[#00529f] px-3 py-2 rounded uppercase">Editar</button>
+                                <button onclick="eliminarUser('${t}')" class="text-white text-[10px] font-black bg-red-800 px-3 py-2 rounded uppercase">Borrar</button>
                             </div>
-                        ` : '<span class="text-xl">👑</span>'}
+                        ` : '<span class="text-2xl" title="Presidente">👑</span>'}
                     </div>
                 </div>
             `).join('');
         }
 
+        async function editarUser(t, nombreActual, contactoActual) {
+            const nuevoNombre = prompt("EDITAR SOCIO\nNuevo nombre:", nombreActual);
+            if(nuevoNombre === null) return;
+            const nuevoCont = prompt("Nuevo contacto:", contactoActual);
+            if(nuevoCont === null) return;
+            const nuevoPin = prompt("Nuevo PIN (4 dígitos):");
+            await fetch('/api/admin/usuarios', {
+                method: 'PUT',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({token: t, nombre: nuevoNombre, contacto: nuevoCont, nuevo_pin: nuevoPin})
+            });
+            alert("✅ Cambios guardados.");
+            fetchAdminUsers();
+        }
+
         async function eliminarUser(t) {
-            if(confirm('¿Eliminar socio?')) {
+            if(confirm('⚠️ ¿Deseas dar de baja a este usuario?')) {
                 await fetch(`/api/admin/eliminar/${t}`, {method: 'DELETE'});
                 fetchAdminUsers();
             }
@@ -585,10 +352,7 @@
         async function guardarHistorial(tipo) {
             let info = {};
             if(tipo === 'Eficiencia') {
-                info = { 
-                    res: document.getElementById('ef-resultado').innerText,
-                    detalle: document.getElementById('tiempos-cargas').innerText.replace(/\n/g, ' | ')
-                };
+                info = { res: document.getElementById('ef-resultado').innerText, detalle: document.getElementById('tiempos-cargas').innerText.replace(/\n/g, ' | ') };
             } else {
                 info = { res: document.getElementById('ts-res').innerText, meta: document.getElementById('ts-meta').value };
             }
@@ -597,7 +361,7 @@
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({tipo, info})
             });
-            alert("💾 Registrado en la historia del club");
+            alert("💾 Guardado en la Sala de Trofeos");
         }
 
         async function fetchHistorial() {
@@ -605,17 +369,17 @@
             const data = await res.json();
             const cont = document.getElementById('historial-content');
             if(data.length === 0) {
-                cont.innerHTML = '<p class="text-center text-gray-500 text-xs mt-10 uppercase">No hay trofeos registrados.</p>';
+                cont.innerHTML = '<p class="text-center text-gray-400 text-xs mt-10 uppercase font-black">Sala de Trofeos Vacía</p>';
                 return;
             }
             cont.innerHTML = data.reverse().map(i => `
-                <div class="glass p-4 rounded-2xl border-l-4 border-[#ceab5d] mb-3">
-                    <div class="flex justify-between text-[9px] mb-2 font-black text-gray-400 uppercase">
-                        <span class="text-[#ceab5d]">${i.tipo}</span>
+                <div class="glass p-4 rounded-2xl border-l-4 border-[#febe10] mb-3">
+                    <div class="flex justify-between text-[10px] mb-2 font-black text-gray-400 uppercase">
+                        <span class="text-[#febe10] italic">${i.tipo}</span>
                         <span>${i.fecha_hora}</span>
                     </div>
-                    <div class="text-2xl font-black text-white mb-1 font-madrid">${i.info.res}</div>
-                    <div class="text-[9px] text-gray-400 uppercase tracking-tighter">${i.info.detalle || ''}</div>
+                    <div class="text-2xl font-black text-white mb-1 tracking-tighter">${i.info.res}</div>
+                    ${i.info.detalle ? `<div class="text-[9px] text-gray-400 leading-tight uppercase font-bold italic">${i.info.detalle}</div>` : ''}
                 </div>
             `).join('');
         }
