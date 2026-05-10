@@ -1,3 +1,5 @@
+
+
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -33,12 +35,6 @@
         .lion-btn { transition: 0.2s; border: 2px solid transparent; cursor: pointer; }
         .lion-btn:active { transform: scale(0.95); }
         .lion-btn:hover { border-color: #ffb703; }
-
-        @keyframes slideIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-slide-in { animation: slideIn 0.3s ease-out forwards; }
     </style>
 </head>
 <body class="max-w-md mx-auto relative min-h-screen">
@@ -83,13 +79,13 @@
                 <span class="text-4xl block mb-2">⭐</span>
                 <span class="text-[11px] font-black uppercase text-white">Valorar<br>App</span>
             </div>
-
-            {% if token == 'angel0301' %}
-            <div onclick="openView('view-admin')" class="lion-btn glass p-6 rounded-[24px] text-center col-span-2 border-yellow-500 bg-yellow-500/20 shadow-[0_0_15px_rgba(234,179,8,0.3)]">
-                <span class="text-4xl block mb-2">👑</span>
-                <span class="text-xs font-black text-yellow-400 uppercase italic">Panel de Moderador (Exclusivo Angel)</span>
-            </div>
-            {% endif %}
+<!-- Busca la línea 75-80 aproximadamente en tu HTML -->
+{% if token == 'angel0301' %}
+<div onclick="openView('view-admin')" class="lion-btn glass p-6 rounded-[24px] text-center col-span-2 border-yellow-500 bg-yellow-500/20 shadow-[0_0_15px_rgba(234,179,8,0.3)]">
+    <span class="text-4xl block mb-2">👑</span>
+    <span class="text-xs font-black text-yellow-400 uppercase italic">Panel de Moderador (Exclusivo Angel)</span>
+</div>
+{% endif %}
         </div>
     </div>
 
@@ -98,7 +94,7 @@
         <div class="flex items-center justify-between mb-8">
             <div class="flex items-center">
                 <button onclick="closeView()" class="text-yellow-500 font-black text-2xl mr-4 px-2 bg-blue-900 rounded-lg">←</button>
-                <h2 class="text-xl font-black text-white uppercase">Eficiencia Completa</h2>
+                <h2 class="text-xl font-black text-white">EFICIENCIA COMPLETA</h2>
             </div>
         </div>
         
@@ -108,6 +104,7 @@
         <label class="text-[10px] text-yellow-400 font-black uppercase">Horas de Paro (Tiempo Muerto)</label>
         <input type="number" id="ef-paros" step="0.01" oninput="calcularEficiencia()" class="input-pro mt-2 mb-6" placeholder="Ej: 1.5 (1h 30m)">
         
+        <!-- EDICIÓN DEL RECUADRITO GRANDE -->
         <div id="ef-badge" class="bg-red-600 p-8 rounded-[32px] text-center mb-6 shadow-xl transition-colors duration-500 border-2 border-transparent">
             <div id="ef-resultado" class="text-6xl font-black text-white">0.00%</div>
             <p class="text-[11px] font-black uppercase mt-2 text-white">Eficiencia Final</p>
@@ -124,7 +121,9 @@
             </div>
         </div>
 
-        <div id="tiempos-cargas" class="mb-6 space-y-2"></div>
+        <div id="tiempos-cargas" class="mb-6 space-y-2">
+            <!-- Aquí se inyectan los tiempos calculados -->
+        </div>
 
         <button onclick="guardarHistorial('Eficiencia')" class="w-full py-4 bg-red-600 hover:bg-red-700 text-white rounded-2xl font-black text-sm uppercase">Guardar en Historial</button>
     </div>
@@ -160,6 +159,7 @@
             <h2 class="text-xl font-black text-yellow-500 uppercase">Panel Moderador 👑</h2>
         </div>
         
+        <!-- Formulario de Creación -->
         <div class="glass p-6 rounded-3xl mb-8 border-yellow-500/50 border">
             <h3 class="text-sm font-black mb-4 text-white uppercase">Crear Nuevo Usuario</h3>
             <input type="text" id="adm-nombre" placeholder="Nombre (Ej: Juan Perez)" class="input-pro mb-3">
@@ -167,6 +167,7 @@
             <button onclick="crearUsuario()" class="w-full py-4 bg-red-600 hover:bg-red-700 text-white rounded-xl font-black uppercase shadow-lg">Generar Acceso y Link</button>
         </div>
         
+        <!-- Lista de Usuarios -->
         <h3 class="text-sm font-black mb-4 text-yellow-500 uppercase border-b border-gray-700 pb-2">Gestión de Usuarios</h3>
         <div id="admin-users-list" class="space-y-3"></div>
     </div>
@@ -175,7 +176,7 @@
     <div id="view-historial" class="view-window p-6">
         <div class="flex items-center mb-8">
             <button onclick="closeView()" class="text-yellow-500 font-black text-2xl mr-4 px-2 bg-blue-900 rounded-lg">←</button>
-            <h2 class="text-xl font-black text-white uppercase">Historial de Cálculos 📂</h2>
+            <h2 class="text-xl font-black text-white">HISTORIAL DE CÁLCULOS 📂</h2>
         </div>
         <div id="historial-content" class="space-y-4"></div>
     </div>
@@ -232,7 +233,7 @@
             const metas = document.querySelectorAll('.c-meta'), hechos = document.querySelectorAll('.c-hecho');
             const paros = parseFloat(document.getElementById('ef-paros').value) || 0;
             let sumMeta = 0, sumHecho = 0, count = 0;
-            let sts = []; 
+            let sts = []; // Tiempos estándar
             let totalST = 0;
 
             metas.forEach((m, i) => {
@@ -242,6 +243,7 @@
                     sumMeta += metaVal; 
                     sumHecho += hechoVal; 
                     count++; 
+                    // Calcular tiempo estándar de esta carga (al 100%)
                     let st = hechoVal / (metaVal / 11);
                     sts.push(st);
                     totalST += st;
@@ -250,40 +252,46 @@
                 }
             });
 
+            // 1. Calcular Porcentaje de Eficiencia Final (Tu lógica original intacta)
             const mGen = count > 0 ? sumMeta/count : 0;
             const mAj = mGen - (paros * (mGen/11));
             const ef = mAj > 0 ? (sumHecho / mAj) * 100 : 0;
             
+            // AGREGADO: Mostrar la Meta Final y Suma Hecha en la UI
             document.getElementById('ui-meta').innerText = mAj > 0 ? mAj.toFixed(2) : '0';
             document.getElementById('ui-hecho').innerText = sumHecho;
             
-            let colorClass = "bg-red-600 text-white"; 
-            if (ef >= 100) colorClass = "bg-[#4cc9f0] text-blue-900 border-white";
-            else if (ef >= 95) colorClass = "bg-[#023e8a] text-white";
-            else if (ef >= 85) colorClass = "bg-green-600 text-white";
-            else if (ef >= 75) colorClass = "bg-yellow-500 text-black";
-            else if (ef >= 65) colorClass = "bg-orange-500 text-white";
+            // Colores según escala
+            let colorClass = "bg-red-600 text-white"; // 0 - 64%
+            if (ef >= 100) colorClass = "bg-[#4cc9f0] text-blue-900 border-white"; // Azul Claro
+            else if (ef >= 95) colorClass = "bg-[#023e8a] text-white"; // Azul Oscuro
+            else if (ef >= 85) colorClass = "bg-green-600 text-white"; // Verde
+            else if (ef >= 75) colorClass = "bg-yellow-500 text-black"; // Amarillo
+            else if (ef >= 65) colorClass = "bg-orange-500 text-white"; // Naranja
 
             document.getElementById('ef-resultado').innerText = ef.toFixed(2) + "%";
             const badge = document.getElementById('ef-badge');
             badge.className = `p-8 rounded-[32px] text-center mb-6 shadow-2xl transition-colors duration-500 border-2 border-transparent ${colorClass}`;
 
-            const onTime = 11 - paros; 
+            // 2. Cuadrar tiempos de las cargas (Lógica de distribución exacta)
+            const onTime = 11 - paros; // Horas trabajadas reales
             const splitContainer = document.getElementById('tiempos-cargas');
             splitContainer.innerHTML = '';
 
             if (totalST > 0 && onTime > 0) {
                 sts.forEach((st, i) => {
                     if (st > 0) {
+                        // Distribuir el tiempo ON basado en el peso de la carga
                         let allocatedTime = st * (onTime / totalST);
                         splitContainer.innerHTML += `
                             <div class="flex justify-between items-center glass p-3 rounded-xl border border-blue-800">
-                                <span class="text-xs font-black text-gray-300 uppercase">Carga ${i+1}</span>
+                                <span class="text-xs font-black text-gray-300">CARGA ${i+1}</span>
                                 <span class="text-sm font-black text-yellow-400">${formatTime(allocatedTime)}</span>
                             </div>`;
                     }
                 });
                 
+                // Mostrar total cuadriculado para confirmar que suma exactamente las horas ON
                 splitContainer.innerHTML += `
                     <div class="flex justify-between items-center bg-red-600 p-3 rounded-xl mt-3 shadow-lg">
                         <span class="text-xs font-black text-white uppercase">Suma Total (Tiempo ON)</span>
@@ -292,9 +300,11 @@
             }
         }
 
+// --- FUNCIONES EXCLUSIVAS DE ANGEL (ADMIN) ---
         async function crearUsuario() {
             const n = document.getElementById('adm-nombre').value;
             const c = document.getElementById('adm-cont').value;
+            
             if(!n || !c) return alert("⚠️ Por favor ingresa el nombre y el contacto.");
             
             const res = await fetch('/api/admin/usuarios', {
@@ -303,10 +313,16 @@
                 body: JSON.stringify({nombre: n, contacto: c})
             });
             const d = await res.json();
+            
             const enlacePersonal = `${window.location.origin}/?token=${d.token}`;
-            alert(`✅ USUARIO CREADO CON ÉXITO\n\nNombre: ${n}\nToken Único: ${d.token}\nPIN: ${d.pin}\n\nEnlace:\n${enlacePersonal}`);
+            
+            // Muestra la alerta con los datos claros
+            alert(`✅ USUARIO CREADO CON ÉXITO\n\nNombre: ${n}\nToken Único: ${d.token}\nPIN de Acceso: ${d.pin}\n\nEnlace (Cópialo y envíaselo al usuario):\n${enlacePersonal}`);
+            
+            // Limpia los campos
             document.getElementById('adm-nombre').value = '';
             document.getElementById('adm-cont').value = '';
+            
             fetchAdminUsers();
         }
 
@@ -314,6 +330,7 @@
             const res = await fetch('/api/admin/usuarios');
             const users = await res.json();
             const list = document.getElementById('admin-users-list');
+            
             list.innerHTML = Object.keys(users).map(t => `
                 <div class="glass p-4 rounded-2xl border border-blue-800 mb-2">
                     <div class="flex justify-between items-start mb-2">
@@ -326,31 +343,33 @@
                                 <button onclick="editarUser('${t}', '${users[t].nombre}', '${users[t].contacto}')" class="text-blue-100 text-[10px] font-black bg-blue-600 px-3 py-2 rounded uppercase">Editar</button>
                                 <button onclick="eliminarUser('${t}')" class="text-white text-[10px] font-black bg-red-600 px-3 py-2 rounded uppercase">Borrar</button>
                             </div>
-                        ` : '<span class="text-2xl">👑</span>'}
+                        ` : '<span class="text-2xl" title="Admin Principal">👑</span>'}
                     </div>
-                    <p class="text-[10px] text-gray-400 font-bold uppercase">Contacto: ${users[t].contacto}</p>
+                    <p class="text-[10px] text-gray-400 font-bold">Contacto: ${users[t].contacto}</p>
                 </div>
             `).join('');
         }
 
         async function editarUser(t, nombreActual, contactoActual) {
-            const nuevoNombre = prompt("Nuevo nombre:", nombreActual);
-            if(nuevoNombre === null) return;
-            const nuevoCont = prompt("Nuevo contacto:", contactoActual);
+            const nuevoNombre = prompt("EDITAR USUARIO\nNuevo nombre:", nombreActual);
+            if(nuevoNombre === null) return; // Si cancela
+            
+            const nuevoCont = prompt("Nuevo contacto (Teléfono/Correo):", contactoActual);
             if(nuevoCont === null) return;
-            const nuevoPin = prompt("Nuevo PIN (4 dígitos) o vacío para mantener:");
+            
+            const nuevoPin = prompt("Nuevo PIN de 4 dígitos\n(Deja en blanco si NO quieres cambiar el PIN actual):");
             
             await fetch('/api/admin/usuarios', {
                 method: 'PUT',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({token: t, nombre: nuevoNombre, contacto: nuevoCont, nuevo_pin: nuevoPin})
             });
-            alert("✅ Usuario actualizado.");
+            alert("✅ Usuario actualizado correctamente.");
             fetchAdminUsers();
         }
 
         async function eliminarUser(t) {
-            if(confirm('⚠️ ¿Eliminar este usuario definitivamente?')) {
+            if(confirm('⚠️ ¿Estás seguro de que deseas ELIMINAR este usuario y revocar su acceso a la plataforma?')) {
                 await fetch(`/api/admin/eliminar/${t}`, {method: 'DELETE'});
                 fetchAdminUsers();
             }
@@ -371,25 +390,28 @@
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({tipo, info})
             });
-            alert("💾 Guardado en Historial");
+            alert("💾 Datos guardados en tu historial");
         }
 
         async function fetchHistorial() {
             const res = await fetch('/api/load');
             const data = await res.json();
             const cont = document.getElementById('historial-content');
+            
             if(data.length === 0) {
-                cont.innerHTML = '<p class="text-center text-gray-500 text-xs mt-10 uppercase font-black">No hay registros aún.</p>';
+                cont.innerHTML = '<p class="text-center text-gray-500 text-xs mt-10">No hay registros aún.</p>';
                 return;
             }
+
             cont.innerHTML = data.reverse().map(i => `
                 <div class="glass p-4 rounded-2xl border-l-4 border-yellow-500 mb-3">
                     <div class="flex justify-between text-[10px] mb-2 font-black text-gray-400 uppercase">
                         <span class="text-yellow-500">${i.tipo}</span>
                         <span>${i.fecha_hora}</span>
                     </div>
+                    ${i.usuario ? `<div class="text-[10px] text-blue-300 mb-2">Operador: ${i.usuario}</div>` : ''}
                     <div class="text-2xl font-black text-white mb-1">${i.info.res}</div>
-                    ${i.info.detalle ? `<div class="text-[9px] text-gray-400 leading-tight uppercase font-bold">${i.info.detalle}</div>` : ''}
+                    ${i.info.detalle ? `<div class="text-[9px] text-gray-400 leading-tight">${i.info.detalle}</div>` : ''}
                 </div>
             `).join('');
         }
