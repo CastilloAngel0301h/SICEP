@@ -98,10 +98,10 @@
         <div id="cargas-list" class="space-y-4 mb-4"></div>
         <button onclick="addCarga()" class="w-full py-3 border-2 border-dashed border-yellow-500 text-yellow-500 rounded-xl text-xs font-black mb-6 hover:bg-yellow-500 hover:text-black transition-colors">+ AÑADIR CARGA</button>
         
-        <label class="text-[10px] text-yellow-400 font-black uppercase">Horas de Paro Calculadas para Meta</label>
-        <input type="number" id="ef-paros" step="0.01" class="input-pro mt-2 mb-6" placeholder="Calculado automáticamente" readonly>
+        <label class="text-[10px] text-yellow-400 font-black uppercase">Horas de Paro (Calculadas Automáticamente)</label>
+        <input type="number" id="ef-paros" step="0.01" readonly class="input-pro mt-2 mb-6 opacity-70 bg-slate-800" placeholder="Se calcula de tus paros ingresados">
         
-        <!-- RECUADRITO GRANDE -->
+        <!-- EDICIÓN DEL RECUADRITO GRANDE -->
         <div id="ef-badge" class="bg-red-600 p-8 rounded-[32px] text-center mb-6 shadow-xl transition-colors duration-500 border-2 border-transparent">
             <div id="ef-resultado" class="text-6xl font-black text-white">0.00%</div>
             <p class="text-[11px] font-black uppercase mt-2 text-white">Eficiencia Final</p>
@@ -206,6 +206,19 @@
             return `${h}H ${m < 10 ? '0'+m : m}M`;
         }
 
+        // Helper para convertir minutos acumulados a formato de reloj continuo de 12 horas AM/PM
+        function formatClock(totalMinutes) {
+            let h = Math.floor(totalMinutes / 60) % 24;
+            let m = Math.round(totalMinutes % 60);
+            if (m === 60) { h++; m = 0; h = h % 24; }
+            
+            let ampm = h >= 12 ? 'PM' : 'AM';
+            let displayH = h % 12;
+            if (displayH === 0) displayH = 12;
+            
+            return `${displayH.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')} ${ampm}`;
+        }
+
         function calcTiempoSimple() {
             const meta = parseFloat(document.getElementById('ts-meta').value) || 0;
             const doc = parseFloat(document.getElementById('ts-doc').value) || 0;
@@ -217,68 +230,153 @@
             }
         }
 
+        // --- SECCIÓN ACTUALIZADA CON SELECTORES EN FORMATO 12H AM/PM ---
         function addCarga() {
             const container = document.getElementById('cargas-list');
-            const div = document.createElement('div');
-            div.className = "glass p-4 rounded-xl border border-gray-700 space-y-3 animate-slide-in";
+            const numCarga = container.children.length + 1;
             
-            // Layout limpio y optimizado para móviles con los nuevos campos de paros y motivos
+            const div = document.createElement('div');
+            div.className = "glass p-4 rounded-2xl border border-blue-800 space-y-3 animate-slide-in relative";
             div.innerHTML = `
-                <div class="flex justify-between items-center border-b border-gray-700/50 pb-1">
-                    <span class="text-xs font-black text-yellow-500 uppercase tracking-wider">Carga ${container.children.length + 1}</span>
+                <div class="flex justify-between items-center border-b border-gray-700 pb-2">
+                    <span class="text-xs font-black text-yellow-500 uppercase">CARGA ${numCarga}</span>
+                    <button type="button" onclick="this.parentElement.parentElement.remove(); calcularEficiencia();" class="text-red-400 text-xs font-bold hover:text-red-600">Eliminar Carga</button>
                 </div>
-                <div class="grid grid-cols-2 gap-2">
-                    <div>
-                        <label class="text-[9px] text-gray-400 font-bold uppercase block mb-1">Meta</label>
-                        <input type="number" placeholder="META" class="input-pro c-meta text-sm p-2" oninput="calcularEficiencia()">
-                    </div>
-                    <div>
-                        <label class="text-[9px] text-gray-400 font-bold uppercase block mb-1">Hecho</label>
-                        <input type="number" placeholder="HECHO" class="input-pro c-hecho text-sm p-2" oninput="calcularEficiencia()">
-                    </div>
+                <div class="flex gap-2">
+                    <input type="number" placeholder="META" class="input-pro c-meta" oninput="calcularEficiencia()">
+                    <input type="number" placeholder="HECHO" class="input-pro c-hecho" oninput="calcularEficiencia()">
                 </div>
-                <div class="grid grid-cols-2 gap-2">
-                    <div>
-                        <label class="text-[9px] text-gray-400 font-bold uppercase block mb-1">Minutos Paro</label>
-                        <input type="number" placeholder="MINUTOS" class="input-pro c-paro-min text-sm p-2" oninput="calcularEficiencia()" value="0">
-                    </div>
-                    <div>
-                        <label class="text-[9px] text-gray-400 font-bold uppercase block mb-1">Motivo</label>
-                        <select class="input-pro c-paro-motivo text-xs p-2 bg-[#1c2541]" onchange="calcularEficiencia()">
-                            <option value="-">SIN PARO</option>
-                            <option value="R">R - RECESO (IN)</option>
-                            <option value="F">F - ENFERMERÍA (IN)</option>
-                            <option value="C">C - REUNIÓN (IN)</option>
-                            <option value="A">A - PARO A (OUT)</option>
-                            <option value="B">B - PARO B (OUT)</option>
-                            <option value="D">D - PARO D (OUT)</option>
-                            <option value="E">E - PARO E (OUT)</option>
-                            <option value="G">G - PARO G (OUT)</option>
-                            <option value="H">H - PARO H (OUT)</option>
-                            <option value="I">I - ASIGNACIÓN LÍNEA (OUT)</option>
-                        </select>
-                    </div>
-                </div>
+                
+                <!-- Subcontenedor de paros para esta carga específica -->
+                <div class="paros-container space-y-2"></div>
+                
+                <button type="button" onclick="addParoToCarga(this)" class="w-full py-1.5 bg-blue-900/40 hover:bg-blue-900/80 border border-blue-700/60 rounded-xl text-[10px] font-black text-blue-300 uppercase tracking-wider transition-all">
+                    + Añadir Paro a Carga ${numCarga}
+                </button>
             `;
             container.appendChild(div);
+            calcularEficiencia();
+        }
+
+        function addParoToCarga(btn) {
+            const parosContainer = btn.previousElementSibling;
+            const div = document.createElement('div');
+            div.className = "flex flex-wrap gap-2 bg-black/40 p-2.5 rounded-xl items-center text-xs border border-gray-700/60 animate-slide-in";
+            
+            // Creación limpia de horas mapeadas de 24h internas a etiquetas legibles de 12 horas AM y PM
+            let hoursOpts = '';
+            for(let h=0; h<24; h++) {
+                let displayHour = h % 12;
+                if (displayHour === 0) displayHour = 12;
+                let ampm = h >= 12 ? 'PM' : 'AM';
+                let hStr = displayHour < 10 ? '0'+displayHour : displayHour;
+                hoursOpts += `<option value="${h}">${hStr} ${ampm}</option>`;
+            }
+            
+            let minsOpts = '';
+            for(let m=0; m<60; m++) {
+                let mStr = m < 10 ? '0'+m : m;
+                minsOpts += `<option value="${m}">${mStr}</option>`;
+            }
+
+            div.innerHTML = `
+                <div class="flex flex-col gap-1">
+                    <span class="text-[9px] font-black text-gray-400 uppercase tracking-tighter">Inicio</span>
+                    <div class="flex items-center bg-[#1c2541] px-1 rounded border border-gray-600">
+                        <select class="bg-transparent text-white py-1 outline-none p-start-h" onchange="calcularEficiencia()">${hoursOpts}</select>
+                        <span class="text-gray-400 px-0.5">:</span>
+                        <select class="bg-transparent text-white py-1 outline-none p-start-m" onchange="calcularEficiencia()">${minsOpts}</select>
+                    </div>
+                </div>
+                <div class="flex flex-col gap-1">
+                    <span class="text-[9px] font-black text-gray-400 uppercase tracking-tighter">Fin</span>
+                    <div class="flex items-center bg-[#1c2541] px-1 rounded border border-gray-600">
+                        <select class="bg-transparent text-white py-1 outline-none p-end-h" onchange="calcularEficiencia()">${hoursOpts}</select>
+                        <span class="text-gray-400 px-0.5">:</span>
+                        <select class="bg-transparent text-white py-1 outline-none p-end-m" onchange="calcularEficiencia()">${minsOpts}</select>
+                    </div>
+                </div>
+                <div class="flex flex-col flex-1 min-w-[100px] gap-1">
+                    <span class="text-[9px] font-black text-yellow-400 uppercase tracking-tighter">Motivo</span>
+                    <select class="bg-[#1c2541] border border-yellow-600/70 text-yellow-400 font-bold p-1 rounded outline-none p-motivo" onchange="calcularEficiencia()">
+                        <option value="R">R (Receso - Dentro)</option>
+                        <option value="F">F (Enfermería - Dentro)</option>
+                        <option value="C">C (Reunión - Dentro)</option>
+                        <option value="A">A (Fuera)</option>
+                        <option value="B">B (Fuera)</option>
+                        <option value="D">D (Fuera)</option>
+                        <option value="E">E (Fuera)</option>
+                        <option value="G">G (Fuera)</option>
+                        <option value="H">H (Fuera)</option>
+                        <option value="I">I (Asignación - Fuera)</option>
+                    </select>
+                </div>
+                <button type="button" onclick="this.parentElement.remove(); calcularEficiencia();" class="text-red-500 font-black text-base pt-3 px-1 hover:text-red-400">✕</button>
+            `;
+            parosContainer.appendChild(div);
+            
+            // Configurar por defecto a las 07:00 AM para agilizar el guardado en planta
+            div.querySelector('.p-start-h').value = "7";
+            div.querySelector('.p-end-h').value = "7";
+            calcularEficiencia();
         }
 
         function calcularEficiencia() {
-            const metas = document.querySelectorAll('.c-meta'), hechos = document.querySelectorAll('.c-hecho');
-            const parosMinInputs = document.querySelectorAll('.c-paro-min'), motivosInputs = document.querySelectorAll('.c-paro-motivo');
-            
+            const cargaBlocks = document.querySelectorAll('#cargas-list > div');
             let sumMeta = 0, sumHecho = 0, count = 0;
             let sts = []; 
             let totalST = 0;
-            let totalParosParaMeta = 0; 
-            let totalTimeOffHours = 0; // Paros fuera de carga (A, B, D, E, G, H, I)
-            let totalParosNoRHours = 0; // Todos los paros acumulados excepto el Receso (R)
 
-            metas.forEach((m, i) => {
-                let metaVal = parseFloat(m.value) || 0;
-                let hechoVal = parseFloat(hechos[i].value) || 0;
-                let paroMin = parseFloat(parosMinInputs[i].value) || 0;
-                let motivo = motivosInputs[i].value;
+            let totalAllParosMins = 0;       
+            let totalParosExceptRMins = 0;   
+            let totalOutsideParosMins = 0;   
+
+            let parosPerCarga = [];
+
+            cargaBlocks.forEach((block, i) => {
+                const metaInput = block.querySelector('.c-meta');
+                const hechoInput = block.querySelector('.c-hecho');
+                let metaVal = parseFloat(metaInput ? metaInput.value : 0) || 0;
+                let hechoVal = parseFloat(hechoInput ? hechoInput.value : 0) || 0;
+
+                let loadOutsideMins = 0;
+                let loadParosList = [];
+
+                const parosRows = block.querySelectorAll('.paros-container > div');
+                parosRows.forEach(row => {
+                    const startH = parseInt(row.querySelector('.p-start-h').value) || 0;
+                    const startM = parseInt(row.querySelector('.p-start-m').value) || 0;
+                    const endH = parseInt(row.querySelector('.p-end-h').value) || 0;
+                    const endM = parseInt(row.querySelector('.p-end-m').value) || 0;
+                    const motivo = row.querySelector('.p-motivo').value;
+
+                    let startTotal = startH * 60 + startM;
+                    let endTotal = endH * 60 + endM;
+                    let duration = endTotal - startTotal;
+                    if(duration < 0) duration = 0; 
+
+                    totalAllParosMins += duration;
+                    if(motivo !== 'R') {
+                        totalParosExceptRMins += duration;
+                    }
+
+                    const isOutside = ['A','B','D','E','G','H','I'].includes(motivo);
+                    if(isOutside) {
+                        totalOutsideParosMins += duration;
+                        loadOutsideMins += duration;
+                    }
+
+                    loadParosList.push({
+                        motivo: motivo,
+                        durationMins: duration,
+                        isOutside: isOutside
+                    });
+                });
+
+                parosPerCarga.push({
+                    outsideMins: loadOutsideMins,
+                    list: loadParosList
+                });
 
                 if(metaVal > 0) { 
                     sumMeta += metaVal; 
@@ -290,29 +388,13 @@
                 } else {
                     sts.push(0);
                 }
-
-                // Lógica de Meta: Afectada por A, B, C, D, E, F, G, H, I (Excluye R)
-                if (['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I'].includes(motivo)) {
-                    totalParosParaMeta += paroMin / 60;
-                }
-
-                // Lógica de Tiempos Fuera de Carga (Time Off): A, B, D, E, G, H, I
-                if (['A', 'B', 'D', 'E', 'G', 'H', 'I'].includes(motivo)) {
-                    totalTimeOffHours += paroMin / 60;
-                }
-
-                // Sumatoria para el reporte de paros que no son R
-                if (motivo !== '-' && motivo !== 'R') {
-                    totalParosNoRHours += paroMin / 60;
-                }
             });
 
-            // Actualizar cuadro de paros global de la UI en base a la lógica de la meta
-            document.getElementById('ef-paros').value = totalParosParaMeta.toFixed(2);
+            const parosExceptRHours = totalParosExceptRMins / 60;
+            document.getElementById('ef-paros').value = parosExceptRHours > 0 ? parosExceptRHours.toFixed(2) : '';
 
-            // 1. Calcular Porcentaje de Eficiencia Final (Lógica original intacta)
             const mGen = count > 0 ? sumMeta/count : 0;
-            const mAj = mGen - (totalParosParaMeta * (mGen/11));
+            const mAj = mGen - (parosExceptRHours * (mGen/11));
             const ef = mAj > 0 ? (sumHecho / mAj) * 100 : 0;
             
             document.getElementById('ui-meta').innerText = mAj > 0 ? mAj.toFixed(2) : '0';
@@ -323,94 +405,96 @@
             else if (ef >= 95) colorClass = "bg-[#023e8a] text-white"; 
             else if (ef >= 85) colorClass = "bg-green-600 text-white"; 
             else if (ef >= 75) colorClass = "bg-yellow-500 text-black"; 
-            else if (ef >= 65) colorClass = "bg-orange-500 text-white";
+            else if (ef >= 65) colorClass = "bg-orange-500 text-white"; 
 
             document.getElementById('ef-resultado').innerText = ef.toFixed(2) + "%";
             const badge = document.getElementById('ef-badge');
             badge.className = `p-8 rounded-[32px] text-center mb-6 shadow-2xl transition-colors duration-500 border-2 border-transparent ${colorClass}`;
 
-            // 2. Cuadrar tiempos de las cargas secuencialmente sobre un total de 12 horas exactas
-            const totalTimeOnHours = 12 - totalTimeOffHours; 
             const splitContainer = document.getElementById('tiempos-cargas');
             splitContainer.innerHTML = '';
 
-            // Helper interno para formatear horas sobre formato 24H continuo
-            function minutesToTimeString(totalMin) {
-                let hours = Math.floor(totalMin / 60) % 24;
-                let mins = Math.round(totalMin % 60);
-                if (mins === 60) { hours = (hours + 1) % 24; mins = 0; }
-                return `${hours.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}`;
-            }
+            const totalShiftMins = 12 * 60; 
+            const timeAvailableForLoadsMins = totalShiftMins - totalOutsideParosMins; 
+            
+            let currentMinutes = 7 * 60; 
 
-            let currentMinutes = 7 * 60; // 07:00 AM inicial
-
-            if (count > 0 && totalTimeOnHours > 0) {
-                metas.forEach((m, i) => {
-                    let metaVal = parseFloat(m.value) || 0;
-                    if(metaVal <= 0) return;
-
-                    let st = sts[i];
-                    let allocatedTimeHours = 0;
-                    
+            if (count > 0 && timeAvailableForLoadsMins > 0) {
+                sts.forEach((st, i) => {
+                    let allocatedLoadHours = 0;
                     if (totalST > 0) {
-                        allocatedTimeHours = st * (totalTimeOnHours / totalST);
+                        allocatedLoadHours = st * ((timeAvailableForLoadsMins / 60) / totalST);
                     } else {
-                        allocatedTimeHours = totalTimeOnHours / count;
+                        allocatedLoadHours = (timeAvailableForLoadsMins / 60) / count;
+                    }
+                    
+                    let loadDurationMins = Math.round(allocatedLoadHours * 60);
+                    
+                    if (i === sts.length - 1) {
+                        let customRemaining = (7 * 60 + totalShiftMins) - currentMinutes;
+                        for(let k = i; k < parosPerCarga.length; k++) {
+                            customRemaining -= parosPerCarga[k].outsideMins;
+                        }
+                        loadDurationMins = Math.max(0, customRemaining);
                     }
 
-                    let loadMins = allocatedTimeHours * 60;
-                    let startStr = minutesToTimeString(currentMinutes);
-                    currentMinutes += loadMins;
-                    let endStr = minutesToTimeString(currentMinutes);
-
-                    let paroMin = parseFloat(parosMinInputs[i].value) || 0;
-                    let motivo = motivosInputs[i].value;
-                    let internalNote = '';
-
-                    // Si el paro es interno (R, F, C), se visualiza como nota dentro del bloque de la carga
-                    if (['R', 'F', 'C'].includes(motivo) && paroMin > 0) {
-                        internalNote = `<p class="text-[10px] text-blue-400 font-bold italic mt-0.5">Incluye Paro Int. ${motivo} (${paroMin} min)</p>`;
-                    }
+                    let startStr = formatClock(currentMinutes);
+                    let endMinutes = currentMinutes + loadDurationMins;
+                    let endStr = formatClock(endMinutes);
 
                     splitContainer.innerHTML += `
-                        <div class="flex justify-between items-center glass p-3 rounded-xl border border-blue-800">
-                            <div>
+                        <div class="glass p-3 rounded-xl border border-blue-800 space-y-1">
+                            <div class="flex justify-between items-center">
                                 <span class="text-xs font-black text-gray-300">CARGA ${i+1}</span>
-                                ${internalNote}
+                                <span class="text-sm font-black text-yellow-400">${startStr} - ${endStr} <span class="text-[10px] text-gray-400 font-normal">(${formatTime(loadDurationMins/60)})</span></span>
                             </div>
-                            <span class="text-sm font-black text-yellow-400">${startStr} a ${endStr}</span>
                         </div>`;
+                    
+                    currentMinutes = endMinutes;
 
-                    // Si el paro es externo (A, B, D, E, G, H, I), genera una ruptura en la línea temporal
-                    if (['A', 'B', 'D', 'E', 'G', 'H', 'I'].includes(motivo) && paroMin > 0) {
-                        let pStartStr = minutesToTimeString(currentMinutes);
-                        currentMinutes += paroMin;
-                        let pEndStr = minutesToTimeString(currentMinutes);
-
-                        splitContainer.innerHTML += `
-                            <div class="flex justify-between items-center bg-gray-800/50 p-3 rounded-xl border border-dashed border-red-500/40">
-                                <span class="text-xs font-black text-red-400 uppercase">PARO EXT. (${motivo})</span>
-                                <span class="text-sm font-black text-red-400">${pStartStr} a ${pEndStr}</span>
-                            </div>`;
+                    if(parosPerCarga[i] && parosPerCarga[i].list.length > 0) {
+                        parosPerCarga[i].list.forEach(p => {
+                            if(p.isOutside && p.durationMins > 0) {
+                                let pStart = formatClock(currentMinutes);
+                                let pEndMins = currentMinutes + p.durationMins;
+                                let pEnd = formatClock(pEndMins);
+                                
+                                splitContainer.innerHTML += `
+                                    <div class="flex justify-between items-center bg-yellow-600/20 px-3 py-1.5 rounded-lg border border-yellow-600/40 ml-4 my-1">
+                                        <span class="text-[10px] font-bold text-yellow-500">↳ PARO ${p.motivo} (Fuera de Carga)</span>
+                                        <span class="text-[11px] font-mono font-black text-white">${pStart} - ${pEnd} (${p.durationMins} min)</span>
+                                    </div>`;
+                                currentMinutes = pEndMins;
+                            } else if(!p.isOutside && p.durationMins > 0) {
+                                splitContainer.innerHTML += `
+                                    <div class="flex justify-between items-center bg-blue-600/10 px-3 py-1.5 rounded-lg border border-blue-600/30 ml-4 my-1">
+                                        <span class="text-[10px] font-bold text-blue-400">↳ PARO ${p.motivo} (Dentro de Carga)</span>
+                                        <span class="text-[11px] font-mono text-gray-400 font-bold">Absorbido (${p.durationMins} min)</span>
+                                    </div>`;
+                            }
+                        });
                     }
                 });
+                
+                let tiempoOnMins = totalShiftMins - totalAllParosMins; 
+                let tiempoOffMins = totalParosExceptRMins; 
+                if(tiempoOnMins < 0) tiempoOnMins = 0;
 
-                // Reporte al final con la suma del tiempo trabajado (ON) y paros no R (OFF)
                 splitContainer.innerHTML += `
-                    <div class="grid grid-cols-2 gap-3 mt-4">
-                        <div class="bg-green-600/20 border border-green-500 p-3 rounded-xl text-center">
-                            <span class="text-[10px] font-black text-gray-300 uppercase block">Tiempo ON (Trabajado)</span>
-                            <span class="text-sm font-black text-green-400">${formatTime(totalTimeOnHours)}</span>
+                    <div class="grid grid-cols-2 gap-2 mt-4 border-t border-gray-700 pt-3">
+                        <div class="bg-green-700/80 p-3 rounded-xl shadow-lg text-center border border-green-500/30">
+                            <span class="text-[9px] font-black text-green-200 uppercase block">Tiempo ON (Trabajado)</span>
+                            <span class="text-sm font-black text-white">${formatTime(tiempoOnMins/60)}</span>
                         </div>
-                        <div class="bg-red-600/20 border border-red-500 p-3 rounded-xl text-center">
-                            <span class="text-[10px] font-black text-gray-300 uppercase block">Tiempo OFF (No R)</span>
-                            <span class="text-sm font-black text-red-400">${formatTime(totalParosNoRHours)}</span>
+                        <div class="bg-red-700/80 p-3 rounded-xl shadow-lg text-center border border-red-500/30">
+                            <span class="text-[9px] font-black text-red-200 uppercase block">Tiempo OFF (Paros sin R)</span>
+                            <span class="text-sm font-black text-white">${formatTime(tiempoOffMins/60)}</span>
                         </div>
                     </div>`;
             }
         }
 
-// --- FUNCIONES EXCLUSIVAS DE ANGEL (ADMIN) ---
+        // --- FUNCIONES EXCLUSIVAS DE ANGEL (ADMIN) ---
         async function crearUsuario() {
             const n = document.getElementById('adm-nombre').value;
             const c = document.getElementById('adm-cont').value;
@@ -524,7 +608,6 @@
             `).join('');
         }
 
-        // Iniciar con una carga vacía
         addCarga();
     </script>
 </body>
