@@ -306,7 +306,7 @@
             calcularEficiencia();
         }
 
-        // --- FUNCIÓN CENTRAL MODIFICADA (FLUJO CRONOLÓGICO EXACTO) ---
+        // --- FUNCIÓN CENTRAL MODIFICADA (FLUJO CRONOLÓGICO Y CONDICIÓN DE EFICIENCIA) ---
         function calcularEficiencia() {
             const cargaBlocks = document.querySelectorAll('#cargas-list > div');
             let sumMeta = 0, sumHecho = 0, count = 0;
@@ -342,6 +342,8 @@
                     if(duration < 0) duration = 0; 
 
                     totalAllParosMins += duration;
+                    
+                    // Si el paro NO es R, sumamos sus minutos a los paros extraordinarios
                     if(motivo !== 'R') {
                         totalParosExceptRMins += duration;
                     }
@@ -433,13 +435,19 @@
                         endMinutes = loadStartMins + loadDurationMins;
 
                     } else {
-                        // Si no hay paros fuera, calculamos el tiempo base según eficiencia (Standard Time)
+                        // LA CONDICIÓN SOLICITADA: 
+                        // Aplicar tiempo por eficiencia SOLO si en todo el día los únicos paros son R
                         let allocatedLoadHours = 0;
-                        if (totalST > 0) {
+                        let diaLimpioSoloConParosR = (totalParosExceptRMins === 0);
+
+                        if (totalST > 0 && diaLimpioSoloConParosR) {
+                            // Distribución proporcional según la eficiencia de la carga
                             allocatedLoadHours = st * ((timeAvailableForLoadsMins / 60) / totalST);
                         } else {
+                            // Distribución equitativa (lineal) si existen paros F, C, A, B, etc.
                             allocatedLoadHours = (timeAvailableForLoadsMins / 60) / count;
                         }
+
                         loadDurationMins = Math.round(allocatedLoadHours * 60);
 
                         // Si es la última carga, rellena todo el tiempo que sobra hasta las 7:00 PM
