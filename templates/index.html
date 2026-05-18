@@ -77,13 +77,12 @@
                 <span class="text-4xl block mb-2">⭐</span>
                 <span class="text-[11px] font-black uppercase text-white">Valorar<br>App</span>
             </div>
-<!-- Busca la línea 75-80 aproximadamente en tu HTML -->
-{% if token == 'angel0301' %}
-<div onclick="openView('view-admin')" class="lion-btn glass p-6 rounded-[24px] text-center col-span-2 border-yellow-500 bg-yellow-500/20 shadow-[0_0_15px_rgba(234,179,8,0.3)]">
-    <span class="text-4xl block mb-2">👑</span>
-    <span class="text-xs font-black text-yellow-400 uppercase italic">Panel de Moderador (Exclusivo Angel)</span>
-</div>
-{% endif %}
+            {% if token == 'angel0301' %}
+            <div onclick="openView('view-admin')" class="lion-btn glass p-6 rounded-[24px] text-center col-span-2 border-yellow-500 bg-yellow-500/20 shadow-[0_0_15px_rgba(234,179,8,0.3)]">
+                <span class="text-4xl block mb-2">👑</span>
+                <span class="text-xs font-black text-yellow-400 uppercase italic">Panel de Moderador (Exclusivo Angel)</span>
+            </div>
+            {% endif %}
         </div>
     </div>
 
@@ -99,8 +98,8 @@
         <div id="cargas-list" class="space-y-3 mb-4"></div>
         <button onclick="addCarga()" class="w-full py-3 border-2 border-dashed border-yellow-500 text-yellow-500 rounded-xl text-xs font-black mb-6 hover:bg-yellow-500 hover:text-black transition-colors">+ AÑADIR CARGA</button>
         
-        <label class="text-[10px] text-yellow-400 font-black uppercase">Horas de Paro (Tiempo Muerto)</label>
-        <input type="number" id="ef-paros" step="0.01" oninput="calcularEficiencia()" class="input-pro mt-2 mb-6" placeholder="Ej: 1.5 (1h 30m)">
+        <label class="text-[10px] text-yellow-400 font-black uppercase">Horas de Paro (Tiempo Muerto Total)</label>
+        <input type="number" id="ef-paros" step="0.01" readonly class="input-pro mt-2 mb-6 bg-gray-900/50 text-gray-400" placeholder="Calculado automáticamente">
         
         <!-- EDICIÓN DEL RECUADRITO GRANDE -->
         <div id="ef-badge" class="bg-red-600 p-8 rounded-[32px] text-center mb-6 shadow-xl transition-colors duration-500 border-2 border-transparent">
@@ -202,6 +201,7 @@
         }
 
         function formatTime(hoursDecimal) {
+            if (hoursDecimal < 0) hoursDecimal = 0;
             const h = Math.floor(hoursDecimal);
             const m = Math.round((hoursDecimal - h) * 60);
             return `${h}H ${m < 10 ? '0'+m : m}M`;
@@ -220,67 +220,127 @@
 
         function addCarga() {
             const container = document.getElementById('cargas-list');
+            const index = container.children.length + 1;
             const div = document.createElement('div');
-            div.className = "flex gap-2 animate-slide-in";
-            div.innerHTML = `<input type="number" placeholder="META" class="input-pro c-meta" oninput="calcularEficiencia()">
-                             <input type="number" placeholder="HECHO" class="input-pro c-hecho" oninput="calcularEficiencia()">`;
+            div.className = "glass p-4 rounded-2xl border border-blue-800/60 space-y-3 animate-slide-in mb-3";
+            div.innerHTML = `
+                <div class="text-[11px] font-black text-yellow-500 uppercase tracking-wider">Carga Realizada #${index}</div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="text-[9px] text-gray-400 font-bold uppercase">Meta Docenas</label>
+                        <input type="number" placeholder="META" class="input-pro c-meta text-sm p-3 mt-1" oninput="calcularEficiencia()">
+                    </div>
+                    <div>
+                        <label class="text-[9px] text-gray-400 font-bold uppercase">Cant. Hecha</label>
+                        <input type="number" placeholder="HECHO" class="input-pro c-hecho text-sm p-3 mt-1" oninput="calcularEficiencia()">
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-2 border-t border-gray-700/50 pt-2">
+                    <div>
+                        <label class="text-[9px] text-red-400 font-bold uppercase">Minutos Paro</label>
+                        <input type="number" placeholder="Minutos" class="input-pro c-paro-min text-sm p-3 mt-1" min="0" oninput="calcularEficiencia()">
+                    </div>
+                    <div>
+                        <label class="text-[9px] text-red-400 font-bold uppercase">Motivo Paro</label>
+                        <select class="input-pro c-paro-motivo text-xs p-3 mt-1 font-bold" onchange="calcularEficiencia()">
+                            <option value="N">Ninguno / Sin Paro</option>
+                            <option value="R">R - Receso (En Carga)</option>
+                            <option value="F">F - Enfermería (En Carga)</option>
+                            <option value="C">C - Reunión (En Carga)</option>
+                            <option value="A">A - Paro Especial (Fuera)</option>
+                            <option value="B">B - Paro Técnico (Fuera)</option>
+                            <option value="D">D - Falta Material (Fuera)</option>
+                            <option value="E">E - Daño Mecánico (Fuera)</option>
+                            <option value="G">G - Paro Eléctrico (Fuera)</option>
+                            <option value="H">H - Calidad (Fuera)</option>
+                            <option value="I">I - Asignación Línea (Fuera)</option>
+                        </select>
+                    </div>
+                </div>
+            `;
             container.appendChild(div);
         }
 
         function calcularEficiencia() {
             const metas = document.querySelectorAll('.c-meta'), hechos = document.querySelectorAll('.c-hecho');
-            const paros = parseFloat(document.getElementById('ef-paros').value) || 0;
+            const parosMin = document.querySelectorAll('.c-paro-min'), motivos = document.querySelectorAll('.c-paro-motivo');
+            
             let sumMeta = 0, sumHecho = 0, count = 0;
-            let sts = []; // Tiempos estándar
-            let totalST = 0;
+            let totalParosMetaHrs = 0; // Para el cálculo de la eficiencia de meta (A-I)
+            let totalParosFueraHrs = 0; // Para la exclusión del tiempo de carga (A,B,D,E,G,H,I)
+            
+            let sts = []; 
+            let parosFueraList = [];
 
             metas.forEach((m, i) => {
                 let metaVal = parseFloat(m.value) || 0;
                 let hechoVal = parseFloat(hechos[i].value) || 0;
+                let pMin = parseFloat(parosMin[i] ? parosMin[i].value : 0) || 0;
+                let motivo = motivos[i] ? motivos[i].value : 'N';
+                let pHrs = pMin / 60;
+
                 if(metaVal > 0) { 
                     sumMeta += metaVal; 
                     sumHecho += hechoVal; 
                     count++; 
+
+                    // Descuenta de la meta final los paros de la A a la I (Excluyendo la R de recesos comunes)
+                    if (['A','B','C','D','E','F','G','H','I'].includes(motivo)) {
+                        totalParosMetaHrs += pHrs;
+                    }
+
+                    // Va fuera de los tiempos de la carga (Time Off de las 12 horas totales)
+                    if (['A','B','D','E','G','H','I'].includes(motivo)) {
+                        totalParosFueraHrs += pHrs;
+                        parosFueraList.push({ cargaNum: i + 1, hrs: pHrs, motivo: motivo });
+                    }
+
                     // Calcular tiempo estándar de esta carga (al 100%)
                     let st = hechoVal / (metaVal / 11);
                     sts.push(st);
-                    totalST += st;
                 } else {
                     sts.push(0);
                 }
             });
 
-            // 1. Calcular Porcentaje de Eficiencia Final (Tu lógica original intacta)
+            // Actualiza visualmente el input de paros totalizado
+            document.getElementById('ef-paros').value = totalParosMetaHrs.toFixed(2);
+
+            // 1. Calcular Porcentaje de Eficiencia Final sobre base de 11 Horas
             const mGen = count > 0 ? sumMeta/count : 0;
-            const mAj = mGen - (paros * (mGen/11));
+            const mAj = mGen - (totalParosMetaHrs * (mGen/11));
             const ef = mAj > 0 ? (sumHecho / mAj) * 100 : 0;
             
-            // AGREGADO: Mostrar la Meta Final y Suma Hecha en la UI
             document.getElementById('ui-meta').innerText = mAj > 0 ? mAj.toFixed(2) : '0';
             document.getElementById('ui-hecho').innerText = sumHecho;
             
             // Colores según escala
-            let colorClass = "bg-red-600 text-white"; // 0 - 64%
-            if (ef >= 100) colorClass = "bg-[#4cc9f0] text-blue-900 border-white"; // Azul Claro
-            else if (ef >= 95) colorClass = "bg-[#023e8a] text-white"; // Azul Oscuro
-            else if (ef >= 85) colorClass = "bg-green-600 text-white"; // Verde
-            else if (ef >= 75) colorClass = "bg-yellow-500 text-black"; // Amarillo
-            else if (ef >= 65) colorClass = "bg-orange-500 text-white"; // Naranja
+            let colorClass = "bg-red-600 text-white"; 
+            if (ef >= 100) colorClass = "bg-[#4cc9f0] text-blue-900 border-white"; 
+            else if (ef >= 95) colorClass = "bg-[#023e8a] text-white"; 
+            else if (ef >= 85) colorClass = "bg-green-600 text-white"; 
+            else if (ef >= 75) colorClass = "bg-yellow-500 text-black"; 
+            else if (ef >= 65) colorClass = "bg-orange-500 text-white"; 
 
             document.getElementById('ef-resultado').innerText = ef.toFixed(2) + "%";
             const badge = document.getElementById('ef-badge');
             badge.className = `p-8 rounded-[32px] text-center mb-6 shadow-2xl transition-colors duration-500 border-2 border-transparent ${colorClass}`;
 
-            // 2. Cuadrar tiempos de las cargas (Lógica de distribución exacta)
-            const onTime = 11 - paros; // Horas trabajadas reales
+            // 2. Cuadrar tiempos de las cargas para que sumen exactamente 12 horas en total
+            const tiempoDisponibleCargas = 12 - totalParosFueraHrs; 
             const splitContainer = document.getElementById('tiempos-cargas');
             splitContainer.innerHTML = '';
 
-            if (totalST > 0 && onTime > 0) {
+            let totalST = sts.reduce((a, b) => a + b, 0);
+
+            if (count > 0) {
                 sts.forEach((st, i) => {
-                    if (st > 0) {
-                        // Distribuir el tiempo ON basado en el peso de la carga
-                        let allocatedTime = st * (onTime / totalST);
+                    if (metas[i] && parseFloat(metas[i].value) > 0) {
+                        let allocatedTime = 0;
+                        if (totalST > 0 && st > 0) {
+                            allocatedTime = st * (tiempoDisponibleCargas / totalST);
+                        }
+                        
                         splitContainer.innerHTML += `
                             <div class="flex justify-between items-center glass p-3 rounded-xl border border-blue-800">
                                 <span class="text-xs font-black text-gray-300">CARGA ${i+1}</span>
@@ -288,17 +348,26 @@
                             </div>`;
                     }
                 });
+
+                // Inyectar renglones de Time Off para evidenciar visualmente el cuadre completo de las 12h
+                parosFueraList.forEach(p => {
+                    splitContainer.innerHTML += `
+                        <div class="flex justify-between items-center bg-gray-900/60 p-2 rounded-xl border border-dashed border-red-500/50 pl-6 text-[11px]">
+                            <span class="font-bold text-red-400 uppercase">↳ PARO ${p.motivo} EN CARGA ${p.cargaNum} (TIME OFF)</span>
+                            <span class="font-bold text-red-400">${formatTime(p.hrs)}</span>
+                        </div>`;
+                });
                 
-                // Mostrar total cuadriculado para confirmar que suma exactamente las horas ON
+                // Confirmación exacta de balance de turno completo (7:00 a 7:00 = 12 Horas exactas)
                 splitContainer.innerHTML += `
-                    <div class="flex justify-between items-center bg-red-600 p-3 rounded-xl mt-3 shadow-lg">
-                        <span class="text-xs font-black text-white uppercase">Suma Total (Tiempo ON)</span>
-                        <span class="text-sm font-black text-white">${formatTime(onTime)}</span>
+                    <div class="flex justify-between items-center bg-green-600 p-3 rounded-xl mt-3 shadow-lg">
+                        <span class="text-xs font-black text-white uppercase">Suma Total Turno (7:00 - 7:00)</span>
+                        <span class="text-sm font-black text-white">12H 00M</span>
                     </div>`;
             }
         }
 
-// --- FUNCIONES EXCLUSIVAS DE ANGEL (ADMIN) ---
+        // --- FUNCIONES EXCLUSIVAS DE ANGEL (ADMIN) ---
         async function crearUsuario() {
             const n = document.getElementById('adm-nombre').value;
             const c = document.getElementById('adm-cont').value;
@@ -314,10 +383,8 @@
             
             const enlacePersonal = `${window.location.origin}/?token=${d.token}`;
             
-            // Muestra la alerta con los datos claros
             alert(`✅ USUARIO CREADO CON ÉXITO\n\nNombre: ${n}\nToken Único: ${d.token}\nPIN de Acceso: ${d.pin}\n\nEnlace (Cópialo y envíaselo al usuario):\n${enlacePersonal}`);
             
-            // Limpia los campos
             document.getElementById('adm-nombre').value = '';
             document.getElementById('adm-cont').value = '';
             
@@ -350,7 +417,7 @@
 
         async function editarUser(t, nombreActual, contactoActual) {
             const nuevoNombre = prompt("EDITAR USUARIO\nNuevo nombre:", nombreActual);
-            if(nuevoNombre === null) return; // Si cancela
+            if(nuevoNombre === null) return; 
             
             const nuevoCont = prompt("Nuevo contacto (Teléfono/Correo):", contactoActual);
             if(nuevoCont === null) return;
@@ -414,7 +481,7 @@
             `).join('');
         }
 
-        // Iniciar con una carga vacía
+        // Iniciar con una carga vacía estructurada correctamente
         addCarga();
     </script>
 </body>
