@@ -306,7 +306,7 @@
             calcularEficiencia();
         }
 
-        // --- FUNCIÓN CENTRAL MODIFICADA (MUESTRA EL HORARIO INGRESADO FIJO) ---
+        // --- FUNCIÓN CENTRAL MODIFICADA (FLUJO CRONOLÓGICO EXACTO) ---
         function calcularEficiencia() {
             const cargaBlocks = document.querySelectorAll('#cargas-list > div');
             let sumMeta = 0, sumHecho = 0, count = 0;
@@ -352,13 +352,15 @@
                         loadOutsideMins += duration;
                     }
 
-                    // Guardamos las cadenas literales AM/PM ingresadas en el selector
+                    // Guardamos tiempos absolutos en minutos para la lógica de flujo
                     loadParosList.push({
                         motivo: motivo,
                         durationMins: duration,
                         isOutside: isOutside,
                         realStartStr: formatClock(startTotal),
-                        realEndStr: formatClock(endTotal)
+                        realEndStr: formatClock(endTotal),
+                        startMins: startTotal, // Ancla de inicio
+                        endMins: endTotal      // Ancla de fin
                     });
                 });
 
@@ -406,31 +408,52 @@
             const totalShiftMins = 12 * 60; 
             const timeAvailableForLoadsMins = totalShiftMins - totalOutsideParosMins; 
             
-            let currentMinutes = 7 * 60; 
+            let currentMinutes = 7 * 60; // Inicia a las 7:00 AM
 
-            if (count > 0 && timeAvailableForLoadsMins > 0) {
+            if (count > 0) {
                 sts.forEach((st, i) => {
-                    let allocatedLoadHours = 0;
-                    if (totalST > 0) {
-                        allocatedLoadHours = st * ((timeAvailableForLoadsMins / 60) / totalST);
-                    } else {
-                        allocatedLoadHours = (timeAvailableForLoadsMins / 60) / count;
-                    }
-                    
-                    let loadDurationMins = Math.round(allocatedLoadHours * 60);
-                    
-                    if (i === sts.length - 1) {
-                        let customRemaining = (7 * 60 + totalShiftMins) - currentMinutes;
-                        for(let k = i; k < parosPerCarga.length; k++) {
-                            customRemaining -= parosPerCarga[k].outsideMins;
+                    let loadStartMins = currentMinutes;
+                    let loadDurationMins = 0;
+                    let endMinutes = 0;
+
+                    // Filtramos si esta carga tiene un paro "Fuera"
+                    const outsideParos = parosPerCarga[i].list.filter(p => p.isOutside);
+
+                    if (outsideParos.length > 0) {
+                        // Ordenamos cronológicamente por si acaso
+                        outsideParos.sort((a, b) => a.startMins - b.startMins);
+                        let firstOut = outsideParos[0];
+                        
+                        // La carga termina EXACTAMENTE cuando inicia el paro fuera de carga
+                        if (firstOut.startMins > loadStartMins) {
+                            loadDurationMins = firstOut.startMins - loadStartMins;
+                        } else {
+                            loadDurationMins = 0; // Failsafe
                         }
-                        loadDurationMins = Math.max(0, customRemaining);
+                        endMinutes = loadStartMins + loadDurationMins;
+
+                    } else {
+                        // Si no hay paros fuera, calculamos el tiempo base según eficiencia (Standard Time)
+                        let allocatedLoadHours = 0;
+                        if (totalST > 0) {
+                            allocatedLoadHours = st * ((timeAvailableForLoadsMins / 60) / totalST);
+                        } else {
+                            allocatedLoadHours = (timeAvailableForLoadsMins / 60) / count;
+                        }
+                        loadDurationMins = Math.round(allocatedLoadHours * 60);
+
+                        // Si es la última carga, rellena todo el tiempo que sobra hasta las 7:00 PM
+                        if (i === sts.length - 1) {
+                            let customRemaining = (7 * 60 + totalShiftMins) - loadStartMins;
+                            loadDurationMins = Math.max(0, customRemaining);
+                        }
+                        endMinutes = loadStartMins + loadDurationMins;
                     }
 
-                    let startStr = formatClock(currentMinutes);
-                    let endMinutes = currentMinutes + loadDurationMins;
+                    let startStr = formatClock(loadStartMins);
                     let endStr = formatClock(endMinutes);
 
+                    // Imprimir la Carga
                     splitContainer.innerHTML += `
                         <div class="glass p-3 rounded-xl border border-blue-800 space-y-1">
                             <div class="flex justify-between items-center">
@@ -439,20 +462,16 @@
                             </div>
                         </div>`;
                     
-                    currentMinutes = endMinutes;
-
+                    // Imprimir los Paros debajo de su Carga
                     if(parosPerCarga[i] && parosPerCarga[i].list.length > 0) {
                         parosPerCarga[i].list.forEach(p => {
                             if(p.isOutside && p.durationMins > 0) {
-                                // CAMBIO AQUÍ: Imprime exactamente las horas ingresadas en vez del acumulado teórico
                                 splitContainer.innerHTML += `
                                     <div class="flex justify-between items-center bg-yellow-600/20 px-3 py-1.5 rounded-lg border border-yellow-600/40 ml-4 my-1">
                                         <span class="text-[10px] font-bold text-yellow-500">↳ PARO ${p.motivo} (Fuera de Carga)</span>
                                         <span class="text-[11px] font-mono font-black text-white">${p.realStartStr} - ${p.realEndStr} (${p.durationMins} min)</span>
                                     </div>`;
-                                currentMinutes = currentMinutes + p.durationMins;
                             } else if(!p.isOutside && p.durationMins > 0) {
-                                // CAMBIO AQUÍ: También mostramos las horas exactas de los paros absorbidos R, F, C
                                 splitContainer.innerHTML += `
                                     <div class="flex justify-between items-center bg-blue-600/10 px-3 py-1.5 rounded-lg border border-blue-600/30 ml-4 my-1">
                                         <span class="text-[10px] font-bold text-blue-400">↳ PARO ${p.motivo} (Dentro de Carga)</span>
@@ -460,6 +479,16 @@
                                     </div>`;
                             }
                         });
+                    }
+
+                    // CRÍTICO: Configurar el reloj para la SIGUIENTE carga
+                    if (outsideParos.length > 0) {
+                        // La siguiente carga inicia exactamente cuando terminó el último paro fuera de esta carga
+                        let lastOut = outsideParos[outsideParos.length - 1];
+                        currentMinutes = lastOut.endMins;
+                    } else {
+                        // Si no hubo paro fuera, la siguiente inicia donde terminó esta normalmente
+                        currentMinutes = endMinutes;
                     }
                 });
                 
