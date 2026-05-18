@@ -13,11 +13,13 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
         body { 
+            /* Fondo Azul Oscuro Corporativo */
             background-color: #0b132b; 
             color: #ffffff; 
             font-family: 'Inter', sans-serif; 
             overflow-x: hidden;
         }
+        /* Contenedores estilo cristal sobre el fondo azul */
         .glass { background: rgba(28, 37, 65, 0.9); border: 1px solid rgba(255,255,255,0.1); box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
         .view-window { 
             position: fixed; top: 0; left: 100%; width: 100%; height: 100%; 
@@ -110,7 +112,8 @@
             </div>
         </div>
 
-        <div id="tiempos-cargas" class="mb-6 space-y-2"></div>
+        <div id="tiempos-cargas" class="mb-6 space-y-2">
+            </div>
 
         <button onclick="guardarHistorial('Eficiencia')" class="w-full py-4 bg-red-600 hover:bg-red-700 text-white rounded-2xl font-black text-sm uppercase">Guardar en Historial</button>
     </div>
@@ -143,12 +146,14 @@
             <button onclick="closeView()" class="text-yellow-500 font-black text-2xl mr-4 px-2 bg-blue-900 rounded-lg">←</button>
             <h2 class="text-xl font-black text-yellow-500 uppercase">Panel Moderador 👑</h2>
         </div>
+        
         <div class="glass p-6 rounded-3xl mb-8 border-yellow-500/50 border">
             <h3 class="text-sm font-black mb-4 text-white uppercase">Crear Nuevo Usuario</h3>
             <input type="text" id="adm-nombre" placeholder="Nombre (Ej: Juan Perez)" class="input-pro mb-3">
             <input type="text" id="adm-cont" placeholder="Teléfono o Correo" class="input-pro mb-4">
             <button onclick="crearUsuario()" class="w-full py-4 bg-red-600 hover:bg-red-700 text-white rounded-xl font-black uppercase shadow-lg">Generar Acceso y Link</button>
         </div>
+        
         <h3 class="text-sm font-black mb-4 text-yellow-500 uppercase border-b border-gray-700 pb-2">Gestión de Usuarios</h3>
         <div id="admin-users-list" class="space-y-3"></div>
     </div>
@@ -173,6 +178,7 @@
             } else { alert("PIN INCORRECTO 🦁"); }
         }
 
+        // Abrir paneles responsivos externos
         function openView(id) {
             document.getElementById(id).classList.add('active');
             if(id === 'view-admin') fetchAdminUsers();
@@ -189,6 +195,7 @@
             return `${h}H ${m < 10 ? '0'+m : m}M`;
         }
 
+        // Helper para dar formato de 12 horas AM/PM continuo
         function formatClock(totalMinutes) {
             let h = Math.floor(totalMinutes / 60) % 24;
             let m = Math.round(totalMinutes % 60);
@@ -217,7 +224,7 @@
             const numCarga = container.children.length + 1;
             
             const div = document.createElement('div');
-            div.className = "glass p-4 rounded-2xl border border-blue-800 space-y-3 relative";
+            div.className = "glass p-4 rounded-2xl border border-blue-800 space-y-3 animate-slide-in relative";
             div.innerHTML = `
                 <div class="flex justify-between items-center border-b border-gray-700 pb-2">
                     <span class="text-xs font-black text-yellow-500 uppercase">CARGA ${numCarga}</span>
@@ -241,7 +248,7 @@
         function addParoToCarga(btn) {
             const parosContainer = btn.previousElementSibling;
             const div = document.createElement('div');
-            div.className = "flex flex-wrap gap-2 bg-black/40 p-2.5 rounded-xl items-center text-xs border border-gray-700/60";
+            div.className = "flex flex-wrap gap-2 bg-black/40 p-2.5 rounded-xl items-center text-xs border border-gray-700/60 animate-slide-in";
             
             let hoursOpts = '';
             for(let h=0; h<24; h++) {
@@ -294,15 +301,12 @@
             `;
             parosContainer.appendChild(div);
             
-            // Defecto conveniente para arranque de turno
-            div.querySelector('.p-start-h').value = "9";
-            div.querySelector('.p-end-h').value = "9";
-            div.querySelector('.p-end-m').value = "30";
-            div.querySelector('.p-motivo').value = "B";
+            div.querySelector('.p-start-h').value = "7";
+            div.querySelector('.p-end-h').value = "7";
             calcularEficiencia();
         }
 
-        // --- NUEVA LÓGICA DE CUADRE CONTINUO Y ASIGNACIÓN DIRECTA DE PAROS ---
+        // --- FUNCIÓN CENTRAL MODIFICADA (MUESTRA EL HORARIO INGRESADO FIJO) ---
         function calcularEficiencia() {
             const cargaBlocks = document.querySelectorAll('#cargas-list > div');
             let sumMeta = 0, sumHecho = 0, count = 0;
@@ -311,15 +315,17 @@
 
             let totalAllParosMins = 0;       
             let totalParosExceptRMins = 0;   
-            let rawDataCargas = [];
+            let totalOutsideParosMins = 0;   
 
-            // 1. Recolección de datos y cálculo de eficiencias matemáticas base
+            let parosPerCarga = [];
+
             cargaBlocks.forEach((block, i) => {
                 const metaInput = block.querySelector('.c-meta');
                 const hechoInput = block.querySelector('.c-hecho');
                 let metaVal = parseFloat(metaInput ? metaInput.value : 0) || 0;
                 let hechoVal = parseFloat(hechoInput ? hechoInput.value : 0) || 0;
 
+                let loadOutsideMins = 0;
                 let loadParosList = [];
 
                 const parosRows = block.querySelectorAll('.paros-container > div');
@@ -336,40 +342,43 @@
                     if(duration < 0) duration = 0; 
 
                     totalAllParosMins += duration;
-                    if(motivo !== 'R') totalParosExceptRMins += duration;
+                    if(motivo !== 'R') {
+                        totalParosExceptRMins += duration;
+                    }
 
                     const isOutside = ['A','B','D','E','G','H','I'].includes(motivo);
+                    if(isOutside) {
+                        totalOutsideParosMins += duration;
+                        loadOutsideMins += duration;
+                    }
 
+                    // Guardamos las cadenas literales AM/PM ingresadas en el selector
                     loadParosList.push({
                         motivo: motivo,
                         durationMins: duration,
                         isOutside: isOutside,
-                        startMins: startTotal,
-                        endMins: endTotal,
                         realStartStr: formatClock(startTotal),
                         realEndStr: formatClock(endTotal)
                     });
                 });
 
-                // Ordenamos los paros cronológicamente para no romper la línea de tiempo
-                loadParosList.sort((a,b) => a.startMins - b.startMins);
-
-                let st = metaVal > 0 ? hechoVal / (metaVal / 11) : 0;
-                if(metaVal > 0) {
-                    sumMeta += metaVal;
-                    sumHecho += hechoVal;
-                    count++;
-                    totalST += st;
-                }
-
-                rawDataCargas.push({
-                    index: i,
-                    st: st,
-                    paros: loadParosList
+                parosPerCarga.push({
+                    outsideMins: loadOutsideMins,
+                    list: loadParosList
                 });
+
+                if(metaVal > 0) { 
+                    sumMeta += metaVal; 
+                    sumHecho += hechoVal; 
+                    count++; 
+                    let st = hechoVal / (metaVal / 11);
+                    sts.push(st);
+                    totalST += st;
+                } else {
+                    sts.push(0);
+                }
             });
 
-            // Actualización de tarjeta de métricas globales
             const parosExceptRHours = totalParosExceptRMins / 60;
             document.getElementById('ef-paros').value = parosExceptRHours > 0 ? parosExceptRHours.toFixed(2) : '';
 
@@ -388,100 +397,72 @@
             else if (ef >= 65) colorClass = "bg-orange-500 text-white"; 
 
             document.getElementById('ef-resultado').innerText = ef.toFixed(2) + "%";
-            document.getElementById('ef-badge').className = `p-8 rounded-[32px] text-center mb-6 shadow-2xl transition-colors duration-500 border-2 border-transparent ${colorClass}`;
+            const badge = document.getElementById('ef-badge');
+            badge.className = `p-8 rounded-[32px] text-center mb-6 shadow-2xl transition-colors duration-500 border-2 border-transparent ${colorClass}`;
 
-            // 2. CONSTRUCCIÓN DEL CRONOGRAMA DINÁMICO REQUERIDO
             const splitContainer = document.getElementById('tiempos-cargas');
             splitContainer.innerHTML = '';
 
-            let currentMinutes = 7 * 60; // El turno arranca estrictamente a las 07:00 AM
-            const totalShiftMins = 12 * 60;
-            const shiftEndMins = currentMinutes + totalShiftMins; // 19:00 PM (7:00 PM)
+            const totalShiftMins = 12 * 60; 
+            const timeAvailableForLoadsMins = totalShiftMins - totalOutsideParosMins; 
+            
+            let currentMinutes = 7 * 60; 
 
-            if (rawDataCargas.length > 0) {
-                // Primero mapeamos todos los paros fuera de carga globales que actúan como "muros de contención"
-                let allOutsideParos = [];
-                rawDataCargas.forEach(c => {
-                    c.paros.forEach(p => {
-                        if(p.isOutside && p.durationMins > 0) {
-                            allOutsideParos.push(p);
-                        }
-                    });
-                });
-                allOutsideParos.sort((a,b) => a.startMins - b.startMins);
-
-                rawDataCargas.forEach((carga, i) => {
-                    // Filtrar paros externos que caen después de la hora actual
-                    let nextOutsideParo = allOutsideParos.find(p => p.startMins >= currentMinutes);
-                    
-                    let loadStart = currentMinutes;
-                    let loadEnd = shiftEndMins; 
-
-                    if (nextOutsideParo) {
-                        // REGLA: Si hay un paro fuera de carga adelante, la carga termina EXACTAMENTE cuando este inicia
-                        loadEnd = nextOutsideParo.startMins;
+            if (count > 0 && timeAvailableForLoadsMins > 0) {
+                sts.forEach((st, i) => {
+                    let allocatedLoadHours = 0;
+                    if (totalST > 0) {
+                        allocatedLoadHours = st * ((timeAvailableForLoadsMins / 60) / totalST);
                     } else {
-                        // Si no hay más paros fuera de carga adelante, distribuimos proporcionalmente el tiempo restante del turno
-                        let remainingCargasCount = rawDataCargas.length - i;
-                        let remainingST = 0;
-                        for(let k = i; k < rawDataCargas.length; k++) remainingST += rawDataCargas[k].st;
-
-                        let totalAvailableTime = shiftEndMins - currentMinutes;
-
-                        if (remainingST > 0 && totalAvailableTime > 0) {
-                            let calculatedDuration = Math.round(carga.st * (totalAvailableTime / remainingST));
-                            loadEnd = currentMinutes + calculatedDuration;
-                        } else if (totalAvailableTime > 0) {
-                            loadEnd = currentMinutes + Math.round(totalAvailableTime / remainingCargasCount);
+                        allocatedLoadHours = (timeAvailableForLoadsMins / 60) / count;
+                    }
+                    
+                    let loadDurationMins = Math.round(allocatedLoadHours * 60);
+                    
+                    if (i === sts.length - 1) {
+                        let customRemaining = (7 * 60 + totalShiftMins) - currentMinutes;
+                        for(let k = i; k < parosPerCarga.length; k++) {
+                            customRemaining -= parosPerCarga[k].outsideMins;
                         }
+                        loadDurationMins = Math.max(0, customRemaining);
                     }
 
-                    // Asegurar que no se sobrepase el límite del turno final
-                    if(loadEnd > shiftEndMins) loadEnd = shiftEndMins;
-                    if(loadEnd < loadStart) loadEnd = loadStart;
+                    let startStr = formatClock(currentMinutes);
+                    let endMinutes = currentMinutes + loadDurationMins;
+                    let endStr = formatClock(endMinutes);
 
-                    let loadDurationMins = loadEnd - loadStart;
-
-                    // Inyectar recuadro de la carga con sus horas calculadas de forma continua
                     splitContainer.innerHTML += `
                         <div class="glass p-3 rounded-xl border border-blue-800 space-y-1">
                             <div class="flex justify-between items-center">
-                                <span class="text-xs font-black text-gray-300">CARGA ${carga.index + 1}</span>
-                                <span class="text-sm font-black text-yellow-400">${formatClock(loadStart)} - ${formatClock(loadEnd)} <span class="text-[10px] text-gray-400 font-normal">(${formatTime(loadDurationMins/60)})</span></span>
+                                <span class="text-xs font-black text-gray-300">CARGA ${i+1}</span>
+                                <span class="text-sm font-black text-yellow-400">${startStr} - ${endStr} <span class="text-[10px] text-gray-400 font-normal">(${formatTime(loadDurationMins/60)})</span></span>
                             </div>
                         </div>`;
+                    
+                    currentMinutes = endMinutes;
 
-                    // Pintamos los paros internos (dentro de carga) que pertenecen a este intervalo de tiempo
-                    carga.paros.forEach(p => {
-                        if(!p.isOutside && p.durationMins > 0) {
-                            splitContainer.innerHTML += `
-                                <div class="flex justify-between items-center bg-blue-600/10 px-3 py-1.5 rounded-lg border border-blue-600/30 ml-4 my-1">
-                                    <span class="text-[10px] font-bold text-blue-400">↳ PARO ${p.motivo} (Dentro de Carga)</span>
-                                    <span class="text-[11px] font-mono text-gray-300 font-bold">${p.realStartStr} - ${p.realEndStr} <span class="text-[10px] text-gray-500 italic">(Absorbido ${p.durationMins} min)</span></span>
-                                </div>`;
-                        }
-                    });
-
-                    // Avanzamos el reloj al final de la carga actual
-                    currentMinutes = loadEnd;
-
-                    // REGLA: Si la carga fue cortada por un paro de afuera, se estampa en el cuadro con sus horas exactas ingresadas
-                    if (nextOutsideParo && loadEnd === nextOutsideParo.startMins) {
-                        splitContainer.innerHTML += `
-                            <div class="flex justify-between items-center bg-yellow-600/20 px-3 py-1.5 rounded-lg border border-yellow-600/40 ml-4 my-1">
-                                <span class="text-[10px] font-bold text-yellow-500">↳ PARO ${nextOutsideParo.motivo} (Fuera de Carga)</span>
-                                <span class="text-[11px] font-mono font-black text-white">${nextOutsideParo.realStartStr} - ${nextOutsideParo.realEndStr} (${nextOutsideParo.durationMins} min)</span>
-                            </div>`;
-                        
-                        // REGLA: La siguiente carga iniciará a partir de que este termine
-                        currentMinutes = nextOutsideParo.endMins;
-                        
-                        // Lo removemos de la lista global para no duplicarlo en ciclos futuros
-                        allOutsideParos = allOutsideParos.filter(p => p !== nextOutsideParo);
+                    if(parosPerCarga[i] && parosPerCarga[i].list.length > 0) {
+                        parosPerCarga[i].list.forEach(p => {
+                            if(p.isOutside && p.durationMins > 0) {
+                                // CAMBIO AQUÍ: Imprime exactamente las horas ingresadas en vez del acumulado teórico
+                                splitContainer.innerHTML += `
+                                    <div class="flex justify-between items-center bg-yellow-600/20 px-3 py-1.5 rounded-lg border border-yellow-600/40 ml-4 my-1">
+                                        <span class="text-[10px] font-bold text-yellow-500">↳ PARO ${p.motivo} (Fuera de Carga)</span>
+                                        <span class="text-[11px] font-mono font-black text-white">${p.realStartStr} - ${p.realEndStr} (${p.durationMins} min)</span>
+                                    </div>`;
+                                currentMinutes = currentMinutes + p.durationMins;
+                            } else if(!p.isOutside && p.durationMins > 0) {
+                                // CAMBIO AQUÍ: También mostramos las horas exactas de los paros absorbidos R, F, C
+                                splitContainer.innerHTML += `
+                                    <div class="flex justify-between items-center bg-blue-600/10 px-3 py-1.5 rounded-lg border border-blue-600/30 ml-4 my-1">
+                                        <span class="text-[10px] font-bold text-blue-400">↳ PARO ${p.motivo} (Dentro de Carga)</span>
+                                        <span class="text-[11px] font-mono text-gray-300 font-bold">${p.realStartStr} - ${p.realEndStr} <span class="text-[10px] text-gray-500 italic">(Absorbido ${p.durationMins} min)</span></span>
+                                    </div>`;
+                            }
+                        });
                     }
                 });
                 
-                // Bloque final resumen de tiempos ON/OFF totales del turno entero
                 let tiempoOnMins = totalShiftMins - totalAllParosMins; 
                 let tiempoOffMins = totalParosExceptRMins; 
                 if(tiempoOnMins < 0) tiempoOnMins = 0;
@@ -500,7 +481,7 @@
             }
         }
 
-        // --- MANEJO DE OPERADORES Y API ADMIN ---
+        // --- PROCESOS INTERNOS ADMIN ANGEL ---
         async function crearUsuario() {
             const n = document.getElementById('adm-nombre').value;
             const c = document.getElementById('adm-cont').value;
