@@ -4,6 +4,10 @@ from oauth2client.service_account import ServiceAccountCredentials
 import os
 import random
 import string
+import io
+import PyPDF2
+from googleapiclient.discovery import build
+from googleapiclient.http import MediaIoBaseDownload
 
 app = Flask(__name__)
 # Cambia esto por una palabra secreta muy difícil de adivinar
@@ -26,6 +30,130 @@ def cargar_usuarios_drive():
     except:
         return {}
 
+# --- NUEVO: CONFIGURACIÓN DE BASE DE DATOS METAS (PDF EN DRIVE) ---
+
+# Caché en memoria para no descargar el PDF cada vez que alguien hace clic
+pdf_metas_cache = {
+    "estilos": [],
+    "tallas": ['XXS', 'XS', 'S', 'M', 'L', 'XL', '2X', '3X', '4X'],
+    "procesos": [],
+    "datos": []
+}
+
+def normalizar_talla(t):
+    """Convierte nomenclaturas del PDF a tallas universales"""
+    t = str(t).lower().strip()
+    if '2x' in t: return '2X'
+    if '3x' in t: return '3X'
+    if '4x' in t: return '4X'
+    if 'xxs' in t or 'bxx' in t: return 'XXS'
+    if 'xs' in t or 'axs' in t or 'bxs' in t: return 'XS'
+    if 'xl' in t or 'axl' in t or 'lxl' in t: return 'XL'
+    if 'sm' in t or 'asm' in t or 'lsm' in t or 'bsm' in t: return 'S'
+    if 'md' in t or 'amd' in t or 'lmd' in t or 'bmd' in t: return 'M'
+    if 'lg' in t or 'alg' in t or 'llg' in t or 'blg' in t: return 'L'
+    return t.upper()
+
+def extraer_talla_raw(parts):
+    """Busca dinámicamente el código de la talla sin importar los espacios de la descripción"""
+    conocidas = ['ASM', 'AMD', 'ALG', 'AXL', 'A2X', 'A3X', 'A4X', 'LSM', 'LMD', 'LLG', 'LXL', 'L2X', 'BXX', 'BXS', 'BSM', 'BMD', 'BLG', 'BXL', 'AXS', 'XXS']
+    for p in parts[2:7]:
+        if p.upper() in conocidas: return p
+    for p in parts[2:7]:
+        if len(p) <= 3 and any(x in p.upper() for x in ['S','M','L','X']): return p
+    return parts[3] if len(parts) > 3 else ""
+
+def procesar_pdf_drive():
+    try:
+        drive_service = build('drive', 'v3', credentials=creds)
+        # ID del archivo extraído de tu link
+        file_id = '12LZjVzBk4uvvee8vA5lMX7hnho4ioibX' 
+        
+        request = drive_service.files().get_media(fileId=file_id)
+        fh = io.BytesIO()
+        downloader = MediaIoBaseDownload(fh, request)
+        done = False
+        while done is False:
+            status, done = downloader.next_chunk()
+            
+        fh.seek(0)
+        pdf_reader = PyPDF2.PdfReader(fh)
+        text = ""
+        for page in pdf_reader.pages:
+            if page.extract_text():
+                text += page.extract_text() + "\n"
+                
+        data = []
+        estilos = set()
+        procesos = set()
+        procesos_conocidos = ['Volteo', 'Conteo', 'Sorting', 'olteo-Sortin', 'Volteo-PFD', 'ting-Reproc']
+        
+        for line in text.split('\n'):
+            parts = line.split()
+            if len(parts) >= 9:
+                estilo = parts[0] # Columna 1
+                idx_proceso = -1
+                
+                for i, p in enumerate(parts):
+                    if any(proc.lower() in p.lower() for proc in procesos_conocidos) or p.endswith('-PFD') or p.endswith('-Sortin') or p.endswith('-Reproc'):
+                        idx_proceso = i
+                        break
+                        
+                if idx_proceso != -1 and idx_proceso >= 3:
+                    talla_raw = extraer_talla_raw(parts) # Columna 4 aprox
+                    proceso = parts[idx_proceso] # Columna 7 o 8 aprox
+                    
+                    try:
+                        # Columna 10 (Meta de carga) normalmente 3 posiciones después del proceso
+                        if len(parts) > idx_proceso + 3:
+                            meta = parts[idx_proceso + 3]
+                            if not meta.replace('.','',1).isdigit():
+                                meta = parts[idx_proceso + 2]
+                                if not meta.replace('.','',1).isdigit():
+                                    continue
+                        else:
+                            continue
+                            
+                        talla_norm = normalizar_talla(talla_raw)
+                        
+                        combinacion = {
+                            'estilo': estilo,
+                            'talla': talla_norm,
+                            'proceso': proceso,
+                            'meta': meta
+                        }
+                        if combinacion not in data:
+                            data.append(combinacion)
+                            
+                        estilos.add(estilo)
+                        procesos.add(proceso)
+                    except IndexError:
+                        pass
+
+        pdf_metas_cache["estilos"] = list(estilos)
+        pdf_metas_cache["procesos"] = list(procesos)
+        pdf_metas_cache["datos"] = data
+        return True, "Sincronización exitosa"
+    except Exception as e:
+        return False, str(e)
+
+@app.route('/api/metas/sincronizar', methods=['POST'])
+def sync_metas():
+    exito, msj = procesar_pdf_drive()
+    if exito:
+        return jsonify({"status": "success", "datos": pdf_metas_cache["datos"], "estilos": pdf_metas_cache["estilos"], "procesos": pdf_metas_cache["procesos"]})
+    else:
+        return jsonify({"status": "error", "message": msj}), 500
+
+@app.route('/api/metas/datos', methods=['GET'])
+def get_metas():
+    return jsonify({
+        "status": "success",
+        "datos": pdf_metas_cache["datos"],
+        "estilos": pdf_metas_cache["estilos"],
+        "procesos": pdf_metas_cache["procesos"]
+    })
+
 # --- RUTAS DE ACCESO Y SEGURIDAD ---
 
 @app.route('/')
@@ -43,7 +171,6 @@ def index():
         return render_template('index.html', user=user_data, token=token)
     
     # 3. Si el token es válido pero no ha puesto el PIN, mostrar pantalla de login
-    # Pasamos el nombre del usuario para que aparezca en la bienvenida
     user_name = usuarios_actuales[token]['nombre']
     return render_template('login.html', token=token, nombre=user_name)
 
@@ -60,7 +187,6 @@ def login_verificar():
         pin_correcto = str(user_data['pin']).strip()
         
         if pin_ingresado == pin_correcto:
-            # Guardamos en la sesión que este usuario ya se autenticó
             session['user_token'] = token
             session['user_name'] = user_data['nombre']
             session['auth_logged'] = True
@@ -77,7 +203,6 @@ def logout():
 
 @app.route('/api/admin/usuarios', methods=['GET', 'POST', 'PUT'])
 def admin_drive():
-    # Solo angel0301 puede gestionar usuarios
     if session.get('user_token') != 'angel0301': 
         return jsonify({"error": "No autorizado"}), 403
     
@@ -87,7 +212,6 @@ def admin_drive():
     data = request.json
     
     if request.method == 'POST':
-        # Al crear usuarios, ahora el administrador puede elegir el PIN o dejar uno al azar
         nuevo_tkn = generar_token(data['nombre'])
         nuevo_pin = data.get('pin') if data.get('pin') else "".join(random.choices(string.digits, k=4))
         sheet.append_row([nuevo_tkn, data['nombre'], data['contacto'], nuevo_pin, "operador"])
