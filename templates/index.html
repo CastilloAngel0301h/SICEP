@@ -176,19 +176,40 @@
         </div>
         <div class="space-y-6">
             <div class="glass p-6 rounded-3xl border border-blue-800">
+                <h3 class="text-sm font-black mb-4 text-white uppercase text-center border-b border-gray-700 pb-2">Tiempo al 100% Eficiencia</h3>
                 <label class="text-[10px] text-yellow-400 font-black uppercase">Meta de la Carga (Total 11h)</label>
-                <input type="number" id="ts-meta" oninput="calcTiempoSimple()" class="input-pro mt-2" placeholder="Ej: 550">
-            </div>
-            <div class="glass p-6 rounded-3xl border border-blue-800">
+                <input type="number" id="ts-meta" oninput="calcTiempoSimple()" class="input-pro mt-2 mb-4" placeholder="Ej: 550">
+                
                 <label class="text-[10px] text-yellow-400 font-black uppercase">Docenaje de Carga Actual</label>
                 <input type="number" id="ts-doc" oninput="calcTiempoSimple()" class="input-pro mt-2" placeholder="Ej: 100">
             </div>
+
             <div class="bg-blue-600 p-8 rounded-[32px] text-center shadow-lg border-2 border-blue-400">
                 <p class="text-[10px] font-black uppercase mb-2 text-white">Tiempo Estimado al 100%</p>
                 <div id="ts-res" class="text-5xl font-black text-white">0H 00M</div>
                 <div id="ts-ritmo" class="text-[11px] mt-4 font-black bg-blue-900 py-2 rounded-lg text-yellow-400">Ritmo: 0.00 doc/hr</div>
             </div>
-            <button onclick="guardarHistorial('Tiempo Simple')" class="w-full py-4 bg-yellow-500 hover:bg-yellow-600 text-black rounded-2xl font-black uppercase text-sm">Guardar Cálculo</button>
+
+            <div class="glass p-6 rounded-3xl border border-yellow-600/50 mt-8">
+                <h3 class="text-sm font-black mb-4 text-yellow-500 uppercase text-center border-b border-gray-700 pb-2">Simulador de Ritmo (%) 🚀</h3>
+                
+                <label class="text-[10px] text-yellow-400 font-black uppercase">Meta Total de Carga (11h)</label>
+                <input type="number" id="tp-meta" oninput="calcTiempoPorcentaje()" class="input-pro mt-2 mb-4 bg-[#1c2541]" placeholder="Ej: 550">
+                
+                <label class="text-[10px] text-yellow-400 font-black uppercase">Docenas a Realizar</label>
+                <input type="number" id="tp-doc" oninput="calcTiempoPorcentaje()" class="input-pro mt-2 mb-4 bg-[#1c2541]" placeholder="Ej: 100">
+
+                <label class="text-[10px] text-green-400 font-black uppercase">Porcentaje de Eficiencia Deseado (%)</label>
+                <input type="number" id="tp-porc" oninput="calcTiempoPorcentaje()" class="input-pro mt-2 bg-green-900/20 border-green-600/50 text-green-300" placeholder="Ej: 50, 100, 200">
+                
+                <div class="bg-gray-800 p-4 rounded-xl text-center mt-6 border border-gray-600 shadow-inner">
+                    <p class="text-[9px] font-black uppercase mb-1 text-gray-400">Tiempo Requerido a este ritmo:</p>
+                    <div id="tp-res-tiempo" class="text-3xl font-black text-white tracking-widest">0H 00M</div>
+                    <p id="tp-res-ritmo" class="text-[10px] font-bold mt-2 text-green-400 uppercase">Debes sacar: 0.00 doc/hr</p>
+                </div>
+            </div>
+
+            <button onclick="guardarHistorial('Tiempo Simple')" class="w-full py-4 bg-yellow-500 hover:bg-yellow-600 text-black rounded-2xl font-black uppercase text-sm">Guardar Cálculo 100%</button>
         </div>
     </div>
 
@@ -326,7 +347,6 @@
             document.querySelectorAll('.view-window').forEach(v => v.classList.remove('active'));
         }
 
-        // --- CÓDIGO INTACTO ANTERIOR (TIEMPOS, EFICIENCIAS Y ADMIN) ---
         function formatTime(hoursDecimal) {
             const h = Math.floor(hoursDecimal);
             const m = Math.round((hoursDecimal - h) * 60);
@@ -345,6 +365,7 @@
             return `${displayH.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')} ${ampm}`;
         }
 
+        // --- FUNCIONES DE TIEMPO SIMPLE ---
         function calcTiempoSimple() {
             const meta = parseFloat(document.getElementById('ts-meta').value) || 0;
             const doc = parseFloat(document.getElementById('ts-doc').value) || 0;
@@ -353,6 +374,33 @@
                 const horasTotales = doc / docHora;
                 document.getElementById('ts-res').innerText = formatTime(horasTotales);
                 document.getElementById('ts-ritmo').innerText = `Ritmo: ${docHora.toFixed(2)} doc/hr`;
+            } else {
+                document.getElementById('ts-res').innerText = "0H 00M";
+                document.getElementById('ts-ritmo').innerText = `Ritmo: 0.00 doc/hr`;
+            }
+        }
+
+        // --- NUEVA FUNCIÓN: SIMULADOR DE RITMO POR PORCENTAJE ---
+        function calcTiempoPorcentaje() {
+            const meta = parseFloat(document.getElementById('tp-meta').value) || 0;
+            const docenas = parseFloat(document.getElementById('tp-doc').value) || 0;
+            const porcentaje = parseFloat(document.getElementById('tp-porc').value) || 0;
+
+            if (meta > 0 && docenas > 0 && porcentaje > 0) {
+                // 1. Calculamos las docenas por hora base (al 100%)
+                const docenasHoraBase = meta / 11;
+                
+                // 2. Ajustamos las docenas por hora según el porcentaje deseado
+                const docenasHoraObjetivo = docenasHoraBase * (porcentaje / 100);
+
+                // 3. Calculamos cuánto tiempo tomará hacer esas docenas a ese ritmo
+                const horasRequeridas = docenas / docenasHoraObjetivo;
+
+                document.getElementById('tp-res-tiempo').innerText = formatTime(horasRequeridas);
+                document.getElementById('tp-res-ritmo').innerText = `Debes sacar: ${docenasHoraObjetivo.toFixed(2)} doc/hr`;
+            } else {
+                document.getElementById('tp-res-tiempo').innerText = "0H 00M";
+                document.getElementById('tp-res-ritmo').innerText = `Debes sacar: 0.00 doc/hr`;
             }
         }
 
