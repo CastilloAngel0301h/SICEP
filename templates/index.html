@@ -65,13 +65,17 @@
                 <span class="text-4xl block mb-2">⏱️</span>
                 <span class="text-[11px] font-black uppercase text-white">Tiempo por<br>Docenaje</span>
             </div>
+            <div onclick="openView('view-metas')" class="lion-btn glass p-6 rounded-[24px] text-center bg-blue-900/40">
+                <span class="text-4xl block mb-2">🎯</span>
+                <span class="text-[11px] font-black uppercase text-white">Metas<br>Cargas</span>
+            </div>
             <div onclick="openView('view-historial')" class="lion-btn glass p-6 rounded-[24px] text-center bg-blue-900/40">
                 <span class="text-4xl block mb-2">📂</span>
                 <span class="text-[11px] font-black uppercase text-white">Historial<br>Guardado</span>
             </div>
-            <div onclick="openView('view-feedback')" class="lion-btn glass p-6 rounded-[24px] text-center bg-blue-900/40">
+            <div onclick="openView('view-feedback')" class="lion-btn glass p-6 rounded-[24px] text-center bg-blue-900/40 col-span-2">
                 <span class="text-4xl block mb-2">⭐</span>
-                <span class="text-[11px] font-black uppercase text-white">Valorar<br>App</span>
+                <span class="text-[11px] font-black uppercase text-white">Valorar App</span>
             </div>
             {% if token == 'angel0301' %}
             <div onclick="openView('view-admin')" class="lion-btn glass p-6 rounded-[24px] text-center col-span-2 border-yellow-500 bg-yellow-500/20 shadow-[0_0_15px_rgba(234,179,8,0.3)]">
@@ -79,6 +83,53 @@
                 <span class="text-xs font-black text-yellow-400 uppercase italic">Panel de Moderador (Exclusivo Angel)</span>
             </div>
             {% endif %}
+        </div>
+    </div>
+
+    <div id="view-metas" class="view-window p-6">
+        <div class="flex items-center mb-8">
+            <button onclick="closeView()" class="text-yellow-500 font-black text-2xl mr-4 px-2 bg-blue-900 rounded-lg">←</button>
+            <h2 class="text-xl font-black uppercase text-white">Metas Cargas 🎯</h2>
+        </div>
+        
+        <div class="space-y-6">
+            <div class="glass p-6 rounded-3xl border border-blue-800">
+                <p class="text-xs text-gray-300 mb-4 font-bold">Seleccione los datos para buscar su meta (Se extraen de tu PDF):</p>
+                
+                <label class="text-[10px] text-yellow-400 font-black uppercase">1. Estilo</label>
+                <select id="sel-estilo" class="input-pro mt-2 mb-4 bg-[#1c2541] focus:outline-none" onchange="actualizarBusquedaMeta()">
+                    <option value="">(Presione Sincronizar PDF abajo)</option>
+                </select>
+                
+                <label class="text-[10px] text-yellow-400 font-black uppercase">2. Talla</label>
+                <select id="sel-talla" class="input-pro mt-2 mb-4 bg-[#1c2541] focus:outline-none" onchange="actualizarBusquedaMeta()">
+                    <option value="">Seleccione una talla</option>
+                    <option value="XXS">XXS</option>
+                    <option value="XS">XS</option>
+                    <option value="S">S</option>
+                    <option value="M">M</option>
+                    <option value="L">L</option>
+                    <option value="XL">XL</option>
+                    <option value="2X">2X</option>
+                    <option value="3X">3X</option>
+                    <option value="4X">4X</option>
+                </select>
+
+                <label class="text-[10px] text-yellow-400 font-black uppercase">3. Proceso</label>
+                <select id="sel-proceso" class="input-pro mt-2 mb-4 bg-[#1c2541] focus:outline-none" onchange="actualizarBusquedaMeta()">
+                    <option value="">(Presione Sincronizar PDF abajo)</option>
+                </select>
+            </div>
+
+            <div id="meta-resultado-box" class="bg-blue-600 p-8 rounded-[32px] text-center shadow-lg border-2 border-blue-400 transition-colors duration-300">
+                <p class="text-[10px] font-black uppercase mb-2 text-white">LA META DE SU CARGA ES:</p>
+                <div id="meta-valor" class="text-5xl font-black text-white">---</div>
+                <p id="meta-status" class="text-[11px] mt-4 font-black bg-blue-900 py-2 rounded-lg text-yellow-400">Esperando selección...</p>
+            </div>
+            
+            <button onclick="sincronizarPDF()" class="w-full py-4 bg-gray-700 hover:bg-gray-600 text-white rounded-2xl font-black uppercase text-xs flex items-center justify-center gap-2">
+                <span>🔄</span> Sincronizar Base de Datos (PDF)
+            </button>
         </div>
     </div>
 
@@ -178,24 +229,110 @@
             } else { alert("PIN INCORRECTO 🦁"); }
         }
 
-        // Abrir paneles responsivos externos
+        // --- LÓGICA DE METAS CARGAS (PDF) ---
+        let pdfDataCache = [];
+
+        async function sincronizarPDF() {
+            const btn = document.querySelector('button[onclick="sincronizarPDF()"]');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = '<span>⏳</span> Descargando PDF de Google Drive...';
+            btn.disabled = true;
+            
+            try {
+                const res = await fetch('/api/metas/sincronizar', { method: 'POST' });
+                const data = await res.json();
+                
+                if(data.status === 'success') {
+                    pdfDataCache = data.datos;
+                    poblarSelectoresMetas(data.estilos, data.procesos);
+                    alert("✅ Base de datos extraída y sincronizada desde el PDF en Google Drive correctamente.");
+                } else {
+                    alert("❌ Error: " + data.message + "\n\nAsegúrate de que el PDF en tu Drive está compartido con el correo de la calculadora de tu archivo credenciales.json");
+                }
+            } catch(e) {
+                alert("❌ Error de conexión al sincronizar PDF.");
+            }
+            
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        }
+
+        async function cargarOpcionesMetas() {
+            try {
+                const res = await fetch('/api/metas/datos');
+                const data = await res.json();
+                if(data.status === 'success' && data.estilos.length > 0) {
+                    pdfDataCache = data.datos;
+                    poblarSelectoresMetas(data.estilos, data.procesos);
+                }
+            } catch(e) {
+                console.error("Error al cargar metas:", e);
+            }
+        }
+
+        function poblarSelectoresMetas(estilos, procesos) {
+            const selEstilo = document.getElementById('sel-estilo');
+            const selProceso = document.getElementById('sel-proceso');
+            
+            selEstilo.innerHTML = '<option value="">-- Seleccione un Estilo --</option>';
+            estilos.sort().forEach(est => {
+                selEstilo.innerHTML += `<option value="${est}">${est}</option>`;
+            });
+
+            selProceso.innerHTML = '<option value="">-- Seleccione un Proceso --</option>';
+            procesos.sort().forEach(proc => {
+                selProceso.innerHTML += `<option value="${proc}">${proc}</option>`;
+            });
+        }
+
+        function actualizarBusquedaMeta() {
+            const estilo = document.getElementById('sel-estilo').value;
+            const talla = document.getElementById('sel-talla').value;
+            const proceso = document.getElementById('sel-proceso').value;
+            
+            const valorDiv = document.getElementById('meta-valor');
+            const statusDiv = document.getElementById('meta-status');
+            const boxDiv = document.getElementById('meta-resultado-box');
+
+            if(!estilo || !talla || !proceso) {
+                valorDiv.innerText = "---";
+                statusDiv.innerText = "Esperando que seleccione las tres opciones...";
+                boxDiv.className = "bg-blue-600 p-8 rounded-[32px] text-center shadow-lg border-2 border-blue-400 transition-colors duration-300";
+                return;
+            }
+
+            const coincidencia = pdfDataCache.find(d => d.estilo === estilo && d.talla === talla && d.proceso === proceso);
+
+            if(coincidencia) {
+                valorDiv.innerText = coincidencia.meta;
+                statusDiv.innerText = "¡Meta encontrada en el PDF!";
+                boxDiv.className = "bg-green-600 p-8 rounded-[32px] text-center shadow-lg border-2 border-green-400 transition-colors duration-300";
+            } else {
+                valorDiv.innerText = "N/A";
+                statusDiv.innerText = "No se encontró esta combinación";
+                boxDiv.className = "bg-red-600 p-8 rounded-[32px] text-center shadow-lg border-2 border-red-400 transition-colors duration-300";
+            }
+        }
+
+        // --- MANEJO DE VISTAS ---
         function openView(id) {
             document.getElementById(id).classList.add('active');
             if(id === 'view-admin') fetchAdminUsers();
             if(id === 'view-historial') fetchHistorial();
+            if(id === 'view-metas' && pdfDataCache.length === 0) cargarOpcionesMetas();
         }
 
         function closeView() {
             document.querySelectorAll('.view-window').forEach(v => v.classList.remove('active'));
         }
 
+        // --- CÓDIGO INTACTO ANTERIOR (TIEMPOS, EFICIENCIAS Y ADMIN) ---
         function formatTime(hoursDecimal) {
             const h = Math.floor(hoursDecimal);
             const m = Math.round((hoursDecimal - h) * 60);
             return `${h}H ${m < 10 ? '0'+m : m}M`;
         }
 
-        // Helper para dar formato de 12 horas AM/PM continuo
         function formatClock(totalMinutes) {
             let h = Math.floor(totalMinutes / 60) % 24;
             let m = Math.round(totalMinutes % 60);
@@ -306,7 +443,6 @@
             calcularEficiencia();
         }
 
-        // --- FUNCIÓN CENTRAL MODIFICADA (FLUJO CRONOLÓGICO Y CONDICIÓN DE EFICIENCIA) ---
         function calcularEficiencia() {
             const cargaBlocks = document.querySelectorAll('#cargas-list > div');
             let sumMeta = 0, sumHecho = 0, count = 0;
@@ -343,7 +479,6 @@
 
                     totalAllParosMins += duration;
                     
-                    // Si el paro NO es R, sumamos sus minutos a los paros extraordinarios
                     if(motivo !== 'R') {
                         totalParosExceptRMins += duration;
                     }
@@ -354,15 +489,14 @@
                         loadOutsideMins += duration;
                     }
 
-                    // Guardamos tiempos absolutos en minutos para la lógica de flujo
                     loadParosList.push({
                         motivo: motivo,
                         durationMins: duration,
                         isOutside: isOutside,
                         realStartStr: formatClock(startTotal),
                         realEndStr: formatClock(endTotal),
-                        startMins: startTotal, // Ancla de inicio
-                        endMins: endTotal      // Ancla de fin
+                        startMins: startTotal, 
+                        endMins: endTotal      
                     });
                 });
 
@@ -410,7 +544,7 @@
             const totalShiftMins = 12 * 60; 
             const timeAvailableForLoadsMins = totalShiftMins - totalOutsideParosMins; 
             
-            let currentMinutes = 7 * 60; // Inicia a las 7:00 AM
+            let currentMinutes = 7 * 60; 
 
             if (count > 0) {
                 sts.forEach((st, i) => {
@@ -418,39 +552,31 @@
                     let loadDurationMins = 0;
                     let endMinutes = 0;
 
-                    // Filtramos si esta carga tiene un paro "Fuera"
                     const outsideParos = parosPerCarga[i].list.filter(p => p.isOutside);
 
                     if (outsideParos.length > 0) {
-                        // Ordenamos cronológicamente por si acaso
                         outsideParos.sort((a, b) => a.startMins - b.startMins);
                         let firstOut = outsideParos[0];
                         
-                        // La carga termina EXACTAMENTE cuando inicia el paro fuera de carga
                         if (firstOut.startMins > loadStartMins) {
                             loadDurationMins = firstOut.startMins - loadStartMins;
                         } else {
-                            loadDurationMins = 0; // Failsafe
+                            loadDurationMins = 0; 
                         }
                         endMinutes = loadStartMins + loadDurationMins;
 
                     } else {
-                        // LA CONDICIÓN SOLICITADA: 
-                        // Aplicar tiempo por eficiencia SOLO si en todo el día los únicos paros son R
                         let allocatedLoadHours = 0;
                         let diaLimpioSoloConParosR = (totalParosExceptRMins === 0);
 
                         if (totalST > 0 && diaLimpioSoloConParosR) {
-                            // Distribución proporcional según la eficiencia de la carga
                             allocatedLoadHours = st * ((timeAvailableForLoadsMins / 60) / totalST);
                         } else {
-                            // Distribución equitativa (lineal) si existen paros F, C, A, B, etc.
                             allocatedLoadHours = (timeAvailableForLoadsMins / 60) / count;
                         }
 
                         loadDurationMins = Math.round(allocatedLoadHours * 60);
 
-                        // Si es la última carga, rellena todo el tiempo que sobra hasta las 7:00 PM
                         if (i === sts.length - 1) {
                             let customRemaining = (7 * 60 + totalShiftMins) - loadStartMins;
                             loadDurationMins = Math.max(0, customRemaining);
@@ -461,7 +587,6 @@
                     let startStr = formatClock(loadStartMins);
                     let endStr = formatClock(endMinutes);
 
-                    // Imprimir la Carga
                     splitContainer.innerHTML += `
                         <div class="glass p-3 rounded-xl border border-blue-800 space-y-1">
                             <div class="flex justify-between items-center">
@@ -470,7 +595,6 @@
                             </div>
                         </div>`;
                     
-                    // Imprimir los Paros debajo de su Carga
                     if(parosPerCarga[i] && parosPerCarga[i].list.length > 0) {
                         parosPerCarga[i].list.forEach(p => {
                             if(p.isOutside && p.durationMins > 0) {
@@ -489,13 +613,10 @@
                         });
                     }
 
-                    // CRÍTICO: Configurar el reloj para la SIGUIENTE carga
                     if (outsideParos.length > 0) {
-                        // La siguiente carga inicia exactamente cuando terminó el último paro fuera de esta carga
                         let lastOut = outsideParos[outsideParos.length - 1];
                         currentMinutes = lastOut.endMins;
                     } else {
-                        // Si no hubo paro fuera, la siguiente inicia donde terminó esta normalmente
                         currentMinutes = endMinutes;
                     }
                 });
@@ -518,7 +639,6 @@
             }
         }
 
-        // --- PROCESOS INTERNOS ADMIN ANGEL ---
         async function crearUsuario() {
             const n = document.getElementById('adm-nombre').value;
             const c = document.getElementById('adm-cont').value;
@@ -630,3 +750,4 @@
     </script>
 </body>
 </html>
+
