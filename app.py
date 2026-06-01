@@ -34,9 +34,9 @@ def cargar_usuarios_drive():
 
 # Caché en memoria para no descargar el PDF cada vez que alguien hace clic
 pdf_metas_cache = {
-    "estilos": [],
+    "estilos": ['1466', '1467','1468', '1469','1545','1566','1567','1580','1717','1745','4017','4410','6014','6030','6045','9018','9360','1301GD','1302GD','1467Y','1566L','15BT','1745Y','207GD','3023CL','307GD' ],
     "tallas": ['XXS', 'XS', 'S', 'M', 'L', 'XL', '2X', '3X', '4X'],
-    "procesos": [],
+    "procesos": ['CONTEO','SORTEO','VOLTEO','DOBLADO','VOLTEO-SORTING','VOLTEO-PFD','SORTEO-REPROCESO'],
     "datos": []
 }
 
@@ -86,7 +86,7 @@ def procesar_pdf_drive():
         data = []
         estilos = set()
         procesos = set()
-        procesos_conocidos = ['Volteo', 'Conteo', 'Sorting', 'olteo-Sortin', 'Volteo-PFD', 'ting-Reproc']
+        procesos_conocidos = ['CONTEO','SORTEO','VOLTEO','DOBLADO','VOLTEO-SORTING','VOLTEO-PFD','SORTEO-REPROCESO']
         
         for line in text.split('\n'):
             parts = line.split()
