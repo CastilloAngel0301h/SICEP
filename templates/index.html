@@ -14,7 +14,7 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
         body { 
             /* Fondo Azul Oscuro Corporativo */
-            background-color: #0b132b; 
+            background-color: #19ffe4; 
             color: #ffffff; 
             font-family: 'Inter', sans-serif; 
             overflow-x: hidden;
@@ -39,7 +39,7 @@
     <div id="lock-screen" class="min-h-screen flex flex-col justify-center items-center p-6 text-center bg-[#0b132b] absolute w-full z-50">
         <div class="glass p-8 rounded-[32px] w-full border-yellow-500/50 border-2">
             <span class="text-6xl mb-4 block">🦁</span>
-            <h1 class="text-xl font-black uppercase text-yellow-500 mb-2">Acceso Protegido</h1>
+            <h1 class="text-xl font-black uppercase text-yellow-500 mb-2">ACCESO RESTRINGIDO</h1>
             <p class="text-xs text-gray-300 mb-6 uppercase tracking-widest">Ingresa tu PIN</p>
             <input type="password" id="pin-input" maxlength="4" class="input-pro text-center text-3xl tracking-[0.5em] mb-6 bg-[#0b132b]" placeholder="****">
             <button onclick="verificarAcceso()" class="w-full py-4 bg-red-600 hover:bg-red-700 rounded-2xl font-black text-white shadow-lg">ENTRAR</button>
@@ -470,16 +470,16 @@
                 <div class="flex flex-col flex-1 min-w-[100px] gap-1">
                     <span class="text-[9px] font-black text-yellow-400 uppercase tracking-tighter">Motivo</span>
                     <select class="bg-[#1c2541] border border-yellow-600/70 text-yellow-400 font-bold p-1 rounded outline-none p-motivo" onchange="calcularEficiencia()">
-                        <option value="R">R (Receso - Dentro)</option>
-                        <option value="F">F (Enfermería - Dentro)</option>
-                        <option value="C">C (Reunión - Dentro)</option>
-                        <option value="A">A (Fuera)</option>
-                        <option value="B">B (Fuera)</option>
-                        <option value="D">D (Fuera)</option>
-                        <option value="E">E (Fuera)</option>
-                        <option value="G">G (Fuera)</option>
-                        <option value="H">H (Fuera)</option>
-                        <option value="I">I (Asignación - Fuera)</option>
+                        <option value="R">R (Receso - Intraload)</option>
+                        <option value="F">F (Enfermería - Intraload)</option>
+                        <option value="C">C (Reunión - Intraload)</option>
+                        <option value="A">A (Falta De Trabajo - Extraload)</option>
+                        <option value="B">B (Falta De Energia - Extraload)</option>
+                        <option value="D">D (Falta De Troco -  Extraload)</option>
+                        <option value="E">E (Revision De Rechazos Textil - Extraload)</option>
+                        <option value="G">G (No Programado - Extraload)</option>
+                        <option value="H">H (Pruebas- Extraload)</option>
+                        <option value="I">I (Asignación A Linea - Extraload)</option>
                     </select>
                 </div>
                 <button type="button" onclick="this.parentElement.remove(); calcularEficiencia();" class="text-red-500 font-black text-base pt-3 px-1 hover:text-red-400">✕</button>
