@@ -30,9 +30,9 @@ def cargar_usuarios_drive():
     except:
         return {}
 
-# --- NUEVO: CONFIGURACIÓN DE BASE DE DATOS METAS (PDF EN DRIVE) ---
+# --- NUEVO: CONFIGURACIÓN DE BASE DE DATOS METAS (AHORA EN GOOGLE SHEETS) ---
 
-# Caché en memoria para no descargar el PDF cada vez que alguien hace clic
+# Caché en memoria para no descargar los datos cada vez que alguien hace clic
 pdf_metas_cache = {
     "estilos": ['1466', '1467','1468', '1469','1545','1566','1567','1580','1717','1745','4017','4410','6014','6030','6045','9018','9360','1301GD','1302GD','1467Y','1566L','15BT','1745Y','207GD','3023CL','307GD' ],
     "tallas": ['XXS', 'XS', 'S', 'M', 'L', 'XL', '2X', '3X', '4X'],
@@ -41,7 +41,7 @@ pdf_metas_cache = {
 }
 
 def normalizar_talla(t):
-    """Convierte nomenclaturas del PDF a tallas universales"""
+    """Convierte nomenclaturas a tallas universales"""
     t = str(t).lower().strip()
     if '2x' in t: return '2X'
     if '3x' in t: return '3X'
@@ -55,7 +55,7 @@ def normalizar_talla(t):
     return t.upper()
 
 def extraer_talla_raw(parts):
-    """Busca dinámicamente el código de la talla sin importar los espacios de la descripción"""
+    """Busca dinámicamente el código de la talla sin importar los espacios de la descripción (Mantenido por compatibilidad)"""
     conocidas = ['ASM', 'AMD', 'ALG', 'AXL', 'A2X', 'A3X', 'A4X', 'LSM', 'LMD', 'LLG', 'LXL', 'L2X', 'BXX', 'BXS', 'BSM', 'BMD', 'BLG', 'BXL', 'AXS', 'XXS']
     for p in parts[2:7]:
         if p.upper() in conocidas: return p
@@ -63,72 +63,45 @@ def extraer_talla_raw(parts):
         if len(p) <= 3 and any(x in p.upper() for x in ['S','M','L','X']): return p
     return parts[3] if len(parts) > 3 else ""
 
-def procesar_pdf_drive():
+def procesar_metas_drive():
+    """Lee las metas directamente desde la hoja de Google Sheets indicada"""
     try:
-        drive_service = build('drive', 'v3', credentials=creds)
-        # ID del archivo extraído de tu link
-        file_id = '12LZjVzBk4uvvee8vA5lMX7hnho4ioibX' 
+        # ID de tu nuevo archivo de GSheets
+        sheet_metas_id = '1U9rvF4Uj55N9kV-sVuwP0y6OutkP___H'
+        hoja_metas = client.open_by_key(sheet_metas_id).sheet1
         
-        request = drive_service.files().get_media(fileId=file_id)
-        fh = io.BytesIO()
-        downloader = MediaIoBaseDownload(fh, request)
-        done = False
-        while done is False:
-            status, done = downloader.next_chunk()
-            
-        fh.seek(0)
-        pdf_reader = PyPDF2.PdfReader(fh)
-        text = ""
-        for page in pdf_reader.pages:
-            if page.extract_text():
-                text += page.extract_text() + "\n"
-                
+        # Obtenemos todos los valores como una lista de listas
+        records = hoja_metas.get_all_values()
+        
         data = []
         estilos = set()
         procesos = set()
-        procesos_conocidos = ['CONTEO','SORTEO','VOLTEO','DOBLADO','VOLTEO-SORTING','VOLTEO-PFD','SORTEO-REPROCESO']
         
-        for line in text.split('\n'):
-            parts = line.split()
-            if len(parts) >= 9:
-                estilo = parts[0] # Columna 1
-                idx_proceso = -1
+        # Saltamos la fila 0 asumiendo que son los encabezados
+        for row in records[1:]:
+            # Asegurarse de que la fila tiene al menos 6 columnas (0 a 5)
+            if len(row) >= 6:
+                estilo = str(row[0]).strip()        # Columna 1
+                talla_raw = str(row[1]).strip()     # Columna 2
+                proceso = str(row[3]).strip()       # Columna 4
+                meta = str(row[5]).strip()          # Columna 6
                 
-                for i, p in enumerate(parts):
-                    if any(proc.lower() in p.lower() for proc in procesos_conocidos) or p.endswith('-PFD') or p.endswith('-Sortin') or p.endswith('-Reproc'):
-                        idx_proceso = i
-                        break
-                        
-                if idx_proceso != -1 and idx_proceso >= 3:
-                    talla_raw = extraer_talla_raw(parts) # Columna 4 aprox
-                    proceso = parts[idx_proceso] # Columna 7 o 8 aprox
-                    
-                    try:
-                        # Columna 10 (Meta de carga) normalmente 3 posiciones después del proceso
-                        if len(parts) > idx_proceso + 3:
-                            meta = parts[idx_proceso + 3]
-                            if not meta.replace('.','',1).isdigit():
-                                meta = parts[idx_proceso + 2]
-                                if not meta.replace('.','',1).isdigit():
-                                    continue
-                        else:
-                            continue
-                            
+                # Validar que los campos no estén vacíos y que meta sea un número
+                if estilo and talla_raw and proceso and meta:
+                    if meta.replace('.', '', 1).isdigit():
                         talla_norm = normalizar_talla(talla_raw)
                         
                         combinacion = {
                             'estilo': estilo,
                             'talla': talla_norm,
-                            'proceso': proceso,
+                            'proceso': proceso.upper(),
                             'meta': meta
                         }
                         if combinacion not in data:
                             data.append(combinacion)
                             
                         estilos.add(estilo)
-                        procesos.add(proceso)
-                    except IndexError:
-                        pass
+                        procesos.add(proceso.upper())
 
         pdf_metas_cache["estilos"] = list(estilos)
         pdf_metas_cache["procesos"] = list(procesos)
@@ -139,7 +112,8 @@ def procesar_pdf_drive():
 
 @app.route('/api/metas/sincronizar', methods=['POST'])
 def sync_metas():
-    exito, msj = procesar_pdf_drive()
+    # Cambiamos la llamada a la nueva función
+    exito, msj = procesar_metas_drive()
     if exito:
         return jsonify({"status": "success", "datos": pdf_metas_cache["datos"], "estilos": pdf_metas_cache["estilos"], "procesos": pdf_metas_cache["procesos"]})
     else:
