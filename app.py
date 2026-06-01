@@ -5,7 +5,7 @@ import os
 import random
 import string
 import io
-import PyPDF2
+import openpyxl  # <-- NUEVO: Para leer archivos Excel (.xlsx)
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseDownload
 
@@ -30,7 +30,7 @@ def cargar_usuarios_drive():
     except:
         return {}
 
-# --- NUEVO: CONFIGURACIÓN DE BASE DE DATOS METAS (AHORA EN GOOGLE SHEETS) ---
+# --- NUEVO: CONFIGURACIÓN DE BASE DE DATOS METAS (EXCEL .XLSX EN DRIVE) ---
 
 # Caché en memoria para no descargar los datos cada vez que alguien hace clic
 pdf_metas_cache = {
@@ -54,39 +54,41 @@ def normalizar_talla(t):
     if 'lg' in t or 'alg' in t or 'llg' in t or 'blg' in t: return 'L'
     return t.upper()
 
-def extraer_talla_raw(parts):
-    """Busca dinámicamente el código de la talla sin importar los espacios de la descripción (Mantenido por compatibilidad)"""
-    conocidas = ['ASM', 'AMD', 'ALG', 'AXL', 'A2X', 'A3X', 'A4X', 'LSM', 'LMD', 'LLG', 'LXL', 'L2X', 'BXX', 'BXS', 'BSM', 'BMD', 'BLG', 'BXL', 'AXS', 'XXS']
-    for p in parts[2:7]:
-        if p.upper() in conocidas: return p
-    for p in parts[2:7]:
-        if len(p) <= 3 and any(x in p.upper() for x in ['S','M','L','X']): return p
-    return parts[3] if len(parts) > 3 else ""
-
 def procesar_metas_drive():
-    """Lee las metas directamente desde la hoja de Google Sheets indicada"""
+    """Descarga el Excel (.xlsx) desde Google Drive y extrae las columnas requeridas"""
     try:
-        # ID de tu nuevo archivo de GSheets
-        sheet_metas_id = '1U9rvF4Uj55N9kV-sVuwP0y6OutkP___H'
-        hoja_metas = client.open_by_key(sheet_metas_id).sheet1
+        drive_service = build('drive', 'v3', credentials=creds)
+        file_id = '1U9rvF4Uj55N9kV-sVuwP0y6OutkP___H' 
         
-        # Obtenemos todos los valores como una lista de listas
-        records = hoja_metas.get_all_values()
+        # Descargamos el archivo Excel (.xlsx) en memoria
+        request = drive_service.files().get_media(fileId=file_id)
+        fh = io.BytesIO()
+        downloader = MediaIoBaseDownload(fh, request)
+        done = False
+        while done is False:
+            status, done = downloader.next_chunk()
+            
+        fh.seek(0)
+        
+        # Leemos el archivo con openpyxl (data_only=True obtiene los valores, no las fórmulas)
+        wb = openpyxl.load_workbook(fh, data_only=True)
+        hoja_metas = wb.active
         
         data = []
         estilos = set()
         procesos = set()
         
-        # Saltamos la fila 0 asumiendo que son los encabezados
-        for row in records[1:]:
-            # Asegurarse de que la fila tiene al menos 6 columnas (0 a 5)
+        # Recorremos las filas omitiendo la primera (encabezados)
+        for row in hoja_metas.iter_rows(min_row=2, values_only=True):
+            # Nos aseguramos de que la fila tenga al menos 6 columnas
             if len(row) >= 6:
-                estilo = str(row[0]).strip()        # Columna 1
-                talla_raw = str(row[1]).strip()     # Columna 2
-                proceso = str(row[3]).strip()       # Columna 4
-                meta = str(row[5]).strip()          # Columna 6
+                # Columnas según tu requerimiento (índice base 0)
+                estilo = str(row[0]).strip() if row[0] is not None else ""      # Columna 1
+                talla_raw = str(row[1]).strip() if row[1] is not None else ""   # Columna 2
+                proceso = str(row[3]).strip() if row[3] is not None else ""     # Columna 4
+                meta = str(row[5]).strip() if row[5] is not None else ""        # Columna 6
                 
-                # Validar que los campos no estén vacíos y que meta sea un número
+                # Validamos que los datos requeridos existan y que la meta sea numérica
                 if estilo and talla_raw and proceso and meta:
                     if meta.replace('.', '', 1).isdigit():
                         talla_norm = normalizar_talla(talla_raw)
@@ -97,6 +99,7 @@ def procesar_metas_drive():
                             'proceso': proceso.upper(),
                             'meta': meta
                         }
+                        
                         if combinacion not in data:
                             data.append(combinacion)
                             
@@ -112,7 +115,6 @@ def procesar_metas_drive():
 
 @app.route('/api/metas/sincronizar', methods=['POST'])
 def sync_metas():
-    # Cambiamos la llamada a la nueva función
     exito, msj = procesar_metas_drive()
     if exito:
         return jsonify({"status": "success", "datos": pdf_metas_cache["datos"], "estilos": pdf_metas_cache["estilos"], "procesos": pdf_metas_cache["procesos"]})
