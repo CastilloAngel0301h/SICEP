@@ -57,6 +57,10 @@
         </div>
 
         <div class="grid grid-cols-2 gap-4">
+            <div onclick="openView('view-biohorario')" class="lion-btn glass p-6 rounded-[24px] text-center bg-gradient-to-br from-amber-600/60 to-red-900/60 col-span-2 border border-amber-500/40 shadow-lg">
+                <span class="text-4xl block mb-2">⏳</span>
+                <span class="text-xs font-black uppercase text-white tracking-wider">BioHorario</span>
+            </div>
             <div onclick="openView('view-eficiencia')" class="lion-btn glass p-6 rounded-[24px] text-center bg-blue-900/40">
                 <span class="text-4xl block mb-2">📊</span>
                 <span class="text-[11px] font-black uppercase text-white">Eficiencia<br>Completa</span>
@@ -83,6 +87,99 @@
                 <span class="text-xs font-black text-yellow-400 uppercase italic">Panel de Moderador (Exclusivo Angel)</span>
             </div>
             {% endif %}
+        </div>
+    </div>
+
+    <div id="view-biohorario" class="view-window p-6">
+        <div class="flex items-center mb-8">
+            <button onclick="closeView()" class="text-yellow-500 font-black text-2xl mr-4 px-2 bg-blue-900 rounded-lg">←</button>
+            <h2 class="text-xl font-black uppercase text-white">BIoHorario ⏳</h2>
+        </div>
+
+        <div class="space-y-4">
+            <div id="bio-cargas-list" class="space-y-4">
+                </div>
+
+            <button onclick="addBioCarga()" class="w-full py-3 bg-blue-800 hover:bg-blue-700 text-white rounded-xl text-xs font-black uppercase tracking-wider transition-colors border border-blue-600 shadow-md">+ Añadir Carga</button>
+
+            <div class="glass p-5 rounded-3xl border border-gray-700 mt-6">
+                <h3 class="text-xs font-black text-yellow-500 uppercase tracking-wider mb-4 border-b border-gray-700 pb-2">Registros de Tiempos Muertos</h3>
+                
+                <div class="mb-4">
+                    <label class="text-[10px] text-gray-300 font-black uppercase block mb-1">Time Off Recesos</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <input type="number" id="bio-receso-h" min="0" value="0" placeholder="Horas" class="input-pro p-2.5 text-center" oninput="calcularBioHorario()">
+                        <input type="number" id="bio-receso-m" min="0" max="59" value="0" placeholder="Minutos" class="input-pro p-2.5 text-center" oninput="calcularBioHorario()">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="text-[10px] text-gray-300 font-black uppercase block mb-1">Time Off Paros</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <input type="number" id="bio-paro-h" min="0" value="0" placeholder="Horas" class="input-pro p-2.5 text-center" oninput="calcularBioHorario()">
+                        <input type="number" id="bio-paro-m" min="0" max="59" value="0" placeholder="Minutos" class="input-pro p-2.5 text-center" oninput="calcularBioHorario()">
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass p-5 rounded-3xl border border-gray-700">
+                <h3 class="text-xs font-black text-green-400 uppercase tracking-wider mb-4 border-b border-gray-700 pb-2">Progreso del Turno Actual</h3>
+                <label class="text-[10px] text-gray-300 font-black uppercase block mb-1">Tiempo Transcurrido Labores</label>
+                <div class="grid grid-cols-2 gap-2">
+                    <input type="number" id="bio-trans-h" min="0" value="0" placeholder="Horas" class="input-pro p-2.5 text-center" oninput="calcularBioHorario()">
+                    <input type="number" id="bio-trans-m" min="0" max="59" value="0" placeholder="Minutos" class="input-pro p-2.5 text-center" oninput="calcularBioHorario()">
+                </div>
+            </div>
+
+            <div class="bg-gradient-to-br from-slate-900 to-blue-950 p-6 rounded-[32px] border-2 border-yellow-500/40 shadow-xl space-y-4">
+                <h3 class="text-center text-xs font-black uppercase tracking-widest text-yellow-500">Métricas y Resultados Generales</h3>
+                
+                <div class="grid grid-cols-2 gap-3 text-center">
+                    <div class="bg-black/30 p-3 rounded-2xl border border-gray-800">
+                        <span class="text-[9px] font-bold text-gray-400 uppercase block">Total Docenas</span>
+                        <span id="lbl-bio-total-hecho" class="text-xl font-black text-white">0</span>
+                    </div>
+                    <div class="bg-black/30 p-3 rounded-2xl border border-gray-800">
+                        <span class="text-[9px] font-bold text-gray-400 uppercase block">Meta General (On)</span>
+                        <span id="lbl-bio-meta-gen" class="text-xl font-black text-white">0</span>
+                    </div>
+                    <div class="bg-black/30 p-3 rounded-2xl border border-gray-800">
+                        <span class="text-[9px] font-bold text-gray-400 uppercase block">Docenas Perdidas</span>
+                        <span id="lbl-bio-doc-perdidas" class="text-xl font-black text-red-400">0</span>
+                    </div>
+                    <div class="bg-black/30 p-3 rounded-2xl border border-gray-800">
+                        <span class="text-[9px] font-bold text-gray-400 uppercase block">Meta Final</span>
+                        <span id="lbl-bio-meta-final" class="text-xl font-black text-yellow-400">0</span>
+                    </div>
+                </div>
+
+                <div class="border-t border-gray-800 my-2 pt-2 grid grid-cols-2 gap-3 text-center">
+                    <div class="bg-emerald-950/40 p-3 rounded-2xl border border-emerald-500/20">
+                        <span class="text-[9px] font-bold text-emerald-400 uppercase block">Eficiencia ON</span>
+                        <span id="lbl-bio-ef-on" class="text-xl font-black text-emerald-400">0.00%</span>
+                    </div>
+                    <div class="bg-rose-950/40 p-3 rounded-2xl border border-rose-500/20">
+                        <span class="text-[9px] font-bold text-rose-400 uppercase block">Eficiencia OFF</span>
+                        <span id="lbl-bio-ef-off" class="text-xl font-black text-rose-400">0.00%</span>
+                    </div>
+                </div>
+
+                <div class="bg-blue-900/30 p-4 rounded-2xl border border-blue-700/40 text-center space-y-1">
+                    <span class="text-[10px] font-black text-cyan-400 uppercase block tracking-wider">Estado Actual a las <span id="lbl-bio-horas-trans">0h 00m</span></span>
+                    <div class="grid grid-cols-2 gap-2 mt-2">
+                        <div>
+                            <span class="text-[9px] font-bold text-gray-400 uppercase block">Meta Actual</span>
+                            <span id="lbl-bio-meta-actual" class="text-xl font-black text-white">0</span>
+                        </div>
+                        <div>
+                            <span class="text-[9px] font-bold text-gray-400 uppercase block">Eficiencia Actual</span>
+                            <span id="lbl-bio-ef-actual" class="text-xl font-black text-amber-400">0.00%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <button onclick="guardarHistorial('BioHorario')" class="w-full py-4 bg-red-600 hover:bg-red-700 text-white rounded-2xl font-black text-sm uppercase tracking-wider shadow-lg">Guardar en Historial</button>
         </div>
     </div>
 
@@ -163,8 +260,7 @@
             </div>
         </div>
 
-        <div id="tiempos-cargas" class="mb-6 space-y-2">
-            </div>
+        <div id="tiempos-cargas" class="mb-6 space-y-2"></div>
 
         <button onclick="guardarHistorial('Eficiencia')" class="w-full py-4 bg-red-600 hover:bg-red-700 text-white rounded-2xl font-black text-sm uppercase">Guardar en Historial</button>
     </div>
@@ -387,13 +483,8 @@
             const porcentaje = parseFloat(document.getElementById('tp-porc').value) || 0;
 
             if (meta > 0 && docenas > 0 && porcentaje > 0) {
-                // 1. Calculamos las docenas por hora base (al 100%)
                 const docenasHoraBase = meta / 11;
-                
-                // 2. Ajustamos las docenas por hora según el porcentaje deseado
                 const docenasHoraObjetivo = docenasHoraBase * (porcentaje / 100);
-
-                // 3. Calculamos cuánto tiempo tomará hacer esas docenas a ese ritmo
                 const horasRequeridas = docenas / docenasHoraObjetivo;
 
                 document.getElementById('tp-res-tiempo').innerText = formatTime(horasRequeridas);
@@ -404,6 +495,97 @@
             }
         }
 
+        // --- LÓGICA AGREGADA: NUEVO MÓDULO "BIOHORARIO" ---
+        function addBioCarga() {
+            const container = document.getElementById('bio-cargas-list');
+            const numCarga = container.children.length + 1;
+            
+            const div = document.createElement('div');
+            div.className = "glass p-4 rounded-2xl border border-blue-800 space-y-3 relative";
+            div.innerHTML = `
+                <div class="flex justify-between items-center border-b border-gray-700 pb-2">
+                    <span class="text-xs font-black text-yellow-500 uppercase">Carga ${numCarga}</span>
+                    <button type="button" onclick="this.parentElement.parentElement.remove(); calcularBioHorario();" class="text-red-400 text-xs font-bold hover:text-red-600">Eliminar</button>
+                </div>
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label class="text-[9px] text-gray-400 font-bold uppercase block mb-1">Meta Carga ${numCarga}</label>
+                        <input type="number" placeholder="Ej: 660" class="input-pro p-2.5 text-center bio-meta-input" oninput="calcularBioHorario()">
+                    </div>
+                    <div>
+                        <label class="text-[9px] text-gray-400 font-bold uppercase block mb-1">Docenas Hechas</label>
+                        <input type="number" placeholder="Ej: 120" class="input-pro p-2.5 text-center bio-hecho-input" oninput="calcularBioHorario()">
+                    </div>
+                </div>
+            `;
+            container.appendChild(div);
+            calcularBioHorario();
+        }
+
+        function calcularBioHorario() {
+            const cargas = document.querySelectorAll('#bio-cargas-list > div');
+            
+            let totalDocenasHechas = 0;
+            let sumaMetas = 0;
+            let cantidadMetas = 0;
+
+            cargas.forEach(bloque => {
+                const metaVal = parseFloat(bloque.querySelector('.bio-meta-input').value) || 0;
+                const hechoVal = parseFloat(bloque.querySelector('.bio-hecho-input').value) || 0;
+
+                totalDocenasHechas += hechoVal;
+                if(metaVal > 0) {
+                    sumaMetas += metaVal;
+                    cantidadMetas++;
+                }
+            });
+
+            // Meta General On (Promedio de las metas de carga ingresadas)
+            const metaGeneralOn = cantidadMetas > 0 ? (sumaMetas / cantidadMetas) : 0;
+
+            // Tiempos Muertos
+            const recesoH = parseFloat(document.getElementById('bio-receso-h').value) || 0;
+            const recesoM = parseFloat(document.getElementById('bio-receso-m').value) || 0;
+            const paroH = parseFloat(document.getElementById('bio-paro-h').value) || 0;
+            const paroM = parseFloat(document.getElementById('bio-paro-m').value) || 0;
+
+            const totalMinutosParos = (paroH * 60) + paroM;
+
+            // Cálculo exacto de docenas perdidas por paro según fórmula solicitada:
+            // (Meta General / 11 horas) * (Tiempo perdido en minutos / 60 minutos)
+            const docenasPerdidasParos = (metaGeneralOn / 11) * (totalMinutosParos / 60);
+
+            // Meta Final
+            const metaFinal = metaGeneralOn - docenasPerdidasParos;
+
+            // Eficiencia ON & OFF
+            const eficienciaOn = metaGeneralOn > 0 ? (totalDocenasHechas / metaGeneralOn) * 100 : 0;
+            const eficienciaOff = metaGeneralOn > 0 ? (docenasPerdidasParos / metaGeneralOn) * 100 : 0;
+
+            // Tiempo Transcurrido para cálculo parcial
+            const transH = parseFloat(document.getElementById('bio-trans-h').value) || 0;
+            const transM = parseFloat(document.getElementById('bio-trans-m').value) || 0;
+            const horasTranscurridasDec = transH + (transM / 60);
+
+            // Meta Actual & Eficiencia Actual según transcurso de tiempo
+            const metaActual = (metaFinal / 11) * horasTranscurridasDec;
+            const eficienciaActual = metaActual > 0 ? (totalDocenasHechas / metaActual) * 100 : 0;
+
+            // Renderizado de Datos en la UI
+            document.getElementById('lbl-bio-total-hecho').innerText = totalDocenasHechas;
+            document.getElementById('lbl-bio-meta-gen').innerText = metaGeneralOn.toFixed(1);
+            document.getElementById('lbl-bio-doc-perdidas').innerText = docenasPerdidasParos.toFixed(1);
+            document.getElementById('lbl-bio-meta-final').innerText = metaFinal.toFixed(1);
+            
+            document.getElementById('lbl-bio-ef-on').innerText = eficienciaOn.toFixed(2) + "%";
+            document.getElementById('lbl-bio-ef-off').innerText = eficienciaOff.toFixed(2) + "%";
+            
+            document.getElementById('lbl-bio-horas-trans').innerText = `${transH}h ${transM.toString().padStart(2, '0')}m`;
+            document.getElementById('lbl-bio-meta-actual').innerText = metaActual.toFixed(1);
+            document.getElementById('lbl-bio-ef-actual').innerText = eficienciaActual.toFixed(2) + "%";
+        }
+
+        // --- SECCIÓN GENERAL DE EFICIENCIA COMPLETA ---
         function addCarga() {
             const container = document.getElementById('cargas-list');
             const numCarga = container.children.length + 1;
@@ -612,7 +794,6 @@
                             loadDurationMins = 0; 
                         }
                         endMinutes = loadStartMins + loadDurationMins;
-
                     } else {
                         let allocatedLoadHours = 0;
                         let diaLimpioSoloConParosR = (totalParosExceptRMins === 0);
@@ -760,6 +941,11 @@
                     res: document.getElementById('ef-resultado').innerText,
                     detalle: document.getElementById('tiempos-cargas').innerText.replace(/\n/g, ' | ')
                 };
+            } else if(tipo === 'BioHorario') {
+                info = {
+                    res: "ON: " + document.getElementById('lbl-bio-ef-on').innerText + " | ACT: " + document.getElementById('lbl-bio-ef-actual').innerText,
+                    detalle: `Suma Hechas: ${document.getElementById('lbl-bio-total-hecho').innerText} | Meta Final: ${document.getElementById('lbl-bio-meta-final').innerText}`
+                };
             } else {
                 info = { res: document.getElementById('ts-res').innerText, meta: document.getElementById('ts-meta').value };
             }
@@ -794,8 +980,9 @@
             `).join('');
         }
 
+        // Inicializar con la primera carga en ambos módulos al iniciar la app
         addCarga();
+        addBioCarga();
     </script>
 </body>
 </html>
-
