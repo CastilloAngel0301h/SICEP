@@ -155,21 +155,48 @@ def login_verificar():
     data = request.json
     token = data.get('token')
     pin_ingresado = str(data.get('pin')).strip()
+    device_id_cliente = str(data.get('device_id')).strip()
     
-    usuarios_actuales = cargar_usuarios_drive()
-    
-    if token in usuarios_actuales:
-        user_data = usuarios_actuales[token]
-        pin_correcto = str(user_data['pin']).strip()
-        
-        if pin_ingresado == pin_correcto:
+    # EXCEPCIÓN DE ADMINISTRADOR: Angel Castillo tiene acceso irrestricto multidispositivo
+    if token == 'angel0301':
+        usuarios_actuales = cargar_usuarios_drive()
+        if token in usuarios_actuales and str(usuarios_actuales[token]['pin']).strip() == pin_ingresado:
             session['user_token'] = token
-            session['user_name'] = user_data['nombre']
+            session['user_name'] = 'Angel Castillo'
             session['auth_logged'] = True
             return jsonify({"status": "success"})
-    
-    return jsonify({"status": "error", "message": "PIN Incorrecto"}), 401
+        return jsonify({"status": "error", "message": "PIN Incorrecto"}), 401
 
+    try:
+        # Buscamos la fila exacta del usuario en Google Sheets
+        celda = sheet.find(token)
+        fila = celda.row
+        valores_fila = sheet.row_values(fila)
+        
+        # Validación de PIN (El PIN está en la columna 4 -> índice 3)
+        pin_correcto = str(valores_fila[3]).strip()
+        if pin_ingresado != pin_correcto:
+            return jsonify({"status": "error", "message": "PIN Incorrecto"}), 401
+
+        # 🛡️ PROTOCOLO DE SEGURIDAD: DEVICE ID (Se guardará en la columna 6)
+        device_id_db = str(valores_fila[5]).strip() if len(valores_fila) >= 6 else ""
+
+        if not device_id_db:
+            # Es su primer inicio de sesión: Vinculamos este dispositivo permanentemente a su perfil
+            sheet.update_cell(fila, 6, device_id_cliente)
+        elif device_id_db != device_id_cliente:
+            # 🚨 INFRACCIÓN DETECTADA: Intento desde un dispositivo no autorizado
+            sheet.delete_row(fila) # Elimina el perfil automáticamente
+            return jsonify({"status": "deleted"}), 403
+
+        # Login Exitoso
+        session['user_token'] = token
+        session['user_name'] = valores_fila[1]
+        session['auth_logged'] = True
+        return jsonify({"status": "success"})
+
+    except Exception as e:
+        return jsonify({"status": "error", "message": "Usuario no encontrado o error de red"}), 404
 @app.route('/logout')
 def logout():
     session.clear()
