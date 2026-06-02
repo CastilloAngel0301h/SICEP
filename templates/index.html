@@ -9,10 +9,11 @@
     <meta name="theme-color" content="#0d0e15">
     
     <title>CALCULADORA EFICIENCIAS PRODUCCION AHOGADOS</title>
-    <script src="[https://cdn.tailwindcss.com](https://cdn.tailwindcss.com)"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @import url('[https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap](https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap)');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
         
+        /* Paleta de colores Neón más vivos y alegres */
         :root {
             --neon-magenta: #ff007f;
             --neon-cian: #00f3ff;
@@ -20,6 +21,7 @@
             --neon-amarillo: #ffe600;
             --neon-naranja: #ff6c00;
             --bg-deep: #0d0e15;
+            --bg-card: #181a26;
         }
 
         body { 
@@ -29,6 +31,7 @@
             overflow-x: hidden;
         }
 
+        /* Contenedores estilo cristal neón rediseñados y coloridos */
         .glass { 
             background: rgba(24, 26, 38, 0.85); 
             border: 2px solid rgba(255, 255, 255, 0.08); 
@@ -36,6 +39,7 @@
             backdrop-filter: blur(8px);
         }
 
+        /* Ventanas deslizantes con bordes brillantes */
         .view-window { 
             position: fixed; top: 0; left: 100%; width: 100%; height: 100%; 
             background: var(--bg-deep); transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 50; 
@@ -43,6 +47,7 @@
         }
         .view-window.active { left: 0; }
 
+        /* Inputs estilizados Cyberpunk */
         .input-pro { 
             background: #11131e; 
             border: 2px solid #2d3142; 
@@ -59,6 +64,7 @@
             box-shadow: 0 0 12px rgba(0, 243, 255, 0.5); 
         }
 
+        /* Botones dinámicos e interactivos */
         .lion-btn { 
             transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1); 
             border: 2px solid transparent; 
@@ -66,6 +72,7 @@
         }
         .lion-btn:active { transform: scale(0.95); }
 
+        /* Efectos Neón vibrantes personalizados para los menús */
         .neon-border-magenta { border: 2px solid var(--neon-magenta); box-shadow: 0 0 15px rgba(255, 0, 127, 0.3); }
         .neon-border-magenta:hover { box-shadow: 0 0 25px rgba(255, 0, 127, 0.6); border-color: #ff55aa; }
 
@@ -81,9 +88,16 @@
         .neon-border-naranja { border: 2px solid var(--neon-naranja); box-shadow: 0 0 15px rgba(255, 108, 0, 0.3); }
         .neon-border-naranja:hover { box-shadow: 0 0 25px rgba(255, 108, 0, 0.6); border-color: #ff964d; }
 
+        /* Checkboxes Neón Personalizados para el Panel Premium */
         .checkbox-neon {
-            display: flex; align-items: center; position: relative; padding-left: 35px;
-            cursor: pointer; user-select: none; font-size: 13px; font-weight: bold;
+            display: flex;
+            align-items: center;
+            position: relative;
+            padding-left: 35px;
+            cursor: pointer;
+            user-select: none;
+            font-size: 13px;
+            font-weight: bold;
         }
         .checkbox-neon input { position: absolute; opacity: 0; cursor: pointer; height: 0; width: 0; }
         .checkmark-neon {
@@ -105,6 +119,7 @@
         }
         .checkbox-neon input:checked ~ .checkmark-neon:after { display: block; }
 
+        /* Animación fluida de entrada */
         .animate-slide-in { animation: slideIn 0.25s ease-out forwards; }
         @keyframes slideIn { from { transform: translateY(10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     </style>
@@ -318,7 +333,7 @@
     <div id="view-eficiencia" class="view-window p-6">
         <div class="flex items-center justify-between mb-8">
             <div class="flex items-center">
-                <button onclick="closeView()" class="text-black font-black text-2xl mr-4 px-3 py-1 bg-gradient-to-r from-[#00f3ff] to-[#39ff14] rounded-lg">←</button>
+                <button onclick="closeView()" class="text-black font-black text-2xl mr-4 px-3 bg-gradient-to-r from-[#00f3ff] to-[#39ff14] rounded-xl shadow-md">←</button>
                 <h2 class="text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#00f3ff] to-[#39ff14] uppercase">EFICIENCIA COMPLETA</h2>
             </div>
         </div>
@@ -350,8 +365,7 @@
         <button onclick="guardarHistorial('Eficiencia')" class="w-full py-4 bg-gradient-to-r from-[#ff007f] to-[#ff6c00] text-white rounded-2xl font-black text-sm uppercase tracking-wider shadow-lg">Guardar en Historial</button>
     </div>
 
-    <div id="view-view-tiempo" class="view-window p-6">
-        <div class="flex items-center mb-8">
+    <div id="view-view-tiempo" class="view-window p-6"> <div class="flex items-center mb-8">
             <button onclick="closeView()" class="text-black font-black text-2xl mr-4 px-3 bg-gradient-to-r from-[#39ff14] to-[#00f3ff] rounded-xl shadow-md">←</button>
             <h2 class="text-xl font-black uppercase text-transparent bg-clip-text bg-gradient-to-r from-[#39ff14] to-[#00f3ff]">Tiempo Simple ⏱️</h2>
         </div>
@@ -359,10 +373,10 @@
             <div class="glass p-6 rounded-3xl border border-[#39ff14]/30">
                 <h3 class="text-sm font-black mb-4 text-white uppercase text-center border-b border-gray-800 pb-2">Tiempo al 100% Eficiencia</h3>
                 <label class="text-[10px] text-[#ffe600] font-black uppercase">Meta de la Carga (Total 11h)</label>
-                <input type="number" id="ts-meta" oninput="calcTiempoSimple()" class="input-pro mt-2 mb-4 bg-black/30 border-purple-500" placeholder="Ej: 550">
+                <input type="number" id="ts-meta" oninput="calcTiempoSimple()" class="input-pro mt-2 mb-4" placeholder="Ej: 550">
                 
                 <label class="text-[10px] text-[#ffe600] font-black uppercase">Docenaje de Carga Actual</label>
-                <input type="number" id="ts-doc" oninput="calcTiempoSimple()" class="input-pro mt-2 bg-black/30 border-purple-500" placeholder="Ej: 100">
+                <input type="number" id="ts-doc" oninput="calcTiempoSimple()" class="input-pro mt-2" placeholder="Ej: 100">
             </div>
 
             <div class="bg-gradient-to-r from-teal-800 to-[#39ff14]/80 p-8 rounded-[32px] text-center shadow-xl border-2 border-[#39ff14]/40">
@@ -394,25 +408,6 @@
         </div>
     </div>
 
-    <div id="view-feedback" class="view-window p-6">
-        <div class="flex items-center mb-8">
-            <button onclick="closeView()" class="text-white font-black text-2xl mr-4 px-3 py-1 bg-gradient-to-r from-[#ff007f] to-[#ff6c00] rounded-lg">←</button>
-            <h2 class="text-xl font-black uppercase text-white">Valorar App ⭐</h2>
-        </div>
-        <div class="glass p-6 rounded-3xl text-center border border-orange-400/40 space-y-4">
-            <p class="text-sm font-bold text-gray-200">Tu opinión es de gran valor para seguir optimizando la herramienta corporativa.</p>
-            <div class="flex justify-center gap-2 text-3xl">
-                <span class="cursor-pointer hover:scale-125 transition-transform">⭐</span>
-                <span class="cursor-pointer hover:scale-125 transition-transform">⭐</span>
-                <span class="cursor-pointer hover:scale-125 transition-transform">⭐</span>
-                <span class="cursor-pointer hover:scale-125 transition-transform">⭐</span>
-                <span class="cursor-pointer hover:scale-125 transition-transform">⭐</span>
-            </div>
-            <textarea placeholder="Deja un comentario opcional..." class="input-pro h-24 text-sm bg-black/30 border-orange-400"></textarea>
-            <button onclick="alert('¡Gracias por tu valoración! 🦁'); closeView();" class="w-full py-3 bg-gradient-to-r from-orange-500 to-yellow-500 rounded-xl font-black text-xs uppercase tracking-wider text-white">Enviar Valoración</button>
-        </div>
-    </div>
-
     <div id="view-historial" class="view-window p-6">
         <div class="flex items-center mb-8">
             <button onclick="closeView()" class="text-black font-black text-2xl mr-4 px-3 bg-gradient-to-r from-[#ff6c00] to-[#ffe600] rounded-xl shadow-md">←</button>
@@ -429,14 +424,14 @@
         
         <div class="glass p-6 rounded-3xl mb-8 border-2 border-[#ff007f] shadow-[0_0_15px_rgba(255,0,127,0.25)]">
             <h3 class="text-sm font-black mb-4 text-white uppercase tracking-wider">Crear Nuevo Usuario</h3>
-            <input type="text" id="adm-nombre" placeholder="Nombre (Ej: Juan Perez)" class="input-pro mb-3 border-yellow-500">
-            <input type="text" id="adm-cont" placeholder="Teléfono o Correo" class="input-pro mb-4 border-yellow-500">
+            <input type="text" id="adm-nombre" placeholder="Nombre (Ej: Juan Perez)" class="input-pro mb-3">
+            <input type="text" id="adm-cont" placeholder="Teléfono o Correo" class="input-pro mb-4">
             <button onclick="crearUsuario()" class="w-full py-4 bg-gradient-to-r from-[#ff007f] to-[#ff6c00] text-white rounded-xl font-black uppercase shadow-md transition-all">Generar Acceso y Link</button>
         </div>
 
         <div class="glass p-5 rounded-3xl mb-8 border-2 border-[#00f3ff] shadow-[0_0_15px_rgba(0,243,255,0.25)] animate-slide-in">
             <h3 class="text-sm font-black mb-1 text-transparent bg-clip-text bg-gradient-to-r from-[#00f3ff] to-[#39ff14] uppercase">⚡ Selector de Accesos Premium</h3>
-            <p class="text-[9px] text-gray-400 font-bold uppercase mb-4">Gestiona las opciones visibles y guárdalas en tu Base de Datos.</p>
+            <p class="text-[9px] text-gray-400 font-bold uppercase mb-4">Gestiona las opciones visibles del menú por operador</p>
 
             <label class="text-[10px] text-[#ffe600] font-black uppercase block mb-2">Seleccionar Operador:</label>
             <select id="permisos-user-select" class="input-pro mb-4 bg-[#11131e]" onchange="cambioUsuarioEnSelectorPermisos()">
@@ -473,7 +468,7 @@
             </div>
 
             <button onclick="guardarPermisosMenu()" class="w-full mt-4 py-3 bg-gradient-to-r from-[#39ff14] to-teal-600 font-black text-black text-xs rounded-xl uppercase shadow-md hover:shadow-[#39ff14]/40 transition-all">
-                💾 Guardar Permisos en la Nube
+                💾 Guardar Permisos de Acceso
             </button>
         </div>
         
@@ -485,12 +480,19 @@
         const PIN_CORRECTO = "{{ user.pin }}";
         const MI_TOKEN = "{{ token }}";
         const USER_ROL = "{{ user.rol }}";
-        
-        // Esta variable global ahora arranca vacía, porque se llenará de forma asíncrona al hacer login
-        let MIS_PERMISOS = { biohorario: true, eficiencia: true, tiempo: true, metas: true, historial: true };
-        
-        // Cache de los usuarios para el panel de administración
-        let windowUsuariosData = {};
+
+        // Objeto interno para controlar permisos locales si no se maneja base de datos de backend
+        let listaPermisosUsuariosLocal = {};
+
+        function verificarAcceso() {
+            if(document.getElementById('pin-input').value === PIN_CORRECTO) {
+                document.getElementById('lock-screen').style.display = 'none';
+                document.getElementById('app-home').classList.remove('hidden');
+                
+                // Si el usuario actual tiene restricciones guardadas, aplicarlas de inmediato
+                aplicarFiltroMenuUsuarioLogueado();
+            } else { alert("PIN INCORRECTO 🦁"); }
+        }
 
         // --- SISTEMA DE ACCESO Y SEGURIDAD MULTIDISPOSITIVO ---
         async function verificarAcceso() {
@@ -529,17 +531,17 @@
                 const data = await res.json();
 
                 if(data.status === 'success') {
-                    // Acceso Concedido: Cargamos los permisos directamente desde Google Sheets (Servidor)
-                    MIS_PERMISOS = data.permisos;
-
+                    // Acceso Concedido
                     document.getElementById('lock-screen').style.display = 'none';
                     document.getElementById('app-home').classList.remove('hidden');
                     
-                    aplicarFiltroMenuUsuarioLogueado();
+                    if (typeof aplicarFiltroMenuUsuarioLogueado === "function") {
+                        aplicarFiltroMenuUsuarioLogueado();
+                    }
                 } else if(data.status === 'deleted') {
-                    // 🚨 Protocolo de Bloqueo Automático
+                    // 🚨 Protocolo de Bloqueo
                     alert("🚨 ALERTA DE SEGURIDAD CRÍTICA 🚨\n\nSe ha detectado un intento de acceso desde un dispositivo no autorizado.\n\nPor violar las políticas de seguridad de la Calculadora de Eficiencias, su perfil y accesos han sido ELIMINADOS permanentemente de la base de datos.");
-                    window.location.href = "[https://www.google.com](https://www.google.com)"; // Expulsión del intruso
+                    window.location.href = "https://www.google.com"; // Lo expulsa de la aplicación
                 } else {
                     alert("❌ " + data.message + " 🦁");
                 }
@@ -550,25 +552,36 @@
             btn.innerHTML = originalText;
             btn.disabled = false;
         }
+        // --- MANEJO EXCLUSIVO DE PERMISOS DINÁMICOS DE MENÚ ---
 
-        // --- SISTEMA DE FILTRADO DE MENÚ ---
+        // --- SISTEMA DE FILTRADO DE MENÚ (CON EXCLUSIVIDAD BIOHORARIO) ---
         function aplicarFiltroMenuUsuarioLogueado() {
-            // Evaluamos la constante MIS_PERMISOS inyectada por el servidor para decidir qué botones del grid mostrar
-            document.getElementById('btn-menu-biohorario').style.display = MIS_PERMISOS.biohorario ? 'block' : 'none';
+            // 1. Obtenemos el nombre del usuario logueado desde el backend (Flask) y lo pasamos a minúsculas para evitar errores por mayúsculas
+            const nombreActual = "{{ user.nombre }}".toLowerCase();
+            
+            // 2. Verificamos si el usuario es Angel Castillo, Karina Cabrera o usa el token maestro
+            const esUsuarioVIP = nombreActual.includes("angel castillo") || 
+                                 nombreActual.includes("karina cabrera") || 
+                                 MI_TOKEN === 'angel0301';
+
+            // 3. Evaluamos la constante MIS_PERMISOS. 
+            // Para BioHorario, exige el permiso de la Nube Y ADEMÁS ser un usuario VIP.
+            document.getElementById('btn-menu-biohorario').style.display = (MIS_PERMISOS.biohorario && esUsuarioVIP) ? 'block' : 'none';
+            
+            // Las demás opciones solo dependen de lo que configures en el Panel de Moderador (Google Sheets)
             document.getElementById('btn-menu-eficiencia').style.display = MIS_PERMISOS.eficiencia ? 'block' : 'none';
             document.getElementById('btn-menu-tiempo').style.display = MIS_PERMISOS.tiempo ? 'block' : 'none';
             document.getElementById('btn-menu-metas').style.display = MIS_PERMISOS.metas ? 'block' : 'none';
             document.getElementById('btn-menu-historial').style.display = MIS_PERMISOS.historial ? 'block' : 'none';
         }
-
-        // --- LÓGICA DE PANEL PREMIUM ---
+        
         function actualizarSelectorUsuariosPermisos(usuarios) {
             const selector = document.getElementById('permisos-user-select');
             const valorSeleccionado = selector.value;
             
             selector.innerHTML = '<option value="">-- Selecciona un Operador creado --</option>';
             Object.keys(usuarios).forEach(t => {
-                if(t !== 'angel0301') { 
+                if(t !== 'angel0301') { // Mantener al administrador con acceso absoluto simétrico
                     selector.innerHTML += `<option value="${t}">${usuarios[t].nombre}</option>`;
                 }
             });
@@ -579,9 +592,12 @@
             const tokenUser = document.getElementById('permisos-user-select').value;
             if(!tokenUser) return;
 
-            // Extraemos la configuración real que trajimos de Google Sheets
-            const config = windowUsuariosData[tokenUser].permisos;
-            
+            // Si ya existen configuraciones previas las cargamos, sino activamos todo por defecto
+            if (!listaPermisosUsuariosLocal[tokenUser]) {
+                listaPermisosUsuariosLocal[tokenUser] = { biohorario: true, eficiencia: true, tiempo: true, metas: true, historial: true };
+            }
+
+            const config = listaPermisosUsuariosLocal[tokenUser];
             document.getElementById('permiso-biohorario').checked = config.biohorario;
             document.getElementById('permiso-eficiencia').checked = config.eficiencia;
             document.getElementById('permiso-tiempo').checked = config.tiempo;
@@ -589,11 +605,11 @@
             document.getElementById('permiso-historial').checked = config.historial;
         }
 
-        async function guardarPermisosMenu() {
+        function guardarPermisosMenu() {
             const tokenUser = document.getElementById('permisos-user-select').value;
             if(!tokenUser) return alert("⚠️ Selecciona un operador primero para guardar cambios.");
 
-            const nuevosPermisos = {
+            listaPermisosUsuariosLocal[tokenUser] = {
                 biohorario: document.getElementById('permiso-biohorario').checked,
                 eficiencia: document.getElementById('permiso-eficiencia').checked,
                 tiempo: document.getElementById('permiso-tiempo').checked,
@@ -601,62 +617,56 @@
                 historial: document.getElementById('permiso-historial').checked
             };
 
-            // Enviar la orden directa al archivo app.py para escribir en Google Sheets
-            try {
-                const res = await fetch('/api/admin/permisos', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ token: tokenUser, permisos: nuevosPermisos })
-                });
-                
-                const data = await res.json();
-                if(data.status === 'success') {
-                    alert(`✨ Opciones de menú actualizadas en la Nube con éxito para este operador.`);
-                    fetchAdminUsers(); // Refrescamos los datos para mantener consistencia
-                } else {
-                    alert("❌ Ocurrió un error al guardar los permisos en Google Sheets.");
-                }
-            } catch(e) {
-                alert("❌ Error de red.");
+            // Guardar configuración local persistente para no perder cambios al recargar la vista
+            localStorage.setItem('app_permisos_menu', JSON.stringify(listaPermisosUsuariosLocal));
+            
+            alert(`✨ Opciones de menú actualizadas con éxito.`);
+            aplicarFiltroMenuUsuarioLogueado();
+        }
+
+        function aplicarFiltroMenuUsuarioLogueado() {
+            // Recuperar datos de localStorage por consistencia
+            const guardados = localStorage.getItem('app_permisos_menu');
+            if(guardados) {
+                listaPermisosUsuariosLocal = JSON.parse(guardados);
             }
-        }
 
-        // --- MANEJO DE VISTAS Y EL RESTO DEL CÓDIGO INTACTO ---
-        function openView(id) {
-            // Manejador unificado de consistencia para el ID de navegación simple
-            let targetId = id;
-            if(id === 'view-tiempo') targetId = 'view-view-tiempo';
-
-            document.getElementById(targetId).classList.add('active');
-            if(id === 'view-admin') fetchAdminUsers();
-            if(id === 'view-historial') fetchHistorial();
-            if(id === 'view-metas' && pdfDataCache.length === 0) cargarOpcionesMetas();
-        }
-
-        function closeView() {
-            document.querySelectorAll('.view-window').forEach(v => v.classList.remove('active'));
+            // Si el token actual logueado tiene restricciones registradas en el objeto, ocultamos los módulos correspondientes
+            if(listaPermisosUsuariosLocal[MI_TOKEN]) {
+                const config = listaPermisosUsuariosLocal[MI_TOKEN];
+                
+                document.getElementById('btn-menu-biohorario').style.display = config.biohorario ? 'block' : 'none';
+                document.getElementById('btn-menu-eficiencia').style.display = config.eficiencia ? 'block' : 'none';
+                document.getElementById('btn-menu-tiempo').style.display = config.tiempo ? 'block' : 'none';
+                document.getElementById('btn-menu-metas').style.display = config.metas ? 'block' : 'none';
+                document.getElementById('btn-menu-historial').style.display = config.historial ? 'block' : 'none';
+            }
         }
 
         // --- LÓGICA DE METAS CARGAS (PDF) ---
         let pdfDataCache = [];
+
         async function sincronizarPDF() {
             const btn = document.querySelector('button[onclick="sincronizarPDF()"]');
             const originalText = btn.innerHTML;
             btn.innerHTML = '<span>⏳</span> Descargando PDF de Google Drive...';
             btn.disabled = true;
+            
             try {
                 const res = await fetch('/api/metas/sincronizar', { method: 'POST' });
                 const data = await res.json();
+                
                 if(data.status === 'success') {
                     pdfDataCache = data.datos;
                     poblarSelectoresMetas(data.estilos, data.procesos);
-                    alert("✅ Base de datos extraída y sincronizada desde Google Drive correctamente.");
+                    alert("✅ Base de datos extraída y sincronizada desde el PDF en Google Drive correctamente.");
                 } else {
-                    alert("❌ Error: " + data.message + "\nAsegúrate de que el archivo en Drive está compartido con el correo de la calculadora.");
+                    alert("❌ Error: " + data.message + "\n\nAsegúrate de que el PDF en tu Drive está compartido con el correo de la calculadora de tu archivo credenciales.json");
                 }
             } catch(e) {
                 alert("❌ Error de conexión al sincronizar PDF.");
             }
+            
             btn.innerHTML = originalText;
             btn.disabled = false;
         }
@@ -677,16 +687,23 @@
         function poblarSelectoresMetas(estilos, procesos) {
             const selEstilo = document.getElementById('sel-estilo');
             const selProceso = document.getElementById('sel-proceso');
+            
             selEstilo.innerHTML = '<option value="">-- Seleccione un Estilo --</option>';
-            estilos.sort().forEach(est => { selEstilo.innerHTML += `<option value="${est}">${est}</option>`; });
+            estilos.sort().forEach(est => {
+                selEstilo.innerHTML += `<option value="${est}">${est}</option>`;
+            });
+
             selProceso.innerHTML = '<option value="">-- Seleccione un Proceso --</option>';
-            procesos.sort().forEach(proc => { selProceso.innerHTML += `<option value="${proc}">${proc}</option>`; });
+            procesos.sort().forEach(proc => {
+                selProceso.innerHTML += `<option value="${proc}">${proc}</option>`;
+            });
         }
 
         function actualizarBusquedaMeta() {
             const estilo = document.getElementById('sel-estilo').value;
             const talla = document.getElementById('sel-talla').value;
             const proceso = document.getElementById('sel-proceso').value;
+            
             const valorDiv = document.getElementById('meta-valor');
             const statusDiv = document.getElementById('meta-status');
             const boxDiv = document.getElementById('meta-resultado-box');
@@ -694,10 +711,12 @@
             if(!estilo || !talla || !proceso) {
                 valorDiv.innerText = "---";
                 statusDiv.innerText = "Esperando que seleccione las tres opciones...";
-                boxDiv.className = "bg-gradient-to-r from-blue-700 to-[#00f3ff] p-8 rounded-[32px] text-center shadow-xl border-2 border-[#00f3ff]/40 transition-all duration-300";
+                boxDiv.className = "bg-gradient-to-r from-blue-700 to-[#00f3ff] p-8 rounded-[32px] text-center shadow-lg border-2 border-blue-400 transition-colors duration-300";
                 return;
             }
+
             const coincidencia = pdfDataCache.find(d => d.estilo === estilo && d.talla === talla && d.proceso === proceso);
+
             if(coincidencia) {
                 valorDiv.innerText = coincidencia.meta;
                 statusDiv.innerText = "¡Meta encontrada en el PDF!";
@@ -707,6 +726,22 @@
                 statusDiv.innerText = "No se encontró esta combinación";
                 boxDiv.className = "bg-gradient-to-r from-rose-800 to-[#ff007f] p-8 rounded-[32px] text-center shadow-lg border-2 border-[#ff007f]/50 transition-colors duration-300";
             }
+        }
+
+        // --- MANEJO DE VISTAS ---
+        function openView(id) {
+            // Manejador unificado de consistencia para el ID de navegación simple
+            let targetId = id;
+            if(id === 'view-tiempo') targetId = 'view-view-tiempo';
+
+            document.getElementById(targetId).classList.add('active');
+            if(id === 'view-admin') fetchAdminUsers();
+            if(id === 'view-historial') fetchHistorial();
+            if(id === 'view-metas' && pdfDataCache.length === 0) cargarOpcionesMetas();
+        }
+
+        function closeView() {
+            document.querySelectorAll('.view-window').forEach(v => v.classList.remove('active'));
         }
 
         function formatTime(hoursDecimal) {
@@ -719,12 +754,15 @@
             let h = Math.floor(totalMinutes / 60) % 24;
             let m = Math.round(totalMinutes % 60);
             if (m === 60) { h++; m = 0; h = h % 24; }
+            
             let ampm = h >= 12 ? 'PM' : 'AM';
             let displayH = h % 12;
             if (displayH === 0) displayH = 12;
+            
             return `${displayH.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')} ${ampm}`;
         }
 
+        // --- FUNCIONES DE TIEMPO SIMPLE ---
         function calcTiempoSimple() {
             const meta = parseFloat(document.getElementById('ts-meta').value) || 0;
             const doc = parseFloat(document.getElementById('ts-doc').value) || 0;
@@ -739,6 +777,7 @@
             }
         }
 
+        // --- SIMULADOR DE RITMO POR PORCENTAJE ---
         function calcTiempoPorcentaje() {
             const meta = parseFloat(document.getElementById('tp-meta').value) || 0;
             const docenas = parseFloat(document.getElementById('tp-doc').value) || 0;
@@ -748,6 +787,7 @@
                 const docenasHoraBase = meta / 11;
                 const docenasHoraObjetivo = docenasHoraBase * (porcentaje / 100);
                 const horasRequeridas = docenas / docenasHoraObjetivo;
+
                 document.getElementById('tp-res-tiempo').innerText = formatTime(horasRequeridas);
                 document.getElementById('tp-res-ritmo').innerText = `Debes sacar: ${docenasHoraObjetivo.toFixed(2)} doc/hr`;
             } else {
@@ -756,11 +796,13 @@
             }
         }
 
+        // --- MÓDULO "BIOHORARIO" ---
         function addBioCarga() {
             const container = document.getElementById('bio-cargas-list');
             const numCarga = container.children.length + 1;
+            
             const div = document.createElement('div');
-            div.className = "glass p-4 rounded-2xl border border-white/20 space-y-3 relative animate-slide-in bg-black/40";
+            div.className = "glass p-4 rounded-2xl border border-gray-800 space-y-3 relative animate-slide-in";
             div.innerHTML = `
                 <div class="flex justify-between items-center border-b border-gray-800 pb-2">
                     <span class="text-xs font-black text-[#ff007f] uppercase">Carga ${numCarga}</span>
@@ -769,11 +811,11 @@
                 <div class="grid grid-cols-2 gap-2">
                     <div>
                         <label class="text-[9px] text-gray-400 font-bold uppercase block mb-1">Meta Carga ${numCarga}</label>
-                        <input type="number" placeholder="Ej: 660" class="input-pro p-2.5 text-center bio-meta-input border-[#ff007f]/50" oninput="calcularBioHorario()">
+                        <input type="number" placeholder="Ej: 660" class="input-pro p-2.5 text-center bio-meta-input" oninput="calcularBioHorario()">
                     </div>
                     <div>
                         <label class="text-[9px] text-gray-400 font-bold uppercase block mb-1">Docenas Hechas</label>
-                        <input type="number" placeholder="Ej: 120" class="input-pro p-2.5 text-center bio-hecho-input border-[#ff007f]/50" oninput="calcularBioHorario()">
+                        <input type="number" placeholder="Ej: 120" class="input-pro p-2.5 text-center bio-hecho-input" oninput="calcularBioHorario()">
                     </div>
                 </div>
             `;
@@ -783,6 +825,7 @@
 
         function calcularBioHorario() {
             const cargas = document.querySelectorAll('#bio-cargas-list > div');
+            
             let totalDocenasHechas = 0;
             let sumaMetas = 0;
             let cantidadMetas = 0;
@@ -790,6 +833,7 @@
             cargas.forEach(bloque => {
                 const metaVal = parseFloat(bloque.querySelector('.bio-meta-input').value) || 0;
                 const hechoVal = parseFloat(bloque.querySelector('.bio-hecho-input').value) || 0;
+
                 totalDocenasHechas += hechoVal;
                 if(metaVal > 0) {
                     sumaMetas += metaVal;
@@ -798,6 +842,7 @@
             });
 
             const metaGeneralOn = cantidadMetas > 0 ? (sumaMetas / cantidadMetas) : 0;
+
             const recesoH = parseFloat(document.getElementById('bio-receso-h').value) || 0;
             const recesoM = parseFloat(document.getElementById('bio-receso-m').value) || 0;
             const paroH = parseFloat(document.getElementById('bio-paro-h').value) || 0;
@@ -821,28 +866,34 @@
             document.getElementById('lbl-bio-meta-gen').innerText = metaGeneralOn.toFixed(1);
             document.getElementById('lbl-bio-doc-perdidas').innerText = docenasPerdidasParos.toFixed(1);
             document.getElementById('lbl-bio-meta-final').innerText = metaFinal.toFixed(1);
+            
             document.getElementById('lbl-bio-ef-on').innerText = eficienciaOn.toFixed(2) + "%";
             document.getElementById('lbl-bio-ef-off').innerText = eficienciaOff.toFixed(2) + "%";
+            
             document.getElementById('lbl-bio-horas-trans').innerText = `${transH}h ${transM.toString().padStart(2, '0')}m`;
             document.getElementById('lbl-bio-meta-actual').innerText = metaActual.toFixed(1);
             document.getElementById('lbl-bio-ef-actual').innerText = eficienciaActual.toFixed(2) + "%";
         }
 
+        // --- EFICIENCIA COMPLETA ---
         function addCarga() {
             const container = document.getElementById('cargas-list');
             const numCarga = container.children.length + 1;
+            
             const div = document.createElement('div');
-            div.className = "glass p-4 rounded-2xl border border-white/20 space-y-3 animate-slide-in relative bg-black/40";
+            div.className = "glass p-4 rounded-2xl border border-gray-800 space-y-3 animate-slide-in relative";
             div.innerHTML = `
                 <div class="flex justify-between items-center border-b border-gray-800 pb-2">
                     <span class="text-xs font-black text-[#00f3ff] uppercase">CARGA ${numCarga}</span>
                     <button type="button" onclick="this.parentElement.parentElement.remove(); calcularEficiencia();" class="text-red-400 text-xs font-bold hover:text-red-600">Eliminar</button>
                 </div>
                 <div class="flex gap-2">
-                    <input type="number" placeholder="META" class="input-pro c-meta border-[#00f3ff]/50" oninput="calcularEficiencia()">
-                    <input type="number" placeholder="HECHO" class="input-pro c-hecho border-[#00f3ff]/50" oninput="calcularEficiencia()">
+                    <input type="number" placeholder="META" class="input-pro c-meta" oninput="calcularEficiencia()">
+                    <input type="number" placeholder="HECHO" class="input-pro c-hecho" oninput="calcularEficiencia()">
                 </div>
+                
                 <div class="paros-container space-y-2"></div>
+                
                 <button type="button" onclick="addParoToCarga(this)" class="w-full py-2 bg-slate-900 border border-[#00f3ff]/30 rounded-xl text-[10px] font-black text-[#00f3ff] uppercase tracking-wider transition-all">
                     + Añadir Paro a Carga ${numCarga}
                 </button>
@@ -854,7 +905,7 @@
         function addParoToCarga(btn) {
             const parosContainer = btn.previousElementSibling;
             const div = document.createElement('div');
-            div.className = "flex flex-wrap gap-2 bg-black/60 p-2.5 rounded-xl items-center text-xs border border-gray-800 animate-slide-in";
+            div.className = "flex flex-wrap gap-2 bg-black/50 p-2.5 rounded-xl items-center text-xs border border-gray-800 animate-slide-in";
             
             let hoursOpts = '';
             for(let h=0; h<24; h++) {
@@ -864,6 +915,7 @@
                 let hStr = displayHour < 10 ? '0'+displayHour : displayHour;
                 hoursOpts += `<option value="${h}">${hStr} ${ampm}</option>`;
             }
+            
             let minsOpts = '';
             for(let m=0; m<60; m++) {
                 let mStr = m < 10 ? '0'+m : m;
@@ -895,8 +947,8 @@
                         <option value="C">C (Reunión - Intraload)</option>
                         <option value="A">A (Falta De Trabajo - Extraload)</option>
                         <option value="B">B (Falta De Energia - Extraload)</option>
-                        <option value="D">D (Falta De Troco - Extraload)</option>
-                        <option value="E">E (Revision De Rechazos - Extraload)</option>
+                        <option value="D">D (Falta De Troco -  Extraload)</option>
+                        <option value="E">E (Revision De Rechazos Textil - Extraload)</option>
                         <option value="G">G (No Programado - Extraload)</option>
                         <option value="H">H (Pruebas- Extraload)</option>
                         <option value="I">I (Asignación A Linea - Extraload)</option>
@@ -905,6 +957,7 @@
                 <button type="button" onclick="this.parentElement.remove(); calcularEficiencia();" class="text-red-500 font-black text-base pt-3 px-1 hover:text-red-400">✕</button>
             `;
             parosContainer.appendChild(div);
+            
             div.querySelector('.p-start-h').value = "7";
             div.querySelector('.p-end-h').value = "7";
             calcularEficiencia();
@@ -915,9 +968,11 @@
             let sumMeta = 0, sumHecho = 0, count = 0;
             let sts = []; 
             let totalST = 0;
+
             let totalAllParosMins = 0;       
             let totalParosExceptRMins = 0;   
             let totalOutsideParosMins = 0;   
+
             let parosPerCarga = [];
 
             cargaBlocks.forEach((block, i) => {
@@ -925,6 +980,7 @@
                 const hechoInput = block.querySelector('.c-hecho');
                 let metaVal = parseFloat(metaInput ? metaInput.value : 0) || 0;
                 let hechoVal = parseFloat(hechoInput ? hechoInput.value : 0) || 0;
+
                 let loadOutsideMins = 0;
                 let loadParosList = [];
 
@@ -942,25 +998,43 @@
                     if(duration < 0) duration = 0; 
 
                     totalAllParosMins += duration;
-                    if(motivo !== 'R') { totalParosExceptRMins += duration; }
+                    
+                    if(motivo !== 'R') {
+                        totalParosExceptRMins += duration;
+                    }
+
                     const isOutside = ['A','B','D','E','G','H','I'].includes(motivo);
                     if(isOutside) {
                         totalOutsideParosMins += duration;
                         loadOutsideMins += duration;
                     }
+
                     loadParosList.push({
-                        motivo: motivo, durationMins: duration, isOutside: isOutside,
-                        realStartStr: formatClock(startTotal), realEndStr: formatClock(endTotal),
-                        startMins: startTotal, endMins: endTotal      
+                        motivo: motivo,
+                        durationMins: duration,
+                        isOutside: isOutside,
+                        realStartStr: formatClock(startTotal),
+                        realEndStr: formatClock(endTotal),
+                        startMins: startTotal, 
+                        endMins: endTotal      
                     });
                 });
 
-                parosPerCarga.push({ outsideMins: loadOutsideMins, list: loadParosList });
+                parosPerCarga.push({
+                    outsideMins: loadOutsideMins,
+                    list: loadParosList
+                });
+
                 if(metaVal > 0) { 
-                    sumMeta += metaVal; sumHecho += hechoVal; count++; 
+                    sumMeta += metaVal; 
+                    sumHecho += hechoVal; 
+                    count++; 
                     let st = hechoVal / (metaVal / 11);
-                    sts.push(st); totalST += st;
-                } else { sts.push(0); }
+                    sts.push(st);
+                    totalST += st;
+                } else {
+                    sts.push(0);
+                }
             });
 
             const parosExceptRHours = totalParosExceptRMins / 60;
@@ -989,6 +1063,7 @@
 
             const totalShiftMins = 12 * 60; 
             const timeAvailableForLoadsMins = totalShiftMins - totalOutsideParosMins; 
+            
             let currentMinutes = 7 * 60; 
 
             if (count > 0) {
@@ -996,20 +1071,31 @@
                     let loadStartMins = currentMinutes;
                     let loadDurationMins = 0;
                     let endMinutes = 0;
+
                     const outsideParos = parosPerCarga[i].list.filter(p => p.isOutside);
 
                     if (outsideParos.length > 0) {
                         outsideParos.sort((a, b) => a.startMins - b.startMins);
                         let firstOut = outsideParos[0];
-                        if (firstOut.startMins > loadStartMins) { loadDurationMins = firstOut.startMins - loadStartMins; } 
-                        else { loadDurationMins = 0; }
+                        
+                        if (firstOut.startMins > loadStartMins) {
+                            loadDurationMins = firstOut.startMins - loadStartMins;
+                        } else {
+                            loadDurationMins = 0; 
+                        }
                         endMinutes = loadStartMins + loadDurationMins;
                     } else {
                         let allocatedLoadHours = 0;
                         let diaLimpioSoloConParosR = (totalParosExceptRMins === 0);
-                        if (totalST > 0 && diaLimpioSoloConParosR) { allocatedLoadHours = st * ((timeAvailableForLoadsMins / 60) / totalST); } 
-                        else { allocatedLoadHours = (timeAvailableForLoadsMins / 60) / count; }
+
+                        if (totalST > 0 && diaLimpioSoloConParosR) {
+                            allocatedLoadHours = st * ((timeAvailableForLoadsMins / 60) / totalST);
+                        } else {
+                            allocatedLoadHours = (timeAvailableForLoadsMins / 60) / count;
+                        }
+
                         loadDurationMins = Math.round(allocatedLoadHours * 60);
+
                         if (i === sts.length - 1) {
                             let customRemaining = (7 * 60 + totalShiftMins) - loadStartMins;
                             loadDurationMins = Math.max(0, customRemaining);
@@ -1021,9 +1107,9 @@
                     let endStr = formatClock(endMinutes);
 
                     splitContainer.innerHTML += `
-                        <div class="glass p-3 rounded-xl border border-white/20 space-y-1 bg-black/20">
+                        <div class="glass p-3 rounded-xl border border-gray-800 space-y-1">
                             <div class="flex justify-between items-center">
-                                <span class="text-xs font-black text-gray-300">CARGA ${i+1}</span>
+                                <span class="text-xs font-black text-gray-400">CARGA ${i+1}</span>
                                 <span class="text-sm font-black text-[#ffe600]">${startStr} - ${endStr} <span class="text-[10px] text-gray-400 font-normal">(${formatTime(loadDurationMins/60)})</span></span>
                             </div>
                         </div>`;
@@ -1049,7 +1135,9 @@
                     if (outsideParos.length > 0) {
                         let lastOut = outsideParos[outsideParos.length - 1];
                         currentMinutes = lastOut.endMins;
-                    } else { currentMinutes = endMinutes; }
+                    } else {
+                        currentMinutes = endMinutes;
+                    }
                 });
                 
                 let tiempoOnMins = totalShiftMins - totalAllParosMins; 
@@ -1057,7 +1145,7 @@
                 if(tiempoOnMins < 0) tiempoOnMins = 0;
 
                 splitContainer.innerHTML += `
-                    <div class="grid grid-cols-2 gap-2 mt-4 border-t border-white/20 pt-3">
+                    <div class="grid grid-cols-2 gap-2 mt-4 border-t border-gray-800 pt-3">
                         <div class="bg-emerald-950/60 p-3 rounded-xl text-center border border-[#39ff14]/30 shadow-md">
                             <span class="text-[9px] font-black text-[#39ff14] uppercase block">Tiempo ON (Trabajado)</span>
                             <span class="text-sm font-black text-white">${formatTime(tiempoOnMins/60)}</span>
@@ -1074,41 +1162,46 @@
             const n = document.getElementById('adm-nombre').value;
             const c = document.getElementById('adm-cont').value;
             if(!n || !c) return alert("⚠️ Por favor ingresa el nombre y el contacto.");
+            
             const res = await fetch('/api/admin/usuarios', {
-                method: 'POST', headers: {'Content-Type': 'application/json'},
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({nombre: n, contacto: c})
             });
             const d = await res.json();
             const enlacePersonal = `${window.location.origin}/?token=${d.token}`;
+            
             alert(`✅ USUARIO CREADO\n\nNombre: ${n}\nToken: ${d.token}\nPIN: ${d.pin}\n\nLink:\n${enlacePersonal}`);
-            document.getElementById('adm-nombre').value = ''; document.getElementById('adm-cont').value = '';
+            document.getElementById('adm-nombre').value = '';
+            document.getElementById('adm-cont').value = '';
             fetchAdminUsers();
         }
 
         async function fetchAdminUsers() {
             const res = await fetch('/api/admin/usuarios');
             const users = await res.json();
-            windowUsuariosData = users; // Update global cache
+            
+            // Sincronizar dinámicamente el selector de asignación de permisos
             actualizarSelectorUsuariosPermisos(users);
+
             const list = document.getElementById('admin-users-list');
-            list.innerHTML = Object.keys(users).map(t => {
-                return `
-                <div class="glass p-5 rounded-3xl border border-white/20 mb-2 bg-gradient-to-r from-slate-900 to-indigo-950/40 shadow-md">
-                    <div class="flex justify-between items-start mb-2 border-b border-white/10 pb-2">
+            list.innerHTML = Object.keys(users).map(t => `
+                <div class="glass p-4 rounded-2xl border border-gray-800 mb-2">
+                    <div class="flex justify-between items-start mb-2">
                         <div>
-                            <p class="font-black text-white text-sm uppercase tracking-wide">${users[t].nombre}</p>
-                            <p class="text-[11px] text-yellow-400 font-mono font-bold">${t} | PIN: ${users[t].pin}</p>
+                            <p class="font-black text-white text-sm uppercase">${users[t].nombre}</p>
+                            <p class="text-[11px] text-[#ffe600] font-mono">${t} | PIN: ${users[t].pin}</p>
                         </div>
                         ${t !== 'angel0301' ? `
                             <div class="flex gap-2">
-                                <button onclick="editarUser('${t}', '${users[t].nombre}', '${users[t].contacto}')" class="text-white text-[10px] font-black bg-gradient-to-r from-blue-500 to-indigo-600 px-3 py-1.5 rounded-xl uppercase border border-blue-400">Editar</button>
-                                <button onclick="eliminarUser('${t}')" class="text-white text-[10px] font-black bg-gradient-to-r from-red-500 to-pink-600 px-3 py-1.5 rounded-xl uppercase border border-red-400">Borrar</button>
+                                <button onclick="editarUser('${t}', '${users[t].nombre}', '${users[t].contacto}')" class="text-black text-[10px] font-black bg-[#00f3ff] px-3 py-2 rounded uppercase shadow-sm">Editar</button>
+                                <button onclick="eliminarUser('${t}')" class="text-white text-[10px] font-black bg-red-600 px-3 py-2 rounded uppercase shadow-sm">Borrar</button>
                             </div>
                         ` : '<span class="text-2xl">👑</span>'}
                     </div>
-                    <p class="text-[10px] text-gray-300 font-bold mb-3">Contacto: ${users[t].contacto}</p>
+                    <p class="text-[10px] text-gray-400 font-bold">Contacto: ${users[t].contacto}</p>
                 </div>
-            `;}).join('');
+            `).join('');
         }
 
         async function editarUser(t, nombreActual, contactoActual) {
@@ -1117,11 +1210,14 @@
             const nuevoCont = prompt("Nuevo contacto:", contactoActual);
             if(nuevoCont === null) return;
             const nuevoPin = prompt("Nuevo PIN (Dejar en blanco para mantener actual):");
+            
             await fetch('/api/admin/usuarios', {
-                method: 'PUT', headers: {'Content-Type': 'application/json'},
+                method: 'PUT',
+                headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({token: t, nombre: nuevoNombre, contacto: nuevoCont, nuevo_pin: nuevoPin})
             });
-            alert("✅ Usuario modificado."); fetchAdminUsers();
+            alert("✅ Usuario modificado.");
+            fetchAdminUsers();
         }
 
         async function eliminarUser(t) {
@@ -1134,13 +1230,23 @@
         async function guardarHistorial(tipo) {
             let info = {};
             if(tipo === 'Eficiencia') {
-                info = { res: document.getElementById('ef-resultado').innerText, detalle: document.getElementById('tiempos-cargas').innerText.replace(/\n/g, ' | ') };
+                info = { 
+                    res: document.getElementById('ef-resultado').innerText,
+                    detalle: document.getElementById('tiempos-cargas').innerText.replace(/\n/g, ' | ')
+                };
             } else if(tipo === 'BioHorario') {
-                info = { res: "ON: " + document.getElementById('lbl-bio-ef-on').innerText + " | ACT: " + document.getElementById('lbl-bio-ef-actual').innerText, detalle: `Suma Hechas: ${document.getElementById('lbl-bio-total-hecho').innerText} | Meta Final: ${document.getElementById('lbl-bio-meta-final').innerText}` };
+                info = {
+                    res: "ON: " + document.getElementById('lbl-bio-ef-on').innerText + " | ACT: " + document.getElementById('lbl-bio-ef-actual').innerText,
+                    detalle: `Suma Hechas: ${document.getElementById('lbl-bio-total-hecho').innerText} | Meta Final: ${document.getElementById('lbl-bio-meta-final').innerText}`
+                };
             } else {
                 info = { res: document.getElementById('ts-res').innerText, meta: document.getElementById('ts-meta').value };
             }
-            await fetch('/api/save', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({tipo, info}) });
+            await fetch('/api/save', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({tipo, info})
+            });
             alert("💾 Guardado en el historial");
         }
 
@@ -1148,22 +1254,36 @@
             const res = await fetch('/api/load');
             const data = await res.json();
             const cont = document.getElementById('historial-content');
-            if(data.length === 0) { cont.innerHTML = '<p class="text-center text-gray-400 text-xs mt-10">No hay registros aún.</p>'; return; }
+            
+            if(data.length === 0) {
+                cont.innerHTML = '<p class="text-center text-gray-500 text-xs mt-10">No hay registros aún.</p>';
+                return;
+            }
+
             cont.innerHTML = data.reverse().map(i => `
-                <div class="glass p-4 rounded-2xl border-l-4 border-cyan-400 mb-3 bg-gradient-to-r from-slate-900 to-indigo-950/50">
+                <div class="glass p-4 rounded-2xl border-l-4 border-[#ffe600] mb-3">
                     <div class="flex justify-between text-[10px] mb-2 font-black text-gray-400 uppercase">
-                        <span class="text-cyan-400">${i.tipo}</span>
+                        <span class="text-[#ffe600]">${i.tipo}</span>
                         <span>${i.fecha_hora}</span>
                     </div>
-                    ${i.usuario ? `<div class="text-[10px] text-yellow-400 font-bold mb-2">Operador: ${i.usuario}</div>` : ''}
+                    ${i.usuario ? `<div class="text-[10px] text-[#00f3ff] mb-2">Operador: ${i.usuario}</div>` : ''}
                     <div class="text-2xl font-black text-white mb-1">${i.info.res}</div>
-                    ${i.info.detalle ? `<div class="text-[9px] text-gray-300 leading-tight">${i.info.detalle}</div>` : ''}
+                    ${i.info.detalle ? `<div class="text-[9px] text-gray-400 leading-tight">${i.info.detalle}</div>` : ''}
                 </div>
             `).join('');
         }
 
-        addCarga(); addBioCarga();
+        // Cargar estado inicial al arrancar
+        window.onload = function() {
+            const guardados = localStorage.getItem('app_permisos_menu');
+            if(guardados) {
+                listaPermisosUsuariosLocal = JSON.parse(guardados);
+            }
+        };
+
+        // Inicializar con la primera carga en ambos módulos
+        addCarga();
+        addBioCarga();
     </script>
 </body>
 </html>
-}}
