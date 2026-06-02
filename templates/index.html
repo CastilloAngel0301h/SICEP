@@ -494,6 +494,64 @@
             } else { alert("PIN INCORRECTO 🦁"); }
         }
 
+        // --- SISTEMA DE ACCESO Y SEGURIDAD MULTIDISPOSITIVO ---
+        async function verificarAcceso() {
+            const pinInput = document.getElementById('pin-input').value;
+            if(!pinInput) {
+                alert("⚠️ Ingresa tu PIN de seguridad.");
+                return;
+            }
+
+            // 1. Generar o recuperar la huella digital del dispositivo (Device ID)
+            let deviceId = localStorage.getItem('app_device_id');
+            if(!deviceId) {
+                // Si no tiene huella, generamos un identificador criptográfico único
+                deviceId = 'DEV_' + Math.random().toString(36).substr(2, 9) + Date.now().toString(36);
+                localStorage.setItem('app_device_id', deviceId);
+            }
+
+            // Cambiamos el texto del botón para mostrar que está procesando
+            const btn = document.querySelector('button[onclick="verificarAcceso()"]');
+            const originalText = btn.innerHTML;
+            btn.innerHTML = 'VALIDANDO...';
+            btn.disabled = true;
+
+            // 2. Enviar los datos al servidor para la validación de PIN y Dispositivo
+            try {
+                const res = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ 
+                        token: MI_TOKEN, 
+                        pin: pinInput, 
+                        device_id: deviceId 
+                    })
+                });
+                
+                const data = await res.json();
+
+                if(data.status === 'success') {
+                    // Acceso Concedido
+                    document.getElementById('lock-screen').style.display = 'none';
+                    document.getElementById('app-home').classList.remove('hidden');
+                    
+                    if (typeof aplicarFiltroMenuUsuarioLogueado === "function") {
+                        aplicarFiltroMenuUsuarioLogueado();
+                    }
+                } else if(data.status === 'deleted') {
+                    // 🚨 Protocolo de Bloqueo
+                    alert("🚨 ALERTA DE SEGURIDAD CRÍTICA 🚨\n\nSe ha detectado un intento de acceso desde un dispositivo no autorizado.\n\nPor violar las políticas de seguridad de la Calculadora de Eficiencias, su perfil y accesos han sido ELIMINADOS permanentemente de la base de datos.");
+                    window.location.href = "https://www.google.com"; // Lo expulsa de la aplicación
+                } else {
+                    alert("❌ " + data.message + " 🦁");
+                }
+            } catch(e) {
+                alert("❌ Error de comunicación con el servidor maestro.");
+            }
+
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        }
         // --- MANEJO EXCLUSIVO DE PERMISOS DINÁMICOS DE MENÚ ---
         function actualizarSelectorUsuariosPermisos(usuarios) {
             const selector = document.getElementById('permisos-user-select');
