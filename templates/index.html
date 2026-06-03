@@ -484,16 +484,6 @@
         // Objeto interno para controlar permisos locales si no se maneja base de datos de backend
         let listaPermisosUsuariosLocal = {};
 
-        function verificarAcceso() {
-            if(document.getElementById('pin-input').value === PIN_CORRECTO) {
-                document.getElementById('lock-screen').style.display = 'none';
-                document.getElementById('app-home').classList.remove('hidden');
-                
-                // Si el usuario actual tiene restricciones guardadas, aplicarlas de inmediato
-                aplicarFiltroMenuUsuarioLogueado();
-            } else { alert("PIN INCORRECTO 🦁"); }
-        }
-
         // --- SISTEMA DE ACCESO Y SEGURIDAD MULTIDISPOSITIVO ---
         async function verificarAcceso() {
             const pinInput = document.getElementById('pin-input').value;
@@ -552,27 +542,39 @@
             btn.innerHTML = originalText;
             btn.disabled = false;
         }
-        // --- MANEJO EXCLUSIVO DE PERMISOS DINÁMICOS DE MENÚ ---
 
-        // --- SISTEMA DE FILTRADO DE MENÚ (CON EXCLUSIVIDAD BIOHORARIO) ---
+        // --- SISTEMA DE FILTRADO DE MENÚ (UNIFICADO: EXCLUSIVIDAD + CONFIGURACIÓN LOCAL) ---
         function aplicarFiltroMenuUsuarioLogueado() {
-            // 1. Obtenemos el nombre del usuario logueado desde el backend (Flask) y lo pasamos a minúsculas para evitar errores por mayúsculas
+            // 1. Obtenemos el nombre del usuario logueado desde el backend (Flask) y lo pasamos a minúsculas
             const nombreActual = "{{ user.nombre }}".toLowerCase();
             
-            // 2. Verificamos si el usuario es Angel Castillo, Karina Cabrera o usa el token maestro
+            // 2. Verificamos si el usuario es VIP (tiene acceso a funciones experimentales/restringidas)
             const esUsuarioVIP = nombreActual.includes("angel castillo") || 
                                  nombreActual.includes("karina cabrera") || 
                                  MI_TOKEN === 'angel0301';
 
-            // 3. Evaluamos la constante MIS_PERMISOS. 
-            // Para BioHorario, exige el permiso de la Nube Y ADEMÁS ser un usuario VIP.
-            document.getElementById('btn-menu-biohorario').style.display = (MIS_PERMISOS.biohorario && esUsuarioVIP) ? 'block' : 'none';
-            
-            // Las demás opciones solo dependen de lo que configures en el Panel de Moderador (Google Sheets)
-            document.getElementById('btn-menu-eficiencia').style.display = MIS_PERMISOS.eficiencia ? 'block' : 'none';
-            document.getElementById('btn-menu-tiempo').style.display = MIS_PERMISOS.tiempo ? 'block' : 'none';
-            document.getElementById('btn-menu-metas').style.display = MIS_PERMISOS.metas ? 'block' : 'none';
-            document.getElementById('btn-menu-historial').style.display = MIS_PERMISOS.historial ? 'block' : 'none';
+            // 3. Recuperar datos de localStorage por consistencia
+            const guardados = localStorage.getItem('app_permisos_menu');
+            if(guardados) {
+                listaPermisosUsuariosLocal = JSON.parse(guardados);
+            }
+
+            // 4. Aplicar restricciones según la configuración (si existe) y combinarlas con las reglas VIP
+            if(listaPermisosUsuariosLocal[MI_TOKEN]) {
+                const config = listaPermisosUsuariosLocal[MI_TOKEN];
+                
+                // Para BioHorario, exige el permiso asignado Y ADEMÁS ser un usuario VIP.
+                document.getElementById('btn-menu-biohorario').style.display = (config.biohorario && esUsuarioVIP) ? 'block' : 'none';
+                
+                // Las demás opciones dependen de lo que se configuró en el Panel de Moderador
+                document.getElementById('btn-menu-eficiencia').style.display = config.eficiencia ? 'block' : 'none';
+                document.getElementById('btn-menu-tiempo').style.display = config.tiempo ? 'block' : 'none';
+                document.getElementById('btn-menu-metas').style.display = config.metas ? 'block' : 'none';
+                document.getElementById('btn-menu-historial').style.display = config.historial ? 'block' : 'none';
+            } else {
+                // Si el usuario no tiene una configuración específica en el caché, aplicar al menos el bloqueo VIP
+                document.getElementById('btn-menu-biohorario').style.display = esUsuarioVIP ? 'block' : 'none';
+            }
         }
         
         function actualizarSelectorUsuariosPermisos(usuarios) {
@@ -622,25 +624,6 @@
             
             alert(`✨ Opciones de menú actualizadas con éxito.`);
             aplicarFiltroMenuUsuarioLogueado();
-        }
-
-        function aplicarFiltroMenuUsuarioLogueado() {
-            // Recuperar datos de localStorage por consistencia
-            const guardados = localStorage.getItem('app_permisos_menu');
-            if(guardados) {
-                listaPermisosUsuariosLocal = JSON.parse(guardados);
-            }
-
-            // Si el token actual logueado tiene restricciones registradas en el objeto, ocultamos los módulos correspondientes
-            if(listaPermisosUsuariosLocal[MI_TOKEN]) {
-                const config = listaPermisosUsuariosLocal[MI_TOKEN];
-                
-                document.getElementById('btn-menu-biohorario').style.display = config.biohorario ? 'block' : 'none';
-                document.getElementById('btn-menu-eficiencia').style.display = config.eficiencia ? 'block' : 'none';
-                document.getElementById('btn-menu-tiempo').style.display = config.tiempo ? 'block' : 'none';
-                document.getElementById('btn-menu-metas').style.display = config.metas ? 'block' : 'none';
-                document.getElementById('btn-menu-historial').style.display = config.historial ? 'block' : 'none';
-            }
         }
 
         // --- LÓGICA DE METAS CARGAS (PDF) ---
