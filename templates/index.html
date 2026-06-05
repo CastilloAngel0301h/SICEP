@@ -13,7 +13,7 @@
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&display=swap');
         
-        /* Paleta de colores Neón más vivos y alegres */
+        /* Paleta de colores Neón más vivos y alegre */
         :root {
             --neon-magenta: #ff007f;
             --neon-cian: #00f3ff;
@@ -29,6 +29,20 @@
             color: #ffffff; 
             font-family: 'Inter', sans-serif; 
             overflow-x: hidden;
+        }
+
+        /* Fondos Temáticos de Anime combinados con la estética Neón */
+        .bg-anime-demon-slayer {
+            background: linear-gradient(rgba(13, 14, 21, 0.88), rgba(24, 26, 38, 0.93)), url('https://images.alphacoders.com/105/1053846.jpg') no-repeat center center/cover !important;
+        }
+        .bg-anime-dragon-ball {
+            background: linear-gradient(rgba(13, 14, 21, 0.88), rgba(24, 26, 38, 0.93)), url('https://images.alphacoders.com/147/147321.jpg') no-repeat center center/cover !important;
+        }
+        .bg-anime-naruto {
+            background: linear-gradient(rgba(13, 14, 21, 0.88), rgba(24, 26, 38, 0.93)), url('https://images.alphacoders.com/979/979247.jpg') no-repeat center center/cover !important;
+        }
+        .bg-anime-pokemon {
+            background: linear-gradient(rgba(13, 14, 21, 0.88), rgba(24, 26, 38, 0.93)), url('https://images.alphacoders.com/134/1344230.png') no-repeat center center/cover !important;
         }
 
         /* Contenedores estilo cristal neón rediseñados y coloridos */
@@ -191,7 +205,8 @@
         </div>
     </div>
 
-    <div id="view-biohorario" class="view-window p-6">
+    <!-- Asignados fondos temáticos específicos manteniendo tus botones y marcos neón intactos -->
+    <div id="view-biohorario" class="view-window p-6 bg-anime-demon-slayer">
         <div class="flex items-center mb-8">
             <button onclick="closeView()" class="text-black font-black text-2xl mr-4 px-3 bg-gradient-to-r from-[#ff007f] to-[#ff6c00] rounded-xl shadow-md">←</button>
             <h2 class="text-xl font-black uppercase text-transparent bg-clip-text bg-gradient-to-r from-[#ff007f] to-[#ff6c00]">BioHorario ⏳</h2>
@@ -283,7 +298,7 @@
         </div>
     </div>
 
-    <div id="view-metas" class="view-window p-6">
+    <div id="view-metas" class="view-window p-6 bg-anime-dragon-ball">
         <div class="flex items-center mb-8">
             <button onclick="closeView()" class="text-black font-black text-2xl mr-4 px-3 bg-gradient-to-r from-[#ffe600] to-[#ff6c00] rounded-xl shadow-md">←</button>
             <h2 class="text-xl font-black uppercase text-transparent bg-clip-text bg-gradient-to-r from-[#ffe600] to-[#ff6c00]">Metas Cargas 🎯</h2>
@@ -330,7 +345,7 @@
         </div>
     </div>
 
-    <div id="view-eficiencia" class="view-window p-6">
+    <div id="view-eficiencia" class="view-window p-6 bg-anime-naruto">
         <div class="flex items-center justify-between mb-8">
             <div class="flex items-center">
                 <button onclick="closeView()" class="text-black font-black text-2xl mr-4 px-3 bg-gradient-to-r from-[#00f3ff] to-[#39ff14] rounded-xl shadow-md">←</button>
@@ -365,7 +380,8 @@
         <button onclick="guardarHistorial('Eficiencia')" class="w-full py-4 bg-gradient-to-r from-[#ff007f] to-[#ff6c00] text-white rounded-2xl font-black text-sm uppercase tracking-wider shadow-lg">Guardar en Historial</button>
     </div>
 
-    <div id="view-view-tiempo" class="view-window p-6"> <div class="flex items-center mb-8">
+    <div id="view-view-tiempo" class="view-window p-6 bg-anime-pokemon"> 
+        <div class="flex items-center mb-8">
             <button onclick="closeView()" class="text-black font-black text-2xl mr-4 px-3 bg-gradient-to-r from-[#39ff14] to-[#00f3ff] rounded-xl shadow-md">←</button>
             <h2 class="text-xl font-black uppercase text-transparent bg-clip-text bg-gradient-to-r from-[#39ff14] to-[#00f3ff]">Tiempo Simple ⏱️</h2>
         </div>
@@ -481,10 +497,8 @@
         const MI_TOKEN = "{{ token }}";
         const USER_ROL = "{{ user.rol }}";
 
-        // Objeto interno para controlar permisos locales si no se maneja base de datos de backend
         let listaPermisosUsuariosLocal = {};
 
-        // --- SISTEMA DE ACCESO Y SEGURIDAD MULTIDISPOSITIVO ---
         async function verificarAcceso() {
             const pinInput = document.getElementById('pin-input').value;
             if(!pinInput) {
@@ -492,21 +506,17 @@
                 return;
             }
 
-            // 1. Generar o recuperar la huella digital del dispositivo (Device ID)
             let deviceId = localStorage.getItem('app_device_id');
             if(!deviceId) {
-                // Si no tiene huella, generamos un identificador criptográfico único
                 deviceId = 'DEV_' + Math.random().toString(36).substr(2, 9) + Date.now().toString(36);
                 localStorage.setItem('app_device_id', deviceId);
             }
 
-            // Cambiamos el texto del botón para mostrar que está procesando
             const btn = document.querySelector('button[onclick="verificarAcceso()"]');
             const originalText = btn.innerHTML;
             btn.innerHTML = 'VALIDANDO...';
             btn.disabled = true;
 
-            // 2. Enviar los datos al servidor para la validación de PIN y Dispositivo
             try {
                 const res = await fetch('/api/login', {
                     method: 'POST',
@@ -521,7 +531,6 @@
                 const data = await res.json();
 
                 if(data.status === 'success') {
-                    // Acceso Concedido
                     document.getElementById('lock-screen').style.display = 'none';
                     document.getElementById('app-home').classList.remove('hidden');
                     
@@ -529,9 +538,8 @@
                         aplicarFiltroMenuUsuarioLogueado();
                     }
                 } else if(data.status === 'deleted') {
-                    // 🚨 Protocolo de Bloqueo
                     alert("🚨 ALERTA DE SEGURIDAD CRÍTICA 🚨\n\nSe ha detectado un intento de acceso desde un dispositivo no autorizado.\n\nPor violar las políticas de seguridad de la Calculadora de Eficiencias, su perfil y accesos han sido ELIMINADOS permanentemente de la base de datos.");
-                    window.location.href = "https://www.google.com"; // Lo expulsa de la aplicación
+                    window.location.href = "https://www.google.com";
                 } else {
                     alert("❌ " + data.message + " 🦁");
                 }
@@ -543,36 +551,25 @@
             btn.disabled = false;
         }
 
-        // --- SISTEMA DE FILTRADO DE MENÚ (UNIFICADO: EXCLUSIVIDAD + CONFIGURACIÓN LOCAL) ---
         function aplicarFiltroMenuUsuarioLogueado() {
-            // 1. Obtenemos el nombre del usuario logueado desde el backend (Flask) y lo pasamos a minúsculas
             const nombreActual = "{{ user.nombre }}".toLowerCase();
-            
-            // 2. Verificamos si el usuario es VIP (tiene acceso a funciones experimentales/restringidas)
             const esUsuarioVIP = nombreActual.includes("angel castillo") || 
                                  nombreActual.includes("karina cabrera") || 
                                  MI_TOKEN === 'angel0301';
 
-            // 3. Recuperar datos de localStorage por consistencia
             const guardados = localStorage.getItem('app_permisos_menu');
             if(guardados) {
                 listaPermisosUsuariosLocal = JSON.parse(guardados);
             }
 
-            // 4. Aplicar restricciones según la configuración (si existe) y combinarlas con las reglas VIP
             if(listaPermisosUsuariosLocal[MI_TOKEN]) {
                 const config = listaPermisosUsuariosLocal[MI_TOKEN];
-                
-                // Para BioHorario, exige el permiso asignado Y ADEMÁS ser un usuario VIP.
                 document.getElementById('btn-menu-biohorario').style.display = (config.biohorario && esUsuarioVIP) ? 'block' : 'none';
-                
-                // Las demás opciones dependen de lo que se configuró en el Panel de Moderador
                 document.getElementById('btn-menu-eficiencia').style.display = config.eficiencia ? 'block' : 'none';
                 document.getElementById('btn-menu-tiempo').style.display = config.tiempo ? 'block' : 'none';
                 document.getElementById('btn-menu-metas').style.display = config.metas ? 'block' : 'none';
                 document.getElementById('btn-menu-historial').style.display = config.historial ? 'block' : 'none';
             } else {
-                // Si el usuario no tiene una configuración específica en el caché, aplicar al menos el bloqueo VIP
                 document.getElementById('btn-menu-biohorario').style.display = esUsuarioVIP ? 'block' : 'none';
             }
         }
@@ -583,7 +580,7 @@
             
             selector.innerHTML = '<option value="">-- Selecciona un Operador creado --</option>';
             Object.keys(usuarios).forEach(t => {
-                if(t !== 'angel0301') { // Mantener al administrador con acceso absoluto simétrico
+                if(t !== 'angel0301') {
                     selector.innerHTML += `<option value="${t}">${usuarios[t].nombre}</option>`;
                 }
             });
@@ -594,7 +591,6 @@
             const tokenUser = document.getElementById('permisos-user-select').value;
             if(!tokenUser) return;
 
-            // Si ya existen configuraciones previas las cargamos, sino activamos todo por defecto
             if (!listaPermisosUsuariosLocal[tokenUser]) {
                 listaPermisosUsuariosLocal[tokenUser] = { biohorario: true, eficiencia: true, tiempo: true, metas: true, historial: true };
             }
@@ -619,14 +615,11 @@
                 historial: document.getElementById('permiso-historial').checked
             };
 
-            // Guardar configuración local persistente para no perder cambios al recargar la vista
             localStorage.setItem('app_permisos_menu', JSON.stringify(listaPermisosUsuariosLocal));
-            
             alert(`✨ Opciones de menú actualizadas con éxito.`);
             aplicarFiltroMenuUsuarioLogueado();
         }
 
-        // --- LÓGICA DE METAS CARGAS (PDF) ---
         let pdfDataCache = [];
 
         async function sincronizarPDF() {
@@ -711,9 +704,7 @@
             }
         }
 
-        // --- MANEJO DE VISTAS ---
         function openView(id) {
-            // Manejador unificado de consistencia para el ID de navegación simple
             let targetId = id;
             if(id === 'view-tiempo') targetId = 'view-view-tiempo';
 
@@ -745,7 +736,6 @@
             return `${displayH.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')} ${ampm}`;
         }
 
-        // --- FUNCIONES DE TIEMPO SIMPLE ---
         function calcTiempoSimple() {
             const meta = parseFloat(document.getElementById('ts-meta').value) || 0;
             const doc = parseFloat(document.getElementById('ts-doc').value) || 0;
@@ -760,7 +750,6 @@
             }
         }
 
-        // --- SIMULADOR DE RITMO POR PORCENTAJE ---
         function calcTiempoPorcentaje() {
             const meta = parseFloat(document.getElementById('tp-meta').value) || 0;
             const docenas = parseFloat(document.getElementById('tp-doc').value) || 0;
@@ -779,7 +768,6 @@
             }
         }
 
-        // --- MÓDULO "BIOHORARIO" ---
         function addBioCarga() {
             const container = document.getElementById('bio-cargas-list');
             const numCarga = container.children.length + 1;
@@ -858,7 +846,6 @@
             document.getElementById('lbl-bio-ef-actual').innerText = eficienciaActual.toFixed(2) + "%";
         }
 
-        // --- EFICIENCIA COMPLETA ---
         function addCarga() {
             const container = document.getElementById('cargas-list');
             const numCarga = container.children.length + 1;
@@ -946,6 +933,7 @@
             calcularEficiencia();
         }
 
+        // --- CORRECCIÓN EN CÁLCULO DE LA EFICIENCIA COMPLETA ---
         function calcularEficiencia() {
             const cargaBlocks = document.querySelectorAll('#cargas-list > div');
             let sumMeta = 0, sumHecho = 0, count = 0;
@@ -957,6 +945,7 @@
             let totalOutsideParosMins = 0;   
 
             let parosPerCarga = [];
+            let recesosMinsPerCarga = []; // Guardará de forma precisa los minutos de receso de cada carga
 
             cargaBlocks.forEach((block, i) => {
                 const metaInput = block.querySelector('.c-meta');
@@ -966,6 +955,7 @@
 
                 let loadOutsideMins = 0;
                 let loadParosList = [];
+                let loadRecesosMins = 0; // Acumulador local por bloque de carga
 
                 const parosRows = block.querySelectorAll('.paros-container > div');
                 parosRows.forEach(row => {
@@ -984,6 +974,8 @@
                     
                     if(motivo !== 'R') {
                         totalParosExceptRMins += duration;
+                    } else {
+                        loadRecesosMins += duration; // Detecta y almacena los recesos del bloque actual
                     }
 
                     const isOutside = ['A','B','D','E','G','H','I'].includes(motivo);
@@ -1007,6 +999,8 @@
                     outsideMins: loadOutsideMins,
                     list: loadParosList
                 });
+
+                recesosMinsPerCarga.push(loadRecesosMins);
 
                 if(metaVal > 0) { 
                     sumMeta += metaVal; 
@@ -1066,6 +1060,8 @@
                         } else {
                             loadDurationMins = 0; 
                         }
+                        // La carga absorbe el tiempo sumándose al tiempo final por eficiencia de la carga actual
+                        loadDurationMins += recesosMinsPerCarga[i];
                         endMinutes = loadStartMins + loadDurationMins;
                     } else {
                         let allocatedLoadHours = 0;
@@ -1082,6 +1078,9 @@
                         if (i === sts.length - 1) {
                             let customRemaining = (7 * 60 + totalShiftMins) - loadStartMins;
                             loadDurationMins = Math.max(0, customRemaining);
+                        } else {
+                            // Se le inyecta la duración del receso directo a esta carga específica sin perturbar el resto
+                            loadDurationMins += recesosMinsPerCarga[i];
                         }
                         endMinutes = loadStartMins + loadDurationMins;
                     }
@@ -1109,7 +1108,7 @@
                                 splitContainer.innerHTML += `
                                     <div class="flex justify-between items-center bg-[#00f3ff]/10 px-3 py-1.5 rounded-lg border border-[#00f3ff]/20 ml-4 my-1">
                                         <span class="text-[10px] font-bold text-[#00f3ff]">↳ PARO ${p.motivo} (Dentro de Carga)</span>
-                                        <span class="text-[11px] font-mono text-gray-400 font-bold">${p.realStartStr} - ${p.realEndStr} <span class="text-[10px] text-gray-500 italic">(Absorbido ${p.durationMins} min)</span></span>
+                                        <span class="text-[11px] font-mono text-gray-400 font-bold">${p.realStartStr} - ${p.realEndStr} <span class="text-[10px] text-cyan-400 italic">(Absorbido ${p.durationMins} min)</span></span>
                                     </div>`;
                             }
                         });
@@ -1164,7 +1163,6 @@
             const res = await fetch('/api/admin/usuarios');
             const users = await res.json();
             
-            // Sincronizar dinámicamente el selector de asignación de permisos
             actualizarSelectorUsuariosPermisos(users);
 
             const list = document.getElementById('admin-users-list');
@@ -1256,7 +1254,6 @@
             `).join('');
         }
 
-        // Cargar estado inicial al arrancar
         window.onload = function() {
             const guardados = localStorage.getItem('app_permisos_menu');
             if(guardados) {
@@ -1264,7 +1261,6 @@
             }
         };
 
-        // Inicializar con la primera carga en ambos módulos
         addCarga();
         addBioCarga();
     </script>
