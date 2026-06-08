@@ -39,21 +39,13 @@
             backdrop-filter: blur(8px);
         }
 
-        /* Ventanas deslizantes con bordes brillantes y soporte para fondos */
+        /* Ventanas deslizantes con bordes brillantes */
         .view-window { 
             position: fixed; top: 0; left: 100%; width: 100%; height: 100%; 
-            background-color: var(--bg-deep); transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 50; 
+            background: var(--bg-deep); transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 50; 
             overflow-y: auto;
         }
         .view-window.active { left: 0; }
-
-        /* NUEVO: Fondos Anime Claros y Vivos por Opción */
-        #view-biohorario { background: linear-gradient(rgba(173, 255, 47, 0.88), rgba(255, 105, 180, 0.88)), url('https://wallpapercave.com/wp/wp5598683.jpg') center/cover fixed; } /* Demon Slayer */
-        #view-eficiencia { background: linear-gradient(rgba(255, 165, 0, 0.88), rgba(0, 191, 255, 0.88)), url('https://wallpapercave.com/wp/wp2506764.jpg') center/cover fixed; } /* Dragon Ball */
-        #view-view-tiempo { background: linear-gradient(rgba(255, 215, 0, 0.88), rgba(255, 140, 0, 0.88)), url('https://wallpapercave.com/wp/wp10355655.jpg') center/cover fixed; } /* Naruto */
-        #view-metas { background: linear-gradient(rgba(255, 255, 0, 0.88), rgba(0, 250, 154, 0.88)), url('https://wallpapercave.com/wp/wp10260271.jpg') center/cover fixed; } /* Pokemon */
-        #view-historial { background: linear-gradient(rgba(144, 238, 144, 0.88), rgba(255, 215, 0, 0.88)), url('https://wallpapercave.com/wp/wp1857904.jpg') center/cover fixed; } /* Nanatsu no Taizai */
-        #view-admin { background: linear-gradient(rgba(200, 200, 200, 0.88), rgba(255, 0, 0, 0.85)), url('https://wallpapercave.com/wp/wp2519125.jpg') center/cover fixed; } /* Death Note */
 
         /* Inputs estilizados Cyberpunk */
         .input-pro { 
@@ -963,7 +955,6 @@
             let totalAllParosMins = 0;       
             let totalParosExceptRMins = 0;   
             let totalOutsideParosMins = 0;   
-            let totalIntraloadMins = 0; // NUEVO: Para absorber los recesos (R, C, F) globalmente
 
             let parosPerCarga = [];
 
@@ -974,7 +965,6 @@
                 let hechoVal = parseFloat(hechoInput ? hechoInput.value : 0) || 0;
 
                 let loadOutsideMins = 0;
-                let loadIntraloadMins = 0; // NUEVO: Sumar intraloads asignados a esta carga específica
                 let loadParosList = [];
 
                 const parosRows = block.querySelectorAll('.paros-container > div');
@@ -1000,10 +990,6 @@
                     if(isOutside) {
                         totalOutsideParosMins += duration;
                         loadOutsideMins += duration;
-                    } else {
-                        // NUEVO: Es un paro interno, se suma a los totales de intraload para absorberlo en la carga
-                        totalIntraloadMins += duration;
-                        loadIntraloadMins += duration;
                     }
 
                     loadParosList.push({
@@ -1019,7 +1005,6 @@
 
                 parosPerCarga.push({
                     outsideMins: loadOutsideMins,
-                    intraloadMins: loadIntraloadMins, // NUEVO: Guardamos este tiempo en el objeto de la carga
                     list: loadParosList
                 });
 
@@ -1060,16 +1045,13 @@
             splitContainer.innerHTML = '';
 
             const totalShiftMins = 12 * 60; 
-            // NUEVO: Restamos los intraloads del total base, para redistribuir el tiempo puro y luego sumar el absorbido
-            const timeAvailableForLoadsMins = totalShiftMins - totalOutsideParosMins - totalIntraloadMins; 
+            const timeAvailableForLoadsMins = totalShiftMins - totalOutsideParosMins; 
             
             let currentMinutes = 7 * 60; 
-            let accumulatedBaseMins = 0; // NUEVO: Para asegurar el cierre perfecto a las 12h
 
             if (count > 0) {
                 sts.forEach((st, i) => {
                     let loadStartMins = currentMinutes;
-                    let baseLoadDurationMins = 0; // NUEVO
                     let loadDurationMins = 0;
                     let endMinutes = 0;
 
@@ -1095,16 +1077,12 @@
                             allocatedLoadHours = (timeAvailableForLoadsMins / 60) / count;
                         }
 
-                        baseLoadDurationMins = Math.round(allocatedLoadHours * 60);
+                        loadDurationMins = Math.round(allocatedLoadHours * 60);
 
                         if (i === sts.length - 1) {
-                            // Ajuste final sobre la base limpia para cerrar perfectamente el turno
-                            baseLoadDurationMins = Math.max(0, timeAvailableForLoadsMins - accumulatedBaseMins);
+                            let customRemaining = (7 * 60 + totalShiftMins) - loadStartMins;
+                            loadDurationMins = Math.max(0, customRemaining);
                         }
-                        accumulatedBaseMins += baseLoadDurationMins;
-
-                        // AQUÍ SUCEDE LA MAGIA: Al tiempo base de la carga, le SUMAMOS el receso para absorberlo sin alterar porcentajes
-                        loadDurationMins = baseLoadDurationMins + parosPerCarga[i].intraloadMins;
                         endMinutes = loadStartMins + loadDurationMins;
                     }
 
@@ -1131,7 +1109,7 @@
                                 splitContainer.innerHTML += `
                                     <div class="flex justify-between items-center bg-[#00f3ff]/10 px-3 py-1.5 rounded-lg border border-[#00f3ff]/20 ml-4 my-1">
                                         <span class="text-[10px] font-bold text-[#00f3ff]">↳ PARO ${p.motivo} (Dentro de Carga)</span>
-                                        <span class="text-[11px] font-mono text-gray-400 font-bold">${p.realStartStr} - ${p.realEndStr} <span class="text-[10px] text-gray-500 italic">(Absorbido visualmente ${p.durationMins} min)</span></span>
+                                        <span class="text-[11px] font-mono text-gray-400 font-bold">${p.realStartStr} - ${p.realEndStr} <span class="text-[10px] text-gray-500 italic">(Absorbido ${p.durationMins} min)</span></span>
                                     </div>`;
                             }
                         });
