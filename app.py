@@ -8,6 +8,7 @@ import io
 import openpyxl  # Para leer archivos Excel (.xlsx) de Google Drive
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseDownload
+from datetime import datetime  # <--- IMPORTACIÓN AGREGADA
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'angel_admin_2026_secure')
@@ -36,6 +37,7 @@ def cargar_usuarios_drive():
                     "pin": str(row[3]).strip() if len(row) > 3 else "",
                     "rol": str(row[4]).strip() if len(row) > 4 else "operador",
                     "device_id": str(row[5]).strip() if len(row) > 5 else "",
+                    "ultima_conexion": str(row[11]).strip() if len(row) > 11 else "Desconocida", # <--- DATO NUEVO
                     "permisos": {
                         "biohorario": str(row[6]).lower() == 'true' if len(row) > 6 and row[6] != "" else True,
                         "eficiencia": str(row[7]).lower() == 'true' if len(row) > 7 and row[7] != "" else True,
@@ -177,6 +179,10 @@ def login_verificar():
             # Destrucción del perfil por violación de seguridad
             sheet.delete_row(fila)
             return jsonify({"status": "deleted"}), 403
+
+        # Login Exitoso: Actualizar última conexión (Columna 12)
+        fecha_actual = datetime.now().strftime("%d/%m/%Y %H:%M")
+        sheet.update_cell(fila, 12, fecha_actual)
 
         # Login Exitoso: Construir permisos (Columnas G a K -> Índices 6 a 10)
         permisos = {
