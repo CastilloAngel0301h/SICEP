@@ -39,17 +39,25 @@
             backdrop-filter: blur(8px);
         }
 
+        /* Fondos Neón Radiales para dar más vida a las ventanas */
+        .bg-neon-magenta { background: radial-gradient(circle at top right, rgba(255, 0, 127, 0.25), var(--bg-deep) 70%); }
+        .bg-neon-cian { background: radial-gradient(circle at top left, rgba(0, 243, 255, 0.25), var(--bg-deep) 70%); }
+        .bg-neon-verde { background: radial-gradient(circle at bottom right, rgba(57, 255, 20, 0.25), var(--bg-deep) 70%); }
+        .bg-neon-amarillo { background: radial-gradient(circle at bottom left, rgba(255, 230, 0, 0.25), var(--bg-deep) 70%); }
+        .bg-neon-naranja { background: radial-gradient(circle at center, rgba(255, 108, 0, 0.25), var(--bg-deep) 80%); }
+        .bg-neon-admin { background: radial-gradient(circle at top, rgba(255, 230, 0, 0.3), var(--bg-deep) 60%); }
+
         /* Ventanas deslizantes con bordes brillantes */
         .view-window { 
             position: fixed; top: 0; left: 100%; width: 100%; height: 100%; 
-            background: var(--bg-deep); transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 50; 
+            transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 50; 
             overflow-y: auto;
         }
         .view-window.active { left: 0; }
 
         /* Inputs estilizados Cyberpunk */
         .input-pro { 
-            background: #11131e; 
+            background: rgba(17, 19, 30, 0.9); 
             border: 2px solid #2d3142; 
             color: white; 
             border-radius: 16px; 
@@ -127,7 +135,7 @@
 <body class="max-w-md mx-auto relative min-h-screen">
 
     <div id="lock-screen" class="min-h-screen flex flex-col justify-center items-center p-6 text-center bg-[#0d0e15] absolute w-full z-50">
-        <div class="glass p-8 rounded-[32px] w-full border-2 border-[#ff007f] shadow-[0_0_30px_rgba(255,0,127,0.4)]">
+        <div class="glass p-8 rounded-[32px] w-full border-2 border-[#ff007f] shadow-[0_0_30px_rgba(255,0,127,0.4)] bg-gradient-to-b from-[#0d0e15] to-[#1a0011]">
             <span class="text-6xl mb-4 block animate-bounce">🦁</span>
             <h1 class="text-2xl font-black uppercase tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-[#ff007f] to-[#00f3ff] mb-2">ACCESO RESTRINGIDO</h1>
             <p class="text-xs text-gray-400 mb-6 uppercase tracking-widest font-bold">Ingresa tu PIN de Seguridad</p>
@@ -136,7 +144,7 @@
         </div>
     </div>
 
-    <div id="app-home" class="hidden p-6 pb-20">
+    <div id="app-home" class="hidden p-6 pb-20 bg-gradient-to-b from-gray-900 via-[#0d0e15] to-black min-h-screen">
         <header class="my-8 text-center border-b-2 border-dashed border-gray-800 pb-6">
             <h1 class="text-3xl font-black leading-none uppercase tracking-tighter text-white">
                 <span class="text-transparent bg-clip-text bg-gradient-to-r from-[#00f3ff] to-[#39ff14]">Calculadora</span><br>
@@ -146,67 +154,67 @@
             <p class="text-[10px] font-black text-gray-400 mt-4 uppercase tracking-widest">Creado y Presentado por: <span class="text-[#ffe600] text-xs block font-black tracking-normal mt-0.5">Angel Castillo 👑</span></p>
         </header>
 
-        <div class="text-center mb-8 bg-slate-900/40 p-4 rounded-2xl border border-gray-800">
+        <div class="text-center mb-8 bg-slate-900/60 p-4 rounded-2xl border border-gray-700 shadow-[0_0_15px_rgba(0,0,0,0.5)]">
             <h2 class="text-lg font-black uppercase text-gray-300">Bienvenido Operador:<br><span class="text-transparent bg-clip-text bg-gradient-to-r from-[#ffe600] to-[#ff6c00] text-xl font-black">{{ user.nombre }} 🦁</span></h2>
         </div>
 
         <div class="grid grid-cols-2 gap-4" id="main-menu-grid">
-            <div id="btn-menu-biohorario" onclick="openView('view-biohorario')" class="lion-btn glass p-5 rounded-[24px] text-center neon-border-magenta col-span-2 bg-gradient-to-r from-[#ff007f]/10 to-transparent">
+            <div id="btn-menu-biohorario" onclick="openView('view-biohorario')" class="lion-btn glass p-5 rounded-[24px] text-center neon-border-magenta col-span-2 bg-gradient-to-r from-[#ff007f]/30 to-[#ff007f]/5 hover:from-[#ff007f]/50">
                 <span class="text-4xl block mb-2">⏳</span>
                 <span class="text-xs font-black uppercase text-white tracking-wider">BioHorario Dinámico</span>
             </div>
             
-            <div id="btn-menu-eficiencia" onclick="openView('view-eficiencia')" class="lion-btn glass p-5 rounded-[24px] text-center neon-border-cian bg-gradient-to-br from-[#00f3ff]/5 to-transparent">
+            <div id="btn-menu-eficiencia" onclick="openView('view-eficiencia')" class="lion-btn glass p-5 rounded-[24px] text-center neon-border-cian bg-gradient-to-br from-[#00f3ff]/30 to-[#00f3ff]/5 hover:from-[#00f3ff]/50">
                 <span class="text-4xl block mb-2">📊</span>
                 <span class="text-[11px] font-black uppercase text-white leading-tight">Eficiencia<br>Completa</span>
             </div>
             
-            <div id="btn-menu-tiempo" onclick="openView('view-tiempo')" class="lion-btn glass p-5 rounded-[24px] text-center neon-border-verde bg-gradient-to-br from-[#39ff14]/5 to-transparent">
+            <div id="btn-menu-tiempo" onclick="openView('view-tiempo')" class="lion-btn glass p-5 rounded-[24px] text-center neon-border-verde bg-gradient-to-br from-[#39ff14]/30 to-[#39ff14]/5 hover:from-[#39ff14]/50">
                 <span class="text-4xl block mb-2">⏱️</span>
                 <span class="text-[11px] font-black uppercase text-white leading-tight">Tiempo por<br>Docenaje</span>
             </div>
             
-            <div id="btn-menu-metas" onclick="openView('view-metas')" class="lion-btn glass p-5 rounded-[24px] text-center neon-border-amarillo bg-gradient-to-br from-[#ffe600]/5 to-transparent">
+            <div id="btn-menu-metas" onclick="openView('view-metas')" class="lion-btn glass p-5 rounded-[24px] text-center neon-border-amarillo bg-gradient-to-br from-[#ffe600]/30 to-[#ffe600]/5 hover:from-[#ffe600]/50">
                 <span class="text-4xl block mb-2">🎯</span>
                 <span class="text-[11px] font-black uppercase text-white leading-tight">Metas<br>Cargas</span>
             </div>
             
-            <div id="btn-menu-historial" onclick="openView('view-historial')" class="lion-btn glass p-5 rounded-[24px] text-center neon-border-naranja bg-gradient-to-br from-[#ff6c00]/5 to-transparent">
+            <div id="btn-menu-historial" onclick="openView('view-historial')" class="lion-btn glass p-5 rounded-[24px] text-center neon-border-naranja bg-gradient-to-br from-[#ff6c00]/30 to-[#ff6c00]/5 hover:from-[#ff6c00]/50">
                 <span class="text-4xl block mb-2">📂</span>
                 <span class="text-[11px] font-black uppercase text-white leading-tight">Historial<br>Guardado</span>
             </div>
             
-            <div id="btn-menu-feedback" onclick="openView('view-feedback')" class="lion-btn glass p-5 rounded-[24px] text-center border-gray-700 bg-slate-900/60 col-span-2 hover:border-white/40">
+            <div id="btn-menu-feedback" onclick="openView('view-feedback')" class="lion-btn glass p-5 rounded-[24px] text-center border-gray-500 bg-slate-800/80 col-span-2 hover:border-white/60 hover:bg-slate-700/80">
                 <span class="text-4xl block mb-1">⭐</span>
-                <span class="text-[11px] font-black uppercase text-gray-300">Valorar Aplicación</span>
+                <span class="text-[11px] font-black uppercase text-gray-200">Valorar Aplicación</span>
             </div>
             
             {% if token == 'angel0301' %}
-            <div onclick="openView('view-admin')" class="lion-btn glass p-6 rounded-[24px] text-center col-span-2 border-2 border-[#ffe600] bg-gradient-to-r from-[#ffe600]/10 to-[#ff6c00]/10 shadow-[0_0_20px_rgba(255,230,0,0.45)]">
+            <div onclick="openView('view-admin')" class="lion-btn glass p-6 rounded-[24px] text-center col-span-2 border-2 border-[#ffe600] bg-gradient-to-r from-[#ffe600]/20 to-[#ff007f]/20 shadow-[0_0_25px_rgba(255,230,0,0.6)]">
                 <span class="text-4xl block mb-2">👑</span>
                 <span class="text-sm font-black text-transparent bg-clip-text bg-gradient-to-r from-[#ffe600] to-[#ff007f] uppercase tracking-wide italic">PANEL PREMIUM DE MODERADOR</span>
-                <p class="text-[9px] text-gray-400 font-bold uppercase mt-1">Exclusivo de Angel Castillo</p>
+                <p class="text-[9px] text-gray-300 font-bold uppercase mt-1">Exclusivo de Angel Castillo</p>
             </div>
             {% endif %}
         </div>
     </div>
 
-    <div id="view-biohorario" class="view-window p-6">
+    <div id="view-biohorario" class="view-window p-6 bg-neon-magenta">
         <div class="flex items-center mb-8">
-            <button onclick="closeView()" class="text-black font-black text-2xl mr-4 px-3 bg-gradient-to-r from-[#ff007f] to-[#ff6c00] rounded-xl shadow-md">←</button>
+            <button onclick="closeView()" class="text-white font-black text-2xl mr-4 px-3 bg-gradient-to-r from-[#ff007f] to-[#ff6c00] rounded-xl shadow-[0_0_15px_rgba(255,0,127,0.5)]">←</button>
             <h2 class="text-xl font-black uppercase text-transparent bg-clip-text bg-gradient-to-r from-[#ff007f] to-[#ff6c00]">BioHorario ⏳</h2>
         </div>
 
         <div class="space-y-4">
             <div id="bio-cargas-list" class="space-y-4"></div>
 
-            <button onclick="addBioCarga()" class="w-full py-4 bg-transparent border-2 border-[#ff007f] text-[#ff007f] hover:bg-[#ff007f] hover:text-white rounded-2xl text-xs font-black uppercase tracking-widest transition-all shadow-[0_0_10px_rgba(255,0,127,0.2)]">+ Añadir Nueva Carga</button>
+            <button onclick="addBioCarga()" class="w-full py-4 bg-transparent border-2 border-[#ff007f] text-[#ff007f] hover:bg-[#ff007f] hover:text-white rounded-2xl text-xs font-black uppercase tracking-widest transition-all shadow-[0_0_10px_rgba(255,0,127,0.4)]">+ Añadir Nueva Carga</button>
 
-            <div class="glass p-5 rounded-3xl border border-gray-800 mt-6 shadow-inner">
-                <h3 class="text-xs font-black text-[#ff6c00] uppercase tracking-wider mb-4 border-b border-gray-800 pb-2">Registros de Tiempos Muertos</h3>
+            <div class="glass p-5 rounded-3xl border border-[#ff007f]/40 mt-6 shadow-inner bg-black/40">
+                <h3 class="text-xs font-black text-[#ff6c00] uppercase tracking-wider mb-4 border-b border-gray-700 pb-2">Registros de Tiempos Muertos</h3>
                 
                 <div class="mb-4">
-                    <label class="text-[10px] text-gray-400 font-black uppercase block mb-1">Time Off Recesos</label>
+                    <label class="text-[10px] text-gray-300 font-black uppercase block mb-1">Time Off Recesos</label>
                     <div class="grid grid-cols-2 gap-2">
                         <input type="number" id="bio-receso-h" min="0" value="0" placeholder="Horas" class="input-pro p-2.5 text-center" oninput="calcularBioHorario()">
                         <input type="number" id="bio-receso-m" min="0" max="59" value="0" placeholder="Minutos" class="input-pro p-2.5 text-center" oninput="calcularBioHorario()">
@@ -214,7 +222,7 @@
                 </div>
 
                 <div>
-                    <label class="text-[10px] text-gray-400 font-black uppercase block mb-1">Time Off Paros</label>
+                    <label class="text-[10px] text-gray-300 font-black uppercase block mb-1">Time Off Paros</label>
                     <div class="grid grid-cols-2 gap-2">
                         <input type="number" id="bio-paro-h" min="0" value="0" placeholder="Horas" class="input-pro p-2.5 text-center" oninput="calcularBioHorario()">
                         <input type="number" id="bio-paro-m" min="0" max="59" value="0" placeholder="Minutos" class="input-pro p-2.5 text-center" oninput="calcularBioHorario()">
@@ -222,76 +230,76 @@
                 </div>
             </div>
 
-            <div class="glass p-5 rounded-3xl border border-gray-800">
-                <h3 class="text-xs font-black text-[#39ff14] uppercase tracking-wider mb-4 border-b border-gray-800 pb-2">Progreso del Turno Actual</h3>
-                <label class="text-[10px] text-gray-400 font-black uppercase block mb-1">Tiempo Transcurrido Labores</label>
+            <div class="glass p-5 rounded-3xl border border-[#39ff14]/40 bg-black/40">
+                <h3 class="text-xs font-black text-[#39ff14] uppercase tracking-wider mb-4 border-b border-gray-700 pb-2">Progreso del Turno Actual</h3>
+                <label class="text-[10px] text-gray-300 font-black uppercase block mb-1">Tiempo Transcurrido Labores</label>
                 <div class="grid grid-cols-2 gap-2">
                     <input type="number" id="bio-trans-h" min="0" value="0" placeholder="Horas" class="input-pro p-2.5 text-center" oninput="calcularBioHorario()">
                     <input type="number" id="bio-trans-m" min="0" max="59" value="0" placeholder="Minutos" class="input-pro p-2.5 text-center" oninput="calcularBioHorario()">
                 </div>
             </div>
 
-            <div class="bg-gradient-to-br from-[#0d0e15] to-[#181a26] p-6 rounded-[32px] border-2 border-[#ffe600] shadow-2xl space-y-4">
+            <div class="glass bg-gradient-to-br from-[#0d0e15]/90 to-[#181a26]/90 p-6 rounded-[32px] border-2 border-[#ffe600] shadow-[0_0_20px_rgba(255,230,0,0.3)] space-y-4">
                 <h3 class="text-center text-xs font-black uppercase tracking-widest text-[#ffe600]">Métricas y Resultados Generales</h3>
                 
                 <div class="grid grid-cols-2 gap-3 text-center">
-                    <div class="bg-black/40 p-3 rounded-2xl border border-gray-800">
+                    <div class="bg-black/60 p-3 rounded-2xl border border-gray-700">
                         <span class="text-[9px] font-bold text-gray-400 uppercase block">Total Docenas</span>
                         <span id="lbl-bio-total-hecho" class="text-xl font-black text-white">0</span>
                     </div>
-                    <div class="bg-black/40 p-3 rounded-2xl border border-gray-800">
+                    <div class="bg-black/60 p-3 rounded-2xl border border-gray-700">
                         <span class="text-[9px] font-bold text-gray-400 uppercase block">Meta General (On)</span>
                         <span id="lbl-bio-meta-gen" class="text-xl font-black text-white">0</span>
                     </div>
-                    <div class="bg-black/40 p-3 rounded-2xl border border-gray-800">
+                    <div class="bg-black/60 p-3 rounded-2xl border border-gray-700">
                         <span class="text-[9px] font-bold text-gray-400 uppercase block">Docenas Perdidas</span>
                         <span id="lbl-bio-doc-perdidas" class="text-xl font-black text-[#ff007f]">0</span>
                     </div>
-                    <div class="bg-black/40 p-3 rounded-2xl border border-gray-800">
+                    <div class="bg-black/60 p-3 rounded-2xl border border-gray-700">
                         <span class="text-[9px] font-bold text-gray-400 uppercase block">Meta Final</span>
                         <span id="lbl-bio-meta-final" class="text-xl font-black text-[#ffe600]">0</span>
                     </div>
                 </div>
 
-                <div class="border-t border-gray-800 my-2 pt-2 grid grid-cols-2 gap-3 text-center">
-                    <div class="bg-emerald-950/40 p-3 rounded-2xl border border-[#39ff14]/30">
+                <div class="border-t border-gray-700 my-2 pt-2 grid grid-cols-2 gap-3 text-center">
+                    <div class="bg-emerald-950/60 p-3 rounded-2xl border border-[#39ff14]/50">
                         <span class="text-[9px] font-bold text-[#39ff14] uppercase block">Eficiencia ON</span>
                         <span id="lbl-bio-ef-on" class="text-xl font-black text-[#39ff14] text-shadow-[0_0_10px_rgba(57,255,20,0.5)]">0.00%</span>
                     </div>
-                    <div class="bg-rose-950/40 p-3 rounded-2xl border border-[#ff007f]/30">
+                    <div class="bg-rose-950/60 p-3 rounded-2xl border border-[#ff007f]/50">
                         <span class="text-[9px] font-bold text-[#ff007f] uppercase block">Eficiencia OFF</span>
                         <span id="lbl-bio-ef-off" class="text-xl font-black text-[#ff007f]">0.00%</span>
                     </div>
                 </div>
 
-                <div class="bg-slate-900/80 p-4 rounded-2xl border border-[#00f3ff]/30 text-center space-y-1">
+                <div class="bg-slate-900/90 p-4 rounded-2xl border border-[#00f3ff]/50 text-center space-y-1 shadow-[0_0_15px_rgba(0,243,255,0.2)]">
                     <span class="text-[10px] font-black text-[#00f3ff] uppercase block tracking-wider">Estado Actual a las <span id="lbl-bio-horas-trans">0h 00m</span></span>
                     <div class="grid grid-cols-2 gap-2 mt-2">
                         <div>
-                            <span class="text-[9px] font-bold text-gray-400 uppercase block">Meta Actual</span>
+                            <span class="text-[9px] font-bold text-gray-300 uppercase block">Meta Actual</span>
                             <span id="lbl-bio-meta-actual" class="text-xl font-black text-white">0</span>
                         </div>
                         <div>
-                            <span class="text-[9px] font-bold text-gray-400 uppercase block">Eficiencia Actual</span>
+                            <span class="text-[9px] font-bold text-gray-300 uppercase block">Eficiencia Actual</span>
                             <span id="lbl-bio-ef-actual" class="text-xl font-black text-[#ff6c00]">0.00%</span>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <button onclick="guardarHistorial('BioHorario')" class="w-full py-4 bg-gradient-to-r from-[#ff007f] to-[#ff6c00] text-white rounded-2xl font-black text-sm uppercase tracking-wider shadow-lg">Guardar en Historial</button>
+            <button onclick="guardarHistorial('BioHorario')" class="w-full py-4 bg-gradient-to-r from-[#ff007f] to-[#ff6c00] text-white rounded-2xl font-black text-sm uppercase tracking-wider shadow-[0_0_15px_rgba(255,108,0,0.5)]">Guardar en Historial</button>
         </div>
     </div>
 
-    <div id="view-metas" class="view-window p-6">
+    <div id="view-metas" class="view-window p-6 bg-neon-amarillo">
         <div class="flex items-center mb-8">
-            <button onclick="closeView()" class="text-black font-black text-2xl mr-4 px-3 bg-gradient-to-r from-[#ffe600] to-[#ff6c00] rounded-xl shadow-md">←</button>
+            <button onclick="closeView()" class="text-black font-black text-2xl mr-4 px-3 bg-gradient-to-r from-[#ffe600] to-[#ff6c00] rounded-xl shadow-[0_0_15px_rgba(255,230,0,0.5)]">←</button>
             <h2 class="text-xl font-black uppercase text-transparent bg-clip-text bg-gradient-to-r from-[#ffe600] to-[#ff6c00]">Metas Cargas 🎯</h2>
         </div>
         
         <div class="space-y-6">
-            <div class="glass p-6 rounded-3xl border border-[#ffe600]/30">
-                <p class="text-xs text-gray-300 mb-4 font-bold uppercase tracking-wide">Seleccione los datos para buscar su meta (Se extraen de tu PDF):</p>
+            <div class="glass bg-black/50 p-6 rounded-3xl border border-[#ffe600]/50 shadow-[0_0_15px_rgba(255,230,0,0.2)]">
+                <p class="text-xs text-gray-200 mb-4 font-bold uppercase tracking-wide">Seleccione los datos para buscar su meta (Se extraen de tu PDF):</p>
                 
                 <label class="text-[10px] text-[#ffe600] font-black uppercase">1. Estilo</label>
                 <select id="sel-estilo" class="input-pro mt-2 mb-4 bg-[#11131e] focus:outline-none" onchange="actualizarBusquedaMeta()">
@@ -318,37 +326,37 @@
                 </select>
             </div>
 
-            <div id="meta-resultado-box" class="bg-gradient-to-r from-blue-700 to-[#00f3ff] p-8 rounded-[32px] text-center shadow-xl border-2 border-[#00f3ff]/40 transition-all duration-300">
+            <div id="meta-resultado-box" class="bg-gradient-to-r from-blue-700 to-[#00f3ff] p-8 rounded-[32px] text-center shadow-[0_0_20px_rgba(0,243,255,0.4)] border-2 border-[#00f3ff]/50 transition-all duration-300">
                 <p class="text-[10px] font-black uppercase mb-2 text-white tracking-widest">LA META DE SU CARGA ES:</p>
                 <div id="meta-valor" class="text-5xl font-black text-white">---</div>
-                <p id="meta-status" class="text-[11px] mt-4 font-black bg-black/40 py-2 rounded-xl text-[#ffe600]">Esperando selección...</p>
+                <p id="meta-status" class="text-[11px] mt-4 font-black bg-black/50 py-2 rounded-xl text-[#ffe600]">Esperando selección...</p>
             </div>
             
-            <button onclick="sincronizarPDF()" class="w-full py-4 bg-gradient-to-r from-gray-800 to-gray-700 text-white rounded-2xl font-black uppercase text-xs flex items-center justify-center gap-2 border border-gray-600 shadow-md">
+            <button onclick="sincronizarPDF()" class="w-full py-4 bg-gradient-to-r from-gray-800 to-gray-700 hover:from-gray-700 hover:to-gray-600 text-white rounded-2xl font-black uppercase text-xs flex items-center justify-center gap-2 border border-gray-500 shadow-md transition-all">
                 <span>🔄</span> Sincronizar Base de Datos (PDF)
             </button>
         </div>
     </div>
 
-    <div id="view-eficiencia" class="view-window p-6">
+    <div id="view-eficiencia" class="view-window p-6 bg-neon-cian">
         <div class="flex items-center justify-between mb-8">
             <div class="flex items-center">
-                <button onclick="closeView()" class="text-black font-black text-2xl mr-4 px-3 bg-gradient-to-r from-[#00f3ff] to-[#39ff14] rounded-xl shadow-md">←</button>
+                <button onclick="closeView()" class="text-black font-black text-2xl mr-4 px-3 bg-gradient-to-r from-[#00f3ff] to-[#39ff14] rounded-xl shadow-[0_0_15px_rgba(0,243,255,0.5)]">←</button>
                 <h2 class="text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#00f3ff] to-[#39ff14] uppercase">EFICIENCIA COMPLETA</h2>
             </div>
         </div>
         
         <div id="cargas-list" class="space-y-4 mb-4"></div>
-        <button onclick="addCarga()" class="w-full py-4 bg-transparent border-2 border-dashed border-[#ffe600] text-[#ffe600] rounded-xl text-xs font-black mb-6 hover:bg-[#ffe600] hover:text-black transition-all">+ AÑADIR NUEVA CARGA</button>
+        <button onclick="addCarga()" class="w-full py-4 bg-black/40 border-2 border-dashed border-[#ffe600] text-[#ffe600] rounded-xl text-xs font-black mb-6 hover:bg-[#ffe600] hover:text-black transition-all shadow-[0_0_10px_rgba(255,230,0,0.3)]">+ AÑADIR NUEVA CARGA</button>
         
         <label class="text-[10px] text-[#ffe600] font-black uppercase">Horas de Paro (Calculadas Automáticamente)</label>
-        <input type="number" id="ef-paros" step="0.01" readonly class="input-pro mt-2 mb-6 opacity-70 bg-slate-900 border-dashed" placeholder="Se calcula automáticamente de tus paros">
+        <input type="number" id="ef-paros" step="0.01" readonly class="input-pro mt-2 mb-6 opacity-80 bg-slate-900 border-dashed border-[#00f3ff]/50" placeholder="Se calcula automáticamente de tus paros">
         
         <div id="ef-badge" class="p-8 rounded-[32px] text-center mb-6 shadow-2xl border-2 border-transparent transition-all duration-500 bg-red-600">
             <div id="ef-resultado" class="text-6xl font-black text-white">0.00%</div>
             <p class="text-[11px] font-black uppercase mt-2 text-white tracking-widest">Eficiencia Final</p>
             
-            <div class="flex justify-between border-t border-white/20 pt-4 mt-4">
+            <div class="flex justify-between border-t border-white/30 pt-4 mt-4">
                 <div class="text-left">
                     <p class="text-[10px] font-black uppercase text-gray-200">Meta Final</p>
                     <p id="ui-meta" class="text-2xl font-black text-white">0</p>
@@ -362,16 +370,17 @@
 
         <div id="tiempos-cargas" class="mb-6 space-y-2"></div>
 
-        <button onclick="guardarHistorial('Eficiencia')" class="w-full py-4 bg-gradient-to-r from-[#ff007f] to-[#ff6c00] text-white rounded-2xl font-black text-sm uppercase tracking-wider shadow-lg">Guardar en Historial</button>
+        <button onclick="guardarHistorial('Eficiencia')" class="w-full py-4 bg-gradient-to-r from-[#ff007f] to-[#ff6c00] text-white rounded-2xl font-black text-sm uppercase tracking-wider shadow-[0_0_20px_rgba(255,0,127,0.5)] hover:shadow-[0_0_25px_rgba(255,108,0,0.6)]">Guardar en Historial</button>
     </div>
 
-    <div id="view-view-tiempo" class="view-window p-6"> <div class="flex items-center mb-8">
-            <button onclick="closeView()" class="text-black font-black text-2xl mr-4 px-3 bg-gradient-to-r from-[#39ff14] to-[#00f3ff] rounded-xl shadow-md">←</button>
+    <div id="view-view-tiempo" class="view-window p-6 bg-neon-verde"> 
+        <div class="flex items-center mb-8">
+            <button onclick="closeView()" class="text-black font-black text-2xl mr-4 px-3 bg-gradient-to-r from-[#39ff14] to-[#00f3ff] rounded-xl shadow-[0_0_15px_rgba(57,255,20,0.5)]">←</button>
             <h2 class="text-xl font-black uppercase text-transparent bg-clip-text bg-gradient-to-r from-[#39ff14] to-[#00f3ff]">Tiempo Simple ⏱️</h2>
         </div>
         <div class="space-y-6">
-            <div class="glass p-6 rounded-3xl border border-[#39ff14]/30">
-                <h3 class="text-sm font-black mb-4 text-white uppercase text-center border-b border-gray-800 pb-2">Tiempo al 100% Eficiencia</h3>
+            <div class="glass bg-black/40 p-6 rounded-3xl border border-[#39ff14]/50 shadow-[0_0_15px_rgba(57,255,20,0.2)]">
+                <h3 class="text-sm font-black mb-4 text-white uppercase text-center border-b border-gray-700 pb-2">Tiempo al 100% Eficiencia</h3>
                 <label class="text-[10px] text-[#ffe600] font-black uppercase">Meta de la Carga (Total 11h)</label>
                 <input type="number" id="ts-meta" oninput="calcTiempoSimple()" class="input-pro mt-2 mb-4" placeholder="Ej: 550">
                 
@@ -379,14 +388,14 @@
                 <input type="number" id="ts-doc" oninput="calcTiempoSimple()" class="input-pro mt-2" placeholder="Ej: 100">
             </div>
 
-            <div class="bg-gradient-to-r from-teal-800 to-[#39ff14]/80 p-8 rounded-[32px] text-center shadow-xl border-2 border-[#39ff14]/40">
-                <p class="text-[10px] font-black uppercase mb-2 text-white">Tiempo Estimado al 100%</p>
-                <div id="ts-res" class="text-5xl font-black text-white">0H 00M</div>
-                <div id="ts-ritmo" class="text-[11px] mt-4 font-black bg-black/40 py-2 rounded-lg text-[#ffe600]">Ritmo: 0.00 doc/hr</div>
+            <div class="bg-gradient-to-r from-teal-800 to-[#39ff14]/90 p-8 rounded-[32px] text-center shadow-[0_0_20px_rgba(57,255,20,0.4)] border-2 border-[#39ff14]/60">
+                <p class="text-[10px] font-black uppercase mb-2 text-white shadow-sm">Tiempo Estimado al 100%</p>
+                <div id="ts-res" class="text-5xl font-black text-white text-shadow-md">0H 00M</div>
+                <div id="ts-ritmo" class="text-[11px] mt-4 font-black bg-black/50 py-2 rounded-lg text-[#ffe600]">Ritmo: 0.00 doc/hr</div>
             </div>
 
-            <div class="glass p-6 rounded-3xl border border-[#ff6c00]/40 mt-8">
-                <h3 class="text-sm font-black mb-4 text-[#ff6c00] uppercase text-center border-b border-gray-800 pb-2">Simulador de Ritmo (%) 🚀</h3>
+            <div class="glass bg-black/40 p-6 rounded-3xl border border-[#ff6c00]/50 mt-8 shadow-[0_0_15px_rgba(255,108,0,0.2)]">
+                <h3 class="text-sm font-black mb-4 text-[#ff6c00] uppercase text-center border-b border-gray-700 pb-2">Simulador de Ritmo (%) 🚀</h3>
                 
                 <label class="text-[10px] text-[#ffe600] font-black uppercase">Meta Total de Carga (11h)</label>
                 <input type="number" id="tp-meta" oninput="calcTiempoPorcentaje()" class="input-pro mt-2 mb-4 bg-[#11131e]" placeholder="Ej: 550">
@@ -395,51 +404,51 @@
                 <input type="number" id="tp-doc" oninput="calcTiempoPorcentaje()" class="input-pro mt-2 mb-4 bg-[#11131e]" placeholder="Ej: 100">
 
                 <label class="text-[10px] text-[#39ff14] font-black uppercase">Porcentaje de Eficiencia Deseado (%)</label>
-                <input type="number" id="tp-porc" oninput="calcTiempoPorcentaje()" class="input-pro mt-2 bg-emerald-950/20 border-[#39ff14]/50 text-[#39ff14]" placeholder="Ej: 50, 100, 200">
+                <input type="number" id="tp-porc" oninput="calcTiempoPorcentaje()" class="input-pro mt-2 bg-emerald-950/40 border-[#39ff14]/60 text-[#39ff14] shadow-[0_0_10px_rgba(57,255,20,0.2)]" placeholder="Ej: 50, 100, 200">
                 
-                <div class="bg-black/50 p-4 rounded-xl text-center mt-6 border border-gray-800 shadow-inner">
-                    <p class="text-[9px] font-black uppercase mb-1 text-gray-400">Tiempo Requerido a este ritmo:</p>
+                <div class="bg-black/60 p-4 rounded-xl text-center mt-6 border border-gray-700 shadow-inner">
+                    <p class="text-[9px] font-black uppercase mb-1 text-gray-300">Tiempo Requerido a este ritmo:</p>
                     <div id="tp-res-tiempo" class="text-3xl font-black text-white tracking-widest">0H 00M</div>
                     <p id="tp-res-ritmo" class="text-[10px] font-bold mt-2 text-[#39ff14] uppercase">Debes sacar: 0.00 doc/hr</p>
                 </div>
             </div>
 
-            <button onclick="guardarHistorial('Tiempo Simple')" class="w-full py-4 bg-gradient-to-r from-[#ffe600] to-[#ff6c00] text-black rounded-2xl font-black uppercase text-sm shadow-md">Guardar Cálculo 100%</button>
+            <button onclick="guardarHistorial('Tiempo Simple')" class="w-full py-4 bg-gradient-to-r from-[#ffe600] to-[#ff6c00] text-black rounded-2xl font-black uppercase text-sm shadow-[0_0_15px_rgba(255,230,0,0.4)]">Guardar Cálculo 100%</button>
         </div>
     </div>
 
-    <div id="view-historial" class="view-window p-6">
+    <div id="view-historial" class="view-window p-6 bg-neon-naranja">
         <div class="flex items-center mb-8">
-            <button onclick="closeView()" class="text-black font-black text-2xl mr-4 px-3 bg-gradient-to-r from-[#ff6c00] to-[#ffe600] rounded-xl shadow-md">←</button>
-            <h2 class="text-xl font-black text-white uppercase tracking-tight">HISTORIAL DE CÁLCULOS 📂</h2>
+            <button onclick="closeView()" class="text-black font-black text-2xl mr-4 px-3 bg-gradient-to-r from-[#ff6c00] to-[#ffe600] rounded-xl shadow-[0_0_15px_rgba(255,108,0,0.5)]">←</button>
+            <h2 class="text-xl font-black text-white uppercase tracking-tight text-shadow-sm">HISTORIAL DE CÁLCULOS 📂</h2>
         </div>
         <div id="historial-content" class="space-y-4"></div>
     </div>
 
-    <div id="view-admin" class="view-window p-6">
+    <div id="view-admin" class="view-window p-6 bg-neon-admin">
         <div class="flex items-center mb-8">
-            <button onclick="closeView()" class="text-black font-black text-2xl mr-4 px-3 bg-gradient-to-r from-[#ffe600] to-[#ff007f] rounded-xl shadow-md">←</button>
-            <h2 class="text-xl font-black text-[#ffe600] uppercase tracking-wide">Panel Moderador 👑</h2>
+            <button onclick="closeView()" class="text-black font-black text-2xl mr-4 px-3 bg-gradient-to-r from-[#ffe600] to-[#ff007f] rounded-xl shadow-[0_0_15px_rgba(255,230,0,0.6)]">←</button>
+            <h2 class="text-xl font-black text-[#ffe600] uppercase tracking-wide text-shadow-md">Panel Moderador 👑</h2>
         </div>
         
-        <div class="glass p-6 rounded-3xl mb-8 border-2 border-[#ff007f] shadow-[0_0_15px_rgba(255,0,127,0.25)]">
+        <div class="glass bg-black/50 p-6 rounded-3xl mb-8 border-2 border-[#ff007f] shadow-[0_0_25px_rgba(255,0,127,0.3)]">
             <h3 class="text-sm font-black mb-4 text-white uppercase tracking-wider">Crear Nuevo Usuario</h3>
             <input type="text" id="adm-nombre" placeholder="Nombre (Ej: Juan Perez)" class="input-pro mb-3">
             <input type="text" id="adm-cont" placeholder="Teléfono o Correo" class="input-pro mb-4">
-            <button onclick="crearUsuario()" class="w-full py-4 bg-gradient-to-r from-[#ff007f] to-[#ff6c00] text-white rounded-xl font-black uppercase shadow-md transition-all">Generar Acceso y Link</button>
+            <button onclick="crearUsuario()" class="w-full py-4 bg-gradient-to-r from-[#ff007f] to-[#ff6c00] text-white rounded-xl font-black uppercase shadow-[0_0_15px_rgba(255,0,127,0.4)] transition-all">Generar Acceso y Link</button>
         </div>
 
-        <div class="glass p-5 rounded-3xl mb-8 border-2 border-[#00f3ff] shadow-[0_0_15px_rgba(0,243,255,0.25)] animate-slide-in">
+        <div class="glass bg-black/50 p-5 rounded-3xl mb-8 border-2 border-[#00f3ff] shadow-[0_0_25px_rgba(0,243,255,0.3)] animate-slide-in">
             <h3 class="text-sm font-black mb-1 text-transparent bg-clip-text bg-gradient-to-r from-[#00f3ff] to-[#39ff14] uppercase">⚡ Selector de Accesos Premium</h3>
-            <p class="text-[9px] text-gray-400 font-bold uppercase mb-4">Gestiona las opciones visibles del menú por operador</p>
+            <p class="text-[9px] text-gray-300 font-bold uppercase mb-4">Gestiona las opciones visibles del menú por operador</p>
 
             <label class="text-[10px] text-[#ffe600] font-black uppercase block mb-2">Seleccionar Operador:</label>
             <select id="permisos-user-select" class="input-pro mb-4 bg-[#11131e]" onchange="cambioUsuarioEnSelectorPermisos()">
                 <option value="">-- Selecciona un Operador creado --</option>
             </select>
 
-            <label class="text-[10px] text-gray-300 font-black uppercase block mb-3 border-b border-gray-800 pb-1">Funciones Disponibles en Menú Principal:</label>
-            <div class="grid grid-cols-1 gap-3 bg-black/40 p-4 rounded-xl border border-gray-800">
+            <label class="text-[10px] text-gray-200 font-black uppercase block mb-3 border-b border-gray-700 pb-1">Funciones Disponibles en Menú Principal:</label>
+            <div class="grid grid-cols-1 gap-3 bg-black/60 p-4 rounded-xl border border-gray-700">
                 <label class="checkbox-neon">
                     ⏳ Módulo BioHorario
                     <input type="checkbox" id="permiso-biohorario" value="biohorario" checked>
@@ -467,12 +476,12 @@
                 </label>
             </div>
 
-            <button onclick="guardarPermisosMenu()" class="w-full mt-4 py-3 bg-gradient-to-r from-[#39ff14] to-teal-600 font-black text-black text-xs rounded-xl uppercase shadow-md hover:shadow-[#39ff14]/40 transition-all">
+            <button onclick="guardarPermisosMenu()" class="w-full mt-4 py-3 bg-gradient-to-r from-[#39ff14] to-teal-600 font-black text-black text-xs rounded-xl uppercase shadow-[0_0_15px_rgba(57,255,20,0.5)] hover:shadow-[#39ff14]/70 transition-all">
                 💾 Guardar Permisos de Acceso
             </button>
         </div>
         
-        <h3 class="text-sm font-black mb-4 text-[#ffe600] uppercase border-b border-gray-800 pb-2 tracking-widest">Gestión Global de Usuarios</h3>
+        <h3 class="text-sm font-black mb-4 text-[#ffe600] uppercase border-b border-gray-700 pb-2 tracking-widest text-shadow-sm">Gestión Global de Usuarios</h3>
         <div id="admin-users-list" class="space-y-3"></div>
     </div>
 
@@ -632,7 +641,7 @@
         async function sincronizarPDF() {
             const btn = document.querySelector('button[onclick="sincronizarPDF()"]');
             const originalText = btn.innerHTML;
-            btn.innerHTML = '<span>⏳</span> Descargando PDF de Google Drive...';
+            btn.innerHTML = '<span>⏳</span> Descargando PDF de Base de Datos...';
             btn.disabled = true;
             
             try {
@@ -642,9 +651,9 @@
                 if(data.status === 'success') {
                     pdfDataCache = data.datos;
                     poblarSelectoresMetas(data.estilos, data.procesos);
-                    alert("✅ Base de datos extraída y sincronizada desde el PDF en Google Drive correctamente.");
+                    alert("✅ Base de datos extraída y sincronizada desde el PDF correctamente.");
                 } else {
-                    alert("❌ Error: " + data.message + "\n\nAsegúrate de que el PDF en tu Drive está compartido con el correo de la calculadora de tu archivo credenciales.json");
+                    alert("❌ Error: " + data.message + "\n\nAsegúrate de que el archivo PDF es accesible.");
                 }
             } catch(e) {
                 alert("❌ Error de conexión al sincronizar PDF.");
@@ -694,7 +703,7 @@
             if(!estilo || !talla || !proceso) {
                 valorDiv.innerText = "---";
                 statusDiv.innerText = "Esperando que seleccione las tres opciones...";
-                boxDiv.className = "bg-gradient-to-r from-blue-700 to-[#00f3ff] p-8 rounded-[32px] text-center shadow-lg border-2 border-blue-400 transition-colors duration-300";
+                boxDiv.className = "bg-gradient-to-r from-blue-700 to-[#00f3ff] p-8 rounded-[32px] text-center shadow-[0_0_20px_rgba(0,243,255,0.4)] border-2 border-[#00f3ff]/50 transition-colors duration-300";
                 return;
             }
 
@@ -703,11 +712,11 @@
             if(coincidencia) {
                 valorDiv.innerText = coincidencia.meta;
                 statusDiv.innerText = "¡Meta encontrada en el PDF!";
-                boxDiv.className = "bg-gradient-to-r from-emerald-700 to-[#39ff14] p-8 rounded-[32px] text-center shadow-lg border-2 border-[#39ff14]/50 transition-colors duration-300";
+                boxDiv.className = "bg-gradient-to-r from-emerald-700 to-[#39ff14] p-8 rounded-[32px] text-center shadow-[0_0_20px_rgba(57,255,20,0.4)] border-2 border-[#39ff14]/60 transition-colors duration-300";
             } else {
                 valorDiv.innerText = "N/A";
                 statusDiv.innerText = "No se encontró esta combinación";
-                boxDiv.className = "bg-gradient-to-r from-rose-800 to-[#ff007f] p-8 rounded-[32px] text-center shadow-lg border-2 border-[#ff007f]/50 transition-colors duration-300";
+                boxDiv.className = "bg-gradient-to-r from-rose-800 to-[#ff007f] p-8 rounded-[32px] text-center shadow-[0_0_20px_rgba(255,0,127,0.4)] border-2 border-[#ff007f]/60 transition-colors duration-300";
             }
         }
 
@@ -785,19 +794,19 @@
             const numCarga = container.children.length + 1;
             
             const div = document.createElement('div');
-            div.className = "glass p-4 rounded-2xl border border-gray-800 space-y-3 relative animate-slide-in";
+            div.className = "glass p-4 rounded-2xl border border-gray-700 bg-black/40 space-y-3 relative animate-slide-in shadow-[0_0_15px_rgba(0,0,0,0.3)]";
             div.innerHTML = `
-                <div class="flex justify-between items-center border-b border-gray-800 pb-2">
+                <div class="flex justify-between items-center border-b border-gray-700 pb-2">
                     <span class="text-xs font-black text-[#ff007f] uppercase">Carga ${numCarga}</span>
                     <button type="button" onclick="this.parentElement.parentElement.remove(); calcularBioHorario();" class="text-red-400 text-xs font-bold hover:text-red-600">Eliminar</button>
                 </div>
                 <div class="grid grid-cols-2 gap-2">
                     <div>
-                        <label class="text-[9px] text-gray-400 font-bold uppercase block mb-1">Meta Carga ${numCarga}</label>
+                        <label class="text-[9px] text-gray-300 font-bold uppercase block mb-1">Meta Carga ${numCarga}</label>
                         <input type="number" placeholder="Ej: 660" class="input-pro p-2.5 text-center bio-meta-input" oninput="calcularBioHorario()">
                     </div>
                     <div>
-                        <label class="text-[9px] text-gray-400 font-bold uppercase block mb-1">Docenas Hechas</label>
+                        <label class="text-[9px] text-gray-300 font-bold uppercase block mb-1">Docenas Hechas</label>
                         <input type="number" placeholder="Ej: 120" class="input-pro p-2.5 text-center bio-hecho-input" oninput="calcularBioHorario()">
                     </div>
                 </div>
@@ -864,9 +873,9 @@
             const numCarga = container.children.length + 1;
             
             const div = document.createElement('div');
-            div.className = "glass p-4 rounded-2xl border border-gray-800 space-y-3 animate-slide-in relative";
+            div.className = "glass bg-black/40 p-4 rounded-2xl border border-[#00f3ff]/40 space-y-3 animate-slide-in relative shadow-[0_0_15px_rgba(0,0,0,0.3)]";
             div.innerHTML = `
-                <div class="flex justify-between items-center border-b border-gray-800 pb-2">
+                <div class="flex justify-between items-center border-b border-gray-700 pb-2">
                     <span class="text-xs font-black text-[#00f3ff] uppercase">CARGA ${numCarga}</span>
                     <button type="button" onclick="this.parentElement.parentElement.remove(); calcularEficiencia();" class="text-red-400 text-xs font-bold hover:text-red-600">Eliminar</button>
                 </div>
@@ -877,7 +886,7 @@
                 
                 <div class="paros-container space-y-2"></div>
                 
-                <button type="button" onclick="addParoToCarga(this)" class="w-full py-2 bg-slate-900 border border-[#00f3ff]/30 rounded-xl text-[10px] font-black text-[#00f3ff] uppercase tracking-wider transition-all">
+                <button type="button" onclick="addParoToCarga(this)" class="w-full py-2 bg-slate-900 border border-[#00f3ff]/50 rounded-xl text-[10px] font-black text-[#00f3ff] uppercase tracking-wider transition-all hover:bg-slate-800">
                     + Añadir Paro a Carga ${numCarga}
                 </button>
             `;
@@ -888,7 +897,7 @@
         function addParoToCarga(btn) {
             const parosContainer = btn.previousElementSibling;
             const div = document.createElement('div');
-            div.className = "flex flex-wrap gap-2 bg-black/50 p-2.5 rounded-xl items-center text-xs border border-gray-800 animate-slide-in";
+            div.className = "flex flex-wrap gap-2 bg-black/60 p-2.5 rounded-xl items-center text-xs border border-gray-700 animate-slide-in";
             
             let hoursOpts = '';
             for(let h=0; h<24; h++) {
@@ -907,16 +916,16 @@
 
             div.innerHTML = `
                 <div class="flex flex-col gap-1">
-                    <span class="text-[9px] font-black text-gray-500 uppercase tracking-tighter">Inicio</span>
-                    <div class="flex items-center bg-[#11131e] px-1 rounded border border-gray-800">
+                    <span class="text-[9px] font-black text-gray-400 uppercase tracking-tighter">Inicio</span>
+                    <div class="flex items-center bg-[#11131e] px-1 rounded border border-gray-700">
                         <select class="bg-transparent text-white py-1 outline-none p-start-h" onchange="calcularEficiencia()">${hoursOpts}</select>
                         <span class="text-gray-500 px-0.5">:</span>
                         <select class="bg-transparent text-white py-1 outline-none p-start-m" onchange="calcularEficiencia()">${minsOpts}</select>
                     </div>
                 </div>
                 <div class="flex flex-col gap-1">
-                    <span class="text-[9px] font-black text-gray-500 uppercase tracking-tighter">Fin</span>
-                    <div class="flex items-center bg-[#11131e] px-1 rounded border border-gray-800">
+                    <span class="text-[9px] font-black text-gray-400 uppercase tracking-tighter">Fin</span>
+                    <div class="flex items-center bg-[#11131e] px-1 rounded border border-gray-700">
                         <select class="bg-transparent text-white py-1 outline-none p-end-h" onchange="calcularEficiencia()">${hoursOpts}</select>
                         <span class="text-gray-500 px-0.5">:</span>
                         <select class="bg-transparent text-white py-1 outline-none p-end-m" onchange="calcularEficiencia()">${minsOpts}</select>
@@ -924,7 +933,7 @@
                 </div>
                 <div class="flex flex-col flex-1 min-w-[100px] gap-1">
                     <span class="text-[9px] font-black text-[#ffe600] uppercase tracking-tighter">Motivo</span>
-                    <select class="bg-[#11131e] border border-[#ffe600]/40 text-[#ffe600] font-bold p-1 rounded outline-none p-motivo" onchange="calcularEficiencia()">
+                    <select class="bg-[#11131e] border border-[#ffe600]/60 text-[#ffe600] font-bold p-1 rounded outline-none p-motivo" onchange="calcularEficiencia()">
                         <option value="R">R (Receso - Intraload)</option>
                         <option value="F">F (Enfermería - Intraload)</option>
                         <option value="C">C (Reunión - Intraload)</option>
@@ -1031,10 +1040,10 @@
             document.getElementById('ui-hecho').innerText = sumHecho;
             
             let colorClass = "bg-red-600 text-white"; 
-            if (ef >= 100) colorClass = "bg-gradient-to-r from-teal-600 to-[#00f3ff] text-black font-black border-[#00f3ff]/50 shadow-[0_0_15px_rgba(0,243,255,0.4)]"; 
+            if (ef >= 100) colorClass = "bg-gradient-to-r from-teal-600 to-[#00f3ff] text-black font-black border-[#00f3ff]/50 shadow-[0_0_20px_rgba(0,243,255,0.6)]"; 
             else if (ef >= 95) colorClass = "bg-[#023e8a] text-white border-blue-400"; 
-            else if (ef >= 85) colorClass = "bg-[#39ff14] text-black font-black shadow-[0_0_15px_rgba(57,255,20,0.4)]"; 
-            else if (ef >= 75) colorClass = "bg-[#ffe600] text-black font-black shadow-[0_0_15px_rgba(255,230,0,0.4)]"; 
+            else if (ef >= 85) colorClass = "bg-[#39ff14] text-black font-black shadow-[0_0_20px_rgba(57,255,20,0.6)]"; 
+            else if (ef >= 75) colorClass = "bg-[#ffe600] text-black font-black shadow-[0_0_20px_rgba(255,230,0,0.6)]"; 
             else if (ef >= 65) colorClass = "bg-[#ff6c00] text-white"; 
 
             document.getElementById('ef-resultado').innerText = ef.toFixed(2) + "%";
@@ -1045,7 +1054,10 @@
             splitContainer.innerHTML = '';
 
             const totalShiftMins = 12 * 60; 
-            const timeAvailableForLoadsMins = totalShiftMins - totalOutsideParosMins; 
+            
+            // EL TIEMPO DISPONIBLE PURO ES EL TOTAL DEL TURNO MENOS *TODOS* LOS PAROS (incluyendo los intraload que luego se re-agregan)
+            let pureAvailableMins = totalShiftMins - totalAllParosMins;
+            if(pureAvailableMins < 0) pureAvailableMins = 0;
             
             let currentMinutes = 7 * 60; 
 
@@ -1054,6 +1066,11 @@
                     let loadStartMins = currentMinutes;
                     let loadDurationMins = 0;
                     let endMinutes = 0;
+
+                    let loadIntraloadMins = 0;
+                    parosPerCarga[i].list.forEach(p => { 
+                        if(!p.isOutside) loadIntraloadMins += p.durationMins; 
+                    });
 
                     const outsideParos = parosPerCarga[i].list.filter(p => p.isOutside);
 
@@ -1068,21 +1085,17 @@
                         }
                         endMinutes = loadStartMins + loadDurationMins;
                     } else {
-                        let allocatedLoadHours = 0;
-                        let diaLimpioSoloConParosR = (totalParosExceptRMins === 0);
-
-                        if (totalST > 0 && diaLimpioSoloConParosR) {
-                            allocatedLoadHours = st * ((timeAvailableForLoadsMins / 60) / totalST);
+                        // AQUÍ SE AGREGA LA LÓGICA DE TIEMPO PURO + TIEMPO INTRALOAD LITERAL
+                        let allocatedPureMins = 0;
+                        if (totalST > 0) {
+                            allocatedPureMins = st * (pureAvailableMins / totalST);
                         } else {
-                            allocatedLoadHours = (timeAvailableForLoadsMins / 60) / count;
+                            allocatedPureMins = pureAvailableMins / count;
                         }
 
-                        loadDurationMins = Math.round(allocatedLoadHours * 60);
-
-                        if (i === sts.length - 1) {
-                            let customRemaining = (7 * 60 + totalShiftMins) - loadStartMins;
-                            loadDurationMins = Math.max(0, customRemaining);
-                        }
+                        // La duración de la carga es su tiempo de trabajo puro más el tiempo del paro intraload que absorbió
+                        loadDurationMins = Math.round(allocatedPureMins + loadIntraloadMins);
+                        
                         endMinutes = loadStartMins + loadDurationMins;
                     }
 
@@ -1090,9 +1103,9 @@
                     let endStr = formatClock(endMinutes);
 
                     splitContainer.innerHTML += `
-                        <div class="glass p-3 rounded-xl border border-gray-800 space-y-1">
+                        <div class="glass p-3 rounded-xl border border-gray-700 bg-black/50 space-y-1 shadow-md">
                             <div class="flex justify-between items-center">
-                                <span class="text-xs font-black text-gray-400">CARGA ${i+1}</span>
+                                <span class="text-xs font-black text-gray-300">CARGA ${i+1}</span>
                                 <span class="text-sm font-black text-[#ffe600]">${startStr} - ${endStr} <span class="text-[10px] text-gray-400 font-normal">(${formatTime(loadDurationMins/60)})</span></span>
                             </div>
                         </div>`;
@@ -1101,15 +1114,15 @@
                         parosPerCarga[i].list.forEach(p => {
                             if(p.isOutside && p.durationMins > 0) {
                                 splitContainer.innerHTML += `
-                                    <div class="flex justify-between items-center bg-[#ffe600]/10 px-3 py-1.5 rounded-lg border border-[#ffe600]/30 ml-4 my-1">
+                                    <div class="flex justify-between items-center bg-[#ffe600]/20 px-3 py-2 rounded-lg border border-[#ffe600]/50 ml-4 my-1 shadow-[0_0_10px_rgba(255,230,0,0.2)]">
                                         <span class="text-[10px] font-bold text-[#ffe600]">↳ PARO ${p.motivo} (Fuera de Carga)</span>
                                         <span class="text-[11px] font-mono font-black text-white">${p.realStartStr} - ${p.realEndStr} (${p.durationMins} min)</span>
                                     </div>`;
                             } else if(!p.isOutside && p.durationMins > 0) {
                                 splitContainer.innerHTML += `
-                                    <div class="flex justify-between items-center bg-[#00f3ff]/10 px-3 py-1.5 rounded-lg border border-[#00f3ff]/20 ml-4 my-1">
+                                    <div class="flex justify-between items-center bg-[#00f3ff]/20 px-3 py-2 rounded-lg border border-[#00f3ff]/50 ml-4 my-1 shadow-[0_0_10px_rgba(0,243,255,0.2)]">
                                         <span class="text-[10px] font-bold text-[#00f3ff]">↳ PARO ${p.motivo} (Dentro de Carga)</span>
-                                        <span class="text-[11px] font-mono text-gray-400 font-bold">${p.realStartStr} - ${p.realEndStr} <span class="text-[10px] text-gray-500 italic">(Absorbido ${p.durationMins} min)</span></span>
+                                        <span class="text-[11px] font-mono text-gray-300 font-bold">${p.realStartStr} - ${p.realEndStr} <span class="text-[10px] text-[#39ff14] italic font-black">(Sumado ${p.durationMins} min)</span></span>
                                     </div>`;
                             }
                         });
@@ -1128,12 +1141,12 @@
                 if(tiempoOnMins < 0) tiempoOnMins = 0;
 
                 splitContainer.innerHTML += `
-                    <div class="grid grid-cols-2 gap-2 mt-4 border-t border-gray-800 pt-3">
-                        <div class="bg-emerald-950/60 p-3 rounded-xl text-center border border-[#39ff14]/30 shadow-md">
+                    <div class="grid grid-cols-2 gap-2 mt-4 border-t border-gray-700 pt-3">
+                        <div class="bg-emerald-950/80 p-3 rounded-xl text-center border border-[#39ff14]/50 shadow-[0_0_15px_rgba(57,255,20,0.3)]">
                             <span class="text-[9px] font-black text-[#39ff14] uppercase block">Tiempo ON (Trabajado)</span>
                             <span class="text-sm font-black text-white">${formatTime(tiempoOnMins/60)}</span>
                         </div>
-                        <div class="bg-rose-950/60 p-3 rounded-xl text-center border border-[#ff007f]/30 shadow-md">
+                        <div class="bg-rose-950/80 p-3 rounded-xl text-center border border-[#ff007f]/50 shadow-[0_0_15px_rgba(255,0,127,0.3)]">
                             <span class="text-[9px] font-black text-[#ff007f] uppercase block">Tiempo OFF (Paros sin R)</span>
                             <span class="text-sm font-black text-white">${formatTime(tiempoOffMins/60)}</span>
                         </div>
@@ -1169,7 +1182,7 @@
 
             const list = document.getElementById('admin-users-list');
             list.innerHTML = Object.keys(users).map(t => `
-                <div class="glass p-4 rounded-2xl border border-gray-800 mb-2">
+                <div class="glass bg-black/40 p-4 rounded-2xl border border-gray-700 mb-2 shadow-sm hover:shadow-[0_0_10px_rgba(255,255,255,0.1)] transition-all">
                     <div class="flex justify-between items-start mb-2">
                         <div>
                             <p class="font-black text-white text-sm uppercase">${users[t].nombre}</p>
@@ -1177,12 +1190,15 @@
                         </div>
                         ${t !== 'angel0301' ? `
                             <div class="flex gap-2">
-                                <button onclick="editarUser('${t}', '${users[t].nombre}', '${users[t].contacto}')" class="text-black text-[10px] font-black bg-[#00f3ff] px-3 py-2 rounded uppercase shadow-sm">Editar</button>
-                                <button onclick="eliminarUser('${t}')" class="text-white text-[10px] font-black bg-red-600 px-3 py-2 rounded uppercase shadow-sm">Borrar</button>
+                                <button onclick="editarUser('${t}', '${users[t].nombre}', '${users[t].contacto}')" class="text-black text-[10px] font-black bg-[#00f3ff] px-3 py-2 rounded uppercase shadow-sm hover:bg-[#55f7ff] transition-colors">Editar</button>
+                                <button onclick="eliminarUser('${t}')" class="text-white text-[10px] font-black bg-red-600 px-3 py-2 rounded uppercase shadow-sm hover:bg-red-500 transition-colors">Borrar</button>
                             </div>
-                        ` : '<span class="text-2xl">👑</span>'}
+                        ` : '<span class="text-2xl drop-shadow-[0_0_10px_rgba(255,230,0,0.8)]">👑</span>'}
                     </div>
-                    <p class="text-[10px] text-gray-400 font-bold">Contacto: ${users[t].contacto}</p>
+                    <div class="flex flex-col gap-0.5 border-t border-gray-800 pt-1.5 mt-1.5">
+                        <p class="text-[10px] text-gray-300 font-bold">Contacto: ${users[t].contacto}</p>
+                        <p class="text-[10px] text-gray-400 font-bold">Última vez: <span class="text-[#39ff14] font-black tracking-wide">${users[t].ultima_conexion || 'Desconocida'}</span></p>
+                    </div>
                 </div>
             `).join('');
         }
@@ -1244,13 +1260,13 @@
             }
 
             cont.innerHTML = data.reverse().map(i => `
-                <div class="glass p-4 rounded-2xl border-l-4 border-[#ffe600] mb-3">
-                    <div class="flex justify-between text-[10px] mb-2 font-black text-gray-400 uppercase">
-                        <span class="text-[#ffe600]">${i.tipo}</span>
+                <div class="glass bg-black/40 p-4 rounded-2xl border-l-4 border-[#ffe600] mb-3 shadow-[0_0_10px_rgba(255,230,0,0.15)]">
+                    <div class="flex justify-between text-[10px] mb-2 font-black text-gray-300 uppercase">
+                        <span class="text-[#ffe600] drop-shadow-md">${i.tipo}</span>
                         <span>${i.fecha_hora}</span>
                     </div>
-                    ${i.usuario ? `<div class="text-[10px] text-[#00f3ff] mb-2">Operador: ${i.usuario}</div>` : ''}
-                    <div class="text-2xl font-black text-white mb-1">${i.info.res}</div>
+                    ${i.usuario ? `<div class="text-[10px] text-[#00f3ff] mb-2 font-bold">Operador: ${i.usuario}</div>` : ''}
+                    <div class="text-2xl font-black text-white mb-1 drop-shadow-sm">${i.info.res}</div>
                     ${i.info.detalle ? `<div class="text-[9px] text-gray-400 leading-tight">${i.info.detalle}</div>` : ''}
                 </div>
             `).join('');
