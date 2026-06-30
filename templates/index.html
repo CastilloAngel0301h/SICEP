@@ -33,8 +33,7 @@
             -webkit-tap-highlight-color: transparent;
         }
 
-        .font-orbitron { font-family: 'Orbitron', sans-serif;
-        }
+        .font-orbitron { font-family: 'Orbitron', sans-serif; }
 
         /* Contenedores Sólidos Neón */
         .solid-panel { 
@@ -50,8 +49,7 @@
             background: var(--bg-deep); transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1); z-index: 50; 
             overflow-y: auto;
         }
-        .view-window.active { left: 0;
-        }
+        .view-window.active { left: 0; }
 
         /* Inputs estilizados Cyberpunk Sólidos */
         .input-pro { 
@@ -75,45 +73,38 @@
             transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
             cursor: pointer; 
         }
-        .lion-btn:active { transform: scale(0.95);
-        }
+        .lion-btn:active { transform: scale(0.95); }
 
         /* Efectos Neón Sólidos personalizados para los menús */
         .neon-border-magenta { border: 2px solid var(--neon-magenta);
             box-shadow: 0 0 15px rgba(255, 0, 127, 0.4); background-color: var(--bg-solid);
         }
-        .neon-border-magenta:hover { box-shadow: 0 0 25px rgba(255, 0, 127, 0.7); border-color: #ff55aa;
-        }
+        .neon-border-magenta:hover { box-shadow: 0 0 25px rgba(255, 0, 127, 0.7); border-color: #ff55aa; }
 
         .neon-border-cian { border: 2px solid var(--neon-cian);
             box-shadow: 0 0 15px rgba(0, 243, 255, 0.4); background-color: var(--bg-solid);
         }
-        .neon-border-cian:hover { box-shadow: 0 0 25px rgba(0, 243, 255, 0.7); border-color: #55f7ff;
-        }
+        .neon-border-cian:hover { box-shadow: 0 0 25px rgba(0, 243, 255, 0.7); border-color: #55f7ff; }
 
         .neon-border-verde { border: 2px solid var(--neon-verde);
             box-shadow: 0 0 15px rgba(57, 255, 20, 0.4); background-color: var(--bg-solid);
         }
-        .neon-border-verde:hover { box-shadow: 0 0 25px rgba(57, 255, 20, 0.7); border-color: #79ff60;
-        }
+        .neon-border-verde:hover { box-shadow: 0 0 25px rgba(57, 255, 20, 0.7); border-color: #79ff60; }
 
         .neon-border-amarillo { border: 2px solid var(--neon-amarillo);
             box-shadow: 0 0 15px rgba(255, 230, 0, 0.4); background-color: var(--bg-solid);
         }
-        .neon-border-amarillo:hover { box-shadow: 0 0 25px rgba(255, 230, 0, 0.7); border-color: #fff066;
-        }
+        .neon-border-amarillo:hover { box-shadow: 0 0 25px rgba(255, 230, 0, 0.7); border-color: #fff066; }
 
         .neon-border-naranja { border: 2px solid var(--neon-naranja);
             box-shadow: 0 0 15px rgba(255, 108, 0, 0.4); background-color: var(--bg-solid);
         }
-        .neon-border-naranja:hover { box-shadow: 0 0 25px rgba(255, 108, 0, 0.7); border-color: #ff964d;
-        }
+        .neon-border-naranja:hover { box-shadow: 0 0 25px rgba(255, 108, 0, 0.7); border-color: #ff964d; }
 
         .neon-border-purpura { border: 2px solid var(--neon-purpura);
             box-shadow: 0 0 15px rgba(181, 0, 255, 0.4); background-color: var(--bg-solid);
         }
-        .neon-border-purpura:hover { box-shadow: 0 0 25px rgba(181, 0, 255, 0.7); border-color: #d24dff;
-        }
+        .neon-border-purpura:hover { box-shadow: 0 0 25px rgba(181, 0, 255, 0.7); border-color: #d24dff; }
 
         /* Checkboxes Neón Personalizados para el Panel Premium */
         .checkbox-neon {
@@ -126,8 +117,7 @@
             font-size: 13px;
             font-weight: bold;
         }
-        .checkbox-neon input { position: absolute; opacity: 0; cursor: pointer; height: 0;
-            width: 0; }
+        .checkbox-neon input { position: absolute; opacity: 0; cursor: pointer; height: 0; width: 0; }
         .checkmark-neon {
             position: absolute;
             top: -2px; left: 0; height: 22px; width: 22px;
@@ -150,13 +140,10 @@
             border: solid #000; border-width: 0 3px 3px 0;
             transform: rotate(45deg);
         }
-        .checkbox-neon input:checked ~ .checkmark-neon:after { display: block;
-        }
+        .checkbox-neon input:checked ~ .checkmark-neon:after { display: block; }
 
-        .animate-slide-in { animation: slideIn 0.25s ease-out forwards;
-        }
-        @keyframes slideIn { from { transform: translateY(10px); opacity: 0;
-        } to { transform: translateY(0); opacity: 1; } }
+        .animate-slide-in { animation: slideIn 0.25s ease-out forwards; }
+        @keyframes slideIn { from { transform: translateY(10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     </style>
 </head>
 <body class="max-w-md mx-auto relative min-h-screen">
@@ -628,14 +615,14 @@
         // --- SISTEMA PIN PARA CALCULADORA PREMIUM ---
         function intentarAbrirPremium() {
             const token = "{{ token }}";
-            const contactoUsuario = "{{ user.contacto }}"; // Contacto provisto por el backend
+            const contactoUsuario = "{{ user.contacto }}"; 
             
             let pinValido = "0000"; 
             if (contactoUsuario && contactoUsuario.length >= 4) {
                 pinValido = contactoUsuario.slice(-4);
             }
             
-            const pinCode = prompt("🔒 INGRESO A PREMIUM\nIngrese su código de acceso (últimos 4 dígitos de su teléfono registrado):");
+            const pinCode = prompt("INTRODUCE TU ACCESO VIP");
             
             if (pinCode === pinValido || token === 'angel0301') {
                 openView('view-premium');
@@ -674,8 +661,7 @@
             }
         }
 
-        function closeView() { document.querySelectorAll('.view-window').forEach(v => v.classList.remove('active'));
-        }
+        function closeView() { document.querySelectorAll('.view-window').forEach(v => v.classList.remove('active')); }
 
         // --- FUNCIONES COMUNES MATEMÁTICAS Y DE TIEMPO ---
         function formatTime(hoursDecimal) {
@@ -687,8 +673,7 @@
         function formatClock(totalMinutes) {
             let h = Math.floor(totalMinutes / 60) % 24;
             let m = Math.round(totalMinutes % 60);
-            if (m === 60) { h++; m = 0; h = h % 24;
-            }
+            if (m === 60) { h++; m = 0; h = h % 24; }
             let ampm = h >= 12 ? 'PM' : 'AM';
             let displayH = h % 12;
             if (displayH === 0) displayH = 12;
@@ -786,7 +771,7 @@
                 </div>`;
         }
 
-        // --- LÓGICA MÓDULO CALCULADORA COMPLETA ACTUALIZADA (CUADRE 12 HORAS Y LINEA DE TIEMPO) ---
+        // --- LÓGICA MÓDULO CALCULADORA COMPLETA ---
         function addCarga() {
             const container = document.getElementById('cargas-list');
             const numCarga = container.children.length + 1;
@@ -862,7 +847,6 @@
             calcularEficienciaCompleta();
         }
 
-        // LÓGICA MODIFICADA PARA CUMPLIR META FINAL Y CUADRE EXACTO DE 12 HORAS
         function calcularEficienciaCompleta() {
             const cargaBlocks = document.querySelectorAll('#cargas-list > div');
             let sumMeta = 0, sumHecho = 0, count = 0;
@@ -897,29 +881,27 @@
                     count++; 
                 }
 
-                cargasData.push({
-                    metaVal, hechoVal, parosUser: parosList, manualOutside: loadManualOutside
-                });
+                cargasData.push({ metaVal, hechoVal, parosUser: parosList, manualOutside: loadManualOutside });
             });
 
             document.getElementById('ef-paros').value = (totalManualOutsideMins / 60).toFixed(2);
 
             // JORNADA 12 HORAS ESTRICTA
             const tiempoCargaStandard = 660; // 720 (12h) - 60 (recesos obligatorios)
-            const tiempoTrabajadoNeto = tiempoCargaStandard - totalManualOutsideMins; // Minutos netos produciendo
+            const tiempoTrabajadoNeto = tiempoCargaStandard - totalManualOutsideMins; 
             
-            // LOGICA REQUERIDA: META FINAL
-            const mGen = count > 0 ? (sumMeta / count) : 0; // Promedio de las metas de cada carga
-            const docenasPerdidasParos = (mGen / 660) * totalManualOutsideMins; // Docenas perdidas por tiempos muertos (no recesos)
-            const metaFinalDia = Math.round(mGen - docenasPerdidasParos); // Meta final reducida
+            // LOGICA REQUERIDA: META FINAL (No penalizada por paros)
+            const mGen = count > 0 ? (sumMeta / count) : 0; 
+            const docenasPerdidasParos = (mGen / 660) * totalManualOutsideMins; 
+            const metaFinalDia = Math.round(mGen - docenasPerdidasParos); 
             
-            let effStd = metaFinalDia > 0 ? ((sumHecho / metaFinalDia) * 100) : 0; // Eficiencia Final
+            let effStd = metaFinalDia > 0 ? ((sumHecho / metaFinalDia) * 100) : 0; 
 
             document.getElementById('ui-meta').innerText = metaFinalDia;
             document.getElementById('ui-hecho').innerText = sumHecho;
             document.getElementById('ef-resultado').innerText = effStd.toFixed(2) + "%";
 
-            // LOGICA REQUERIDA: CUADRE Y TIEMPO DEPENDIENTE DE DOCENAJE, META Y EFICIENCIA
+            // LOGICA REQUERIDA: CUADRE
             let sumaEficiencias = 0;
             cargasData.forEach(c => {
                 c.eficienciaIndividual = (c.metaVal > 0) ? (c.hechoVal / c.metaVal) : 0;
@@ -931,25 +913,17 @@
                 if (sumaEficiencias > 0) {
                     minsProduccion = Math.round((tiempoTrabajadoNeto * c.eficienciaIndividual) / sumaEficiencias);
                 }
-                
-                // Los paros intraload se suman al tiempo de la carga sin afectar negativamente
                 let duracionTotal = minsProduccion + c.manualOutside;
                 
-                return {
-                    duracionAsignadaMins: duracionTotal,
-                    parosUser: c.parosUser
-                };
+                return { duracionAsignadaMins: duracionTotal, parosUser: c.parosUser };
             });
 
-            // Forzar cuadre exacto a 660 mins en caso de decimales
             let agendaSuma = cargasProporcionales.reduce((acc, c) => acc + c.duracionAsignadaMins, 0);
             let diff = tiempoCargaStandard - agendaSuma; 
 
             if (cargasProporcionales.length > 0 && diff !== 0) {
                 let lastValido = [...cargasProporcionales].reverse().find(c => c.duracionAsignadaMins > 0);
-                if (lastValido) {
-                    lastValido.duracionAsignadaMins += diff;
-                }
+                if (lastValido) { lastValido.duracionAsignadaMins += diff; }
             }
 
             generarHTMLTimeline(cargasProporcionales, sumHecho, false);
@@ -963,7 +937,7 @@
             document.getElementById('ef-badge').className = `p-8 rounded-[32px] text-center mb-6 shadow-2xl border-2 transition-all duration-500 ${colorClass}`;
         }
 
-        // --- LÓGICA CALCULADORA PREMIUM MODIFICADA ---
+        // --- LÓGICA CALCULADORA PREMIUM ---
         function descargarBaseMetasSilencioso() {
             fetch('/api/metas/datos')
             .then(res => res.json())
@@ -1070,7 +1044,6 @@
             calcularMetricasPremium();
         }
 
-        // LÓGICA MODIFICADA PREMIUM (META FINAL Y CUADRE 12 HORAS)
         function calcularMetricasPremium() {
             let totalDocenas = 0;
             let sumaMetaPorHoraPzas = 0;
@@ -1091,13 +1064,17 @@
 
             // LOGICA REQUERIDA META FINAL (Promedio de las metas menos docenas perdidas por paros no receso)
             const metaHoraPromedioPzas = contadorCargasValidas > 0 ? (sumaMetaPorHoraPzas / contadorCargasValidas) : 0;
-            const meta11HorasDocenas = (metaHoraPromedioPzas / 12) * 11; // Suma de las metas (Convertidas a 11 horas en docenas)
+            const metaHoraPromedioDocenas = metaHoraPromedioPzas / 12; 
+            const meta11HorasDocenas = metaHoraPromedioDocenas * 11; // Meta total en docenas para 11h de trabajo puro
 
             const parosGlobalesMins = parseFloat(document.getElementById('premium-paros').value) || 0;
             const tiempoCargaStandard = 660; // 720 (12h) - 60 (Recesos)
             const tiempoTrabajadoNeto = tiempoCargaStandard - parosGlobalesMins;
 
+            // Docenas perdidas por los paros externos (tiempos muertos), no incluye recesos
             const docenasPerdidas = (meta11HorasDocenas / 660) * parosGlobalesMins;
+            
+            // Meta Final ajustada (no se afecta negativamente por los paros)
             const metaFinalDiaDocenas = Math.round((meta11HorasDocenas - docenasPerdidas) * 10) / 10;
 
             let effStd = metaFinalDiaDocenas > 0 ? ((totalDocenas / metaFinalDiaDocenas) * 100) : 0;
@@ -1143,7 +1120,7 @@
             document.getElementById('premium-badge-resultados').className = `p-6 rounded-[24px] text-center mb-6 shadow-2xl border-2 transition-all duration-500 ${colorClass}`;
         }
 
-        // --- LÓGICA MÓDULO BIOHORARIO (CORREGIDA A MATEMÁTICA ESTRICTA 12 HORAS) ---
+        // --- LÓGICA MÓDULO BIOHORARIO ---
         function addBioCarga() {
             const container = document.getElementById('bio-cargas-list');
             const numCarga = container.children.length + 1;
@@ -1185,7 +1162,7 @@
             const parH = parseFloat(document.getElementById('bio-paro-h').value) || 0;
             const parM = parseFloat(document.getElementById('bio-paro-m').value) || 0;
             const totalMinutosParos = (parH * 60) + parM;
-            // 11 Horas porque el receso obligatorio ya está sacado
+            
             const docenasPerdidasParos = (metaGeneralOn / 11) * (totalMinutosParos / 60);
             const metaFinal = metaGeneralOn - docenasPerdidasParos;
 
@@ -1195,7 +1172,6 @@
             const tH = parseFloat(document.getElementById('bio-trans-h').value) || 0;
             const tM = parseFloat(document.getElementById('bio-trans-m').value) || 0;
             
-            // BIOHORARIO EXCLUSIVO: Ajuste exacto de minutos transcurridos vs recesos fijos
             let minutosPuros = (tH * 60) + tM;
             if(minutosPuros >= 85) minutosPuros -= 15;
             else if(minutosPuros > 70) minutosPuros -= (minutosPuros - 70);
@@ -1206,8 +1182,7 @@
 
             const horasTranscurridasDec = minutosPuros / 60;
             const metaActual = (metaFinal / 11) * horasTranscurridasDec;
-            const eficienciaActual = metaActual > 0 ?
-            (totalDocenasHechas / metaActual) * 100 : 0;
+            const eficienciaActual = metaActual > 0 ? (totalDocenasHechas / metaActual) * 100 : 0;
 
             document.getElementById('lbl-bio-total-hecho').innerText = totalDocenasHechas;
             document.getElementById('lbl-bio-meta-gen').innerText = metaGeneralOn.toFixed(1);
@@ -1277,12 +1252,10 @@
             const e = document.getElementById('sel-estilo').value;
             const t = document.getElementById('sel-talla').value; const p = document.getElementById('sel-proceso').value;
             const vDiv = document.getElementById('meta-valor'); const sDiv = document.getElementById('meta-status');
-            if(!e || !t || !p) { vDiv.innerText = "---"; sDiv.innerText = "Esperando selección..."; return;
-            }
+            if(!e || !t || !p) { vDiv.innerText = "---"; sDiv.innerText = "Esperando selección..."; return; }
             const match = pdfDataCache.find(d => d.estilo === e && d.talla === t && d.proceso === p);
             if(match) { vDiv.innerText = match.meta; sDiv.innerText = "¡Meta encontrada!"; } 
-            else { vDiv.innerText = "N/A";
-            sDiv.innerText = "No se encontró"; }
+            else { vDiv.innerText = "N/A"; sDiv.innerText = "No se encontró"; }
         }
 
         // --- LÓGICA HISTORIAL Y GUARDADO ---
@@ -1304,8 +1277,7 @@
             const res = await fetch('/api/load');
             const data = await res.json();
             const cont = document.getElementById('historial-content');
-            if(data.length === 0) { cont.innerHTML = '<p class="text-center text-gray-500 mt-10">Vacío.</p>'; return;
-            }
+            if(data.length === 0) { cont.innerHTML = '<p class="text-center text-gray-500 mt-10">Vacío.</p>'; return; }
             cont.innerHTML = data.reverse().map(i => `
                 <div class="solid-panel p-4 rounded-xl border-l-4 border-[#ffe600] mb-3">
                     <div class="flex justify-between text-[10px] mb-2 font-black text-gray-400 uppercase"><span class="text-[#ffe600]">${i.tipo}</span><span>${i.fecha_hora}</span></div>
@@ -1315,7 +1287,7 @@
                 </div>`).join('');
         }
 
-        // --- LÓGICA PANEL MODERADOR (ANGEL EXCLUSIVO) ---
+        // --- LÓGICA PANEL MODERADOR ---
         async function crearUsuario() {
             const n = document.getElementById('adm-nombre').value;
             const c = document.getElementById('adm-cont').value;
@@ -1335,8 +1307,7 @@
                         <div><p class="font-black text-white text-sm uppercase font-orbitron">${users[t].nombre}</p><p class="text-[11px] text-[#ffe600] font-mono">${t} | PIN: ${users[t].pin}</p></div>
                         ${t !== 'angel0301' ? `<div class="flex gap-2"><button onclick="editarUser('${t}', '${users[t].nombre}', '${users[t].contacto}')" class="text-black text-[10px] font-black bg-[#00f3ff] px-2 py-1 rounded">Edit</button><button onclick="eliminarUser('${t}')" class="text-white text-[10px] font-black bg-red-600 px-2 py-1 rounded">Del</button></div>` : '<span class="text-2xl">👑</span>'}
                     </div>
-                    <p class="text-[10px] text-gray-500 font-bold">Ultima Conexión: <span class="text-[#39ff14]">${users[t].ultima_conexion ||
-'Desconocida'}</span></p>
+                    <p class="text-[10px] text-gray-500 font-bold">Ultima Conexión: <span class="text-[#39ff14]">${users[t].ultima_conexion || 'Desconocida'}</span></p>
                 </div>`).join('');
         }
         async function editarUser(t, nA, cA) {
@@ -1345,8 +1316,8 @@
             const nP = prompt("PIN (vacío para mantener):");
             await fetch('/api/admin/usuarios', { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({token: t, nombre: nN, contacto: nC, nuevo_pin: nP}) }); fetchAdminUsers();
         }
-        async function eliminarUser(t) { if(confirm('⚠️ ¿Eliminar?')) { await fetch(`/api/admin/eliminar/${t}`, {method: 'DELETE'}); fetchAdminUsers();
-        } }
+        async function eliminarUser(t) { if(confirm('⚠️ ¿Eliminar?')) { await fetch(`/api/admin/eliminar/${t}`, {method: 'DELETE'}); fetchAdminUsers(); } }
+        
         function cambioUsuarioEnSelectorPermisos() {
             const t = document.getElementById('permisos-user-select').value;
             if(!t) return;
@@ -1354,6 +1325,7 @@
             const c = listaPermisosUsuariosLocal[t];
             ['biohorario','eficiencia','tiempo','metas','historial'].forEach(id => document.getElementById(`permiso-${id}`).checked = c[id]);
         }
+        
         function guardarPermisosMenu() {
             const t = document.getElementById('permisos-user-select').value;
             if(!t) return alert("⚠️ Selecciona operador.");
