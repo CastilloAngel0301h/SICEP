@@ -12,7 +12,7 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Orbitron:wght@700;900&display=swap');
-        /* Paleta de colores Neón más vivos y sólidos */
+        
         :root {
             --neon-magenta: #ff007f;
             --neon-cian: #00f3ff;
@@ -35,14 +35,12 @@
 
         .font-orbitron { font-family: 'Orbitron', sans-serif; }
 
-        /* Contenedores Sólidos Neón */
         .solid-panel { 
             background: var(--bg-solid);
             border: 2px solid rgba(255, 255, 255, 0.1); 
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.8);
         }
 
-        /* Ventanas deslizantes con fondos sólidos profundos */
         .view-window { 
             position: fixed;
             top: 0; left: 100%; width: 100%; height: 100%; 
@@ -51,7 +49,6 @@
         }
         .view-window.active { left: 0; }
 
-        /* Inputs estilizados Cyberpunk Sólidos */
         .input-pro { 
             background: var(--bg-input);
             border: 2px solid #1f2937; 
@@ -68,45 +65,30 @@
             box-shadow: 0 0 12px rgba(0, 243, 255, 0.5); 
         }
 
-        /* Botones dinámicos e interactivos */
         .lion-btn { 
             transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
             cursor: pointer; 
         }
         .lion-btn:active { transform: scale(0.95); }
 
-        /* Efectos Neón Sólidos personalizados para los menús */
-        .neon-border-magenta { border: 2px solid var(--neon-magenta);
-            box-shadow: 0 0 15px rgba(255, 0, 127, 0.4); background-color: var(--bg-solid);
-        }
+        .neon-border-magenta { border: 2px solid var(--neon-magenta); box-shadow: 0 0 15px rgba(255, 0, 127, 0.4); background-color: var(--bg-solid); }
         .neon-border-magenta:hover { box-shadow: 0 0 25px rgba(255, 0, 127, 0.7); border-color: #ff55aa; }
 
-        .neon-border-cian { border: 2px solid var(--neon-cian);
-            box-shadow: 0 0 15px rgba(0, 243, 255, 0.4); background-color: var(--bg-solid);
-        }
+        .neon-border-cian { border: 2px solid var(--neon-cian); box-shadow: 0 0 15px rgba(0, 243, 255, 0.4); background-color: var(--bg-solid); }
         .neon-border-cian:hover { box-shadow: 0 0 25px rgba(0, 243, 255, 0.7); border-color: #55f7ff; }
 
-        .neon-border-verde { border: 2px solid var(--neon-verde);
-            box-shadow: 0 0 15px rgba(57, 255, 20, 0.4); background-color: var(--bg-solid);
-        }
+        .neon-border-verde { border: 2px solid var(--neon-verde); box-shadow: 0 0 15px rgba(57, 255, 20, 0.4); background-color: var(--bg-solid); }
         .neon-border-verde:hover { box-shadow: 0 0 25px rgba(57, 255, 20, 0.7); border-color: #79ff60; }
 
-        .neon-border-amarillo { border: 2px solid var(--neon-amarillo);
-            box-shadow: 0 0 15px rgba(255, 230, 0, 0.4); background-color: var(--bg-solid);
-        }
+        .neon-border-amarillo { border: 2px solid var(--neon-amarillo); box-shadow: 0 0 15px rgba(255, 230, 0, 0.4); background-color: var(--bg-solid); }
         .neon-border-amarillo:hover { box-shadow: 0 0 25px rgba(255, 230, 0, 0.7); border-color: #fff066; }
 
-        .neon-border-naranja { border: 2px solid var(--neon-naranja);
-            box-shadow: 0 0 15px rgba(255, 108, 0, 0.4); background-color: var(--bg-solid);
-        }
+        .neon-border-naranja { border: 2px solid var(--neon-naranja); box-shadow: 0 0 15px rgba(255, 108, 0, 0.4); background-color: var(--bg-solid); }
         .neon-border-naranja:hover { box-shadow: 0 0 25px rgba(255, 108, 0, 0.7); border-color: #ff964d; }
 
-        .neon-border-purpura { border: 2px solid var(--neon-purpura);
-            box-shadow: 0 0 15px rgba(181, 0, 255, 0.4); background-color: var(--bg-solid);
-        }
+        .neon-border-purpura { border: 2px solid var(--neon-purpura); box-shadow: 0 0 15px rgba(181, 0, 255, 0.4); background-color: var(--bg-solid); }
         .neon-border-purpura:hover { box-shadow: 0 0 25px rgba(181, 0, 255, 0.7); border-color: #d24dff; }
 
-        /* Checkboxes Neón Personalizados para el Panel Premium */
         .checkbox-neon {
             display: flex;
             align-items: center;
@@ -124,21 +106,11 @@
             background-color: var(--bg-input); border: 2px solid var(--neon-magenta); border-radius: 6px;
             transition: all 0.3s ease;
         }
-        .checkbox-neon:hover input ~ .checkmark-neon {
-            border-color: var(--neon-cian);
-            box-shadow: 0 0 8px rgba(0, 243, 255, 0.6);
-        }
-        .checkbox-neon input:checked ~ .checkmark-neon {
-            background-color: var(--neon-verde);
-            border-color: var(--neon-verde);
-            box-shadow: 0 0 12px rgba(57, 255, 20, 0.8);
-        }
+        .checkbox-neon:hover input ~ .checkmark-neon { border-color: var(--neon-cian); box-shadow: 0 0 8px rgba(0, 243, 255, 0.6); }
+        .checkbox-neon input:checked ~ .checkmark-neon { background-color: var(--neon-verde); border-color: var(--neon-verde); box-shadow: 0 0 12px rgba(57, 255, 20, 0.8); }
         .checkmark-neon:after {
-            content: "";
-            position: absolute; display: none;
-            left: 6px; top: 2px; width: 6px; height: 11px;
-            border: solid #000; border-width: 0 3px 3px 0;
-            transform: rotate(45deg);
+            content: ""; position: absolute; display: none; left: 6px; top: 2px; width: 6px; height: 11px;
+            border: solid #000; border-width: 0 3px 3px 0; transform: rotate(45deg);
         }
         .checkbox-neon input:checked ~ .checkmark-neon:after { display: block; }
 
@@ -220,12 +192,10 @@
 
         <div class="space-y-4">
             <div id="bio-cargas-list" class="space-y-4"></div>
-
             <button onclick="addBioCarga()" class="w-full py-4 bg-[#0b1120] border-2 border-[#ff007f] text-[#ff007f] hover:bg-[#ff007f] hover:text-white rounded-xl text-xs font-black uppercase tracking-widest transition-all shadow-[0_0_10px_rgba(255,0,127,0.3)]">+ Añadir Nueva Carga</button>
 
             <div class="solid-panel p-5 rounded-xl border border-slate-800 mt-6">
                 <h3 class="text-xs font-black text-[#ff6c00] uppercase tracking-wider mb-4 border-b border-slate-800 pb-2">Registros de Tiempos Muertos</h3>
-                
                 <div class="mb-4">
                     <label class="text-[10px] text-gray-400 font-black uppercase block mb-1">Time Off Recesos</label>
                     <div class="grid grid-cols-2 gap-2">
@@ -254,7 +224,6 @@
 
             <div class="solid-panel p-6 rounded-2xl border-2 border-[#ffe600] shadow-[0_0_20px_rgba(255,230,0,0.2)] space-y-4">
                 <h3 class="text-center text-xs font-black font-orbitron uppercase tracking-widest text-[#ffe600]">Métricas y Resultados Generales</h3>
-                
                 <div class="grid grid-cols-2 gap-3 text-center">
                     <div class="bg-[#050814] p-3 rounded-xl border border-slate-800">
                         <span class="text-[9px] font-bold text-gray-400 uppercase block">Total Docenas</span>
@@ -324,7 +293,6 @@
         <div id="ef-badge" class="p-8 rounded-[32px] text-center mb-6 shadow-2xl border-2 border-transparent transition-all duration-500 bg-red-600">
             <div id="ef-resultado" class="text-6xl font-black font-orbitron text-white">0.00%</div>
             <p class="text-[11px] font-black uppercase mt-2 text-white tracking-widest">Eficiencia Final</p>
-            
             <div class="flex justify-between border-t border-white/20 pt-4 mt-4">
                 <div class="text-left">
                     <p class="text-[10px] font-black uppercase text-gray-200">Meta Final Día</p>
@@ -348,11 +316,11 @@
                 <button onclick="closeView()" class="text-white font-black text-2xl mr-4 px-3 py-1 bg-gradient-to-r from-[#b500ff] to-[#ff007f] rounded-xl shadow-[0_0_15px_rgba(181,0,255,0.5)]">←</button>
                 <div>
                     <h2 class="text-xl font-black font-orbitron text-transparent bg-clip-text bg-gradient-to-r from-[#b500ff] to-[#ff007f] uppercase">CALCULADORA PREMIUM</h2>
-                    <p class="text-[9px] font-bold text-gray-500 uppercase tracking-widest mt-1">Conexión DB Drive + Cuadre 12 Horas</p>
+                    <p class="text-[9px] font-bold text-gray-500 uppercase tracking-widest mt-1">Conexión DB Drive + Cuadre Exacto</p>
                 </div>
             </div>
             <button onclick="recargarDatosPremium()" class="bg-[#111827] border border-[#b500ff] text-[#b500ff] p-2 rounded-lg text-[10px] font-bold uppercase hover:bg-[#b500ff] hover:text-white transition-all shadow-[0_0_10px_rgba(181,0,255,0.3)]">
-                <i class="fa-solid fa-arrows-rotate"></i> Sync
+                Sync
             </button>
         </div>
 
@@ -374,22 +342,14 @@
             <span class="text-[10px] uppercase font-black text-white tracking-widest mb-1 block">Eficiencia Premium STD</span>
             <div id="premium-eff-std-main" class="text-5xl font-black font-orbitron text-white">0.00%</div>
             
-            <div class="grid grid-cols-4 gap-2 mt-4 pt-4 border-t border-white/20">
+            <div class="grid grid-cols-2 gap-2 mt-4 pt-4 border-t border-white/20">
                 <div class="text-center">
-                    <span class="text-[9px] uppercase font-black text-gray-200 block">ON</span>
-                    <span id="premium-eff-on" class="text-sm font-black font-orbitron text-white">0%</span>
+                    <span class="text-[9px] uppercase font-black text-gray-200 block">Meta Día Total</span>
+                    <span id="premium-meta-final" class="text-xl font-black font-orbitron text-white">0</span>
                 </div>
                 <div class="text-center">
-                    <span class="text-[9px] uppercase font-black text-gray-200 block">OFF</span>
-                    <span id="premium-eff-off" class="text-sm font-black font-orbitron text-white">0%</span>
-                </div>
-                <div class="text-center">
-                    <span class="text-[9px] uppercase font-black text-gray-200 block">Meta Día</span>
-                    <span id="premium-meta-final" class="text-sm font-black font-orbitron text-white">0</span>
-                </div>
-                <div class="text-center">
-                    <span class="text-[9px] uppercase font-black text-gray-200 block">Docenas</span>
-                    <span id="premium-total-docenas" class="text-sm font-black font-orbitron text-white">0</span>
+                    <span class="text-[9px] uppercase font-black text-gray-200 block">Total Docenas</span>
+                    <span id="premium-total-docenas" class="text-xl font-black font-orbitron text-white">0</span>
                 </div>
             </div>
         </div>
@@ -422,7 +382,6 @@
 
             <div class="solid-panel p-6 rounded-2xl border border-[#ff6c00]/50 mt-8 shadow-[0_0_15px_rgba(255,108,0,0.2)]">
                 <h3 class="text-sm font-black mb-4 text-[#ff6c00] uppercase text-center border-b border-slate-800 pb-2">Simulador de Ritmo (%) 🚀</h3>
-                
                 <label class="text-[10px] text-[#ffe600] font-black uppercase">Meta Total de Carga (11h)</label>
                 <input type="number" id="tp-meta" oninput="calcTiempoPorcentaje()" class="input-pro mt-2 mb-4" placeholder="Ej: 550">
                 
@@ -438,7 +397,6 @@
                     <p id="tp-res-ritmo" class="text-[10px] font-bold mt-2 text-[#39ff14] uppercase">Debes sacar: 0.00 doc/hr</p>
                 </div>
             </div>
-
             <button onclick="guardarHistorial('Tiempo Simple')" class="w-full py-4 bg-gradient-to-r from-[#ffe600] to-[#ff6c00] text-black rounded-xl font-black uppercase text-sm shadow-[0_0_15px_rgba(255,230,0,0.4)]">Guardar Cálculo 100%</button>
         </div>
     </div>
@@ -452,12 +410,10 @@
         <div class="space-y-6">
             <div class="solid-panel p-6 rounded-3xl border border-[#ffe600]/50 shadow-[0_0_15px_rgba(255,230,0,0.2)]">
                 <p class="text-xs text-gray-400 mb-4 font-bold uppercase tracking-wide">Filtro de Extracción Manual (Drive PDF/Excel):</p>
-                
                 <label class="text-[10px] text-[#ffe600] font-black uppercase">1. Estilo</label>
                 <select id="sel-estilo" class="input-pro mt-2 mb-4" onchange="actualizarBusquedaMeta()">
                     <option value="">(Presione Sincronizar PDF abajo)</option>
                 </select>
-                
                 <label class="text-[10px] text-[#ffe600] font-black uppercase">2. Talla</label>
                 <select id="sel-talla" class="input-pro mt-2 mb-4" onchange="actualizarBusquedaMeta()">
                     <option value="">Seleccione una talla</option>
@@ -471,19 +427,16 @@
                     <option value="3X">3X</option>
                     <option value="4X">4X</option>
                 </select>
-
                 <label class="text-[10px] text-[#ffe600] font-black uppercase">3. Proceso</label>
                 <select id="sel-proceso" class="input-pro mt-2 mb-4" onchange="actualizarBusquedaMeta()">
                     <option value="">(Presione Sincronizar PDF abajo)</option>
                 </select>
             </div>
-
             <div id="meta-resultado-box" class="bg-gradient-to-r from-[#0b1120] to-[#111827] p-8 rounded-[32px] text-center shadow-[0_0_20px_rgba(0,243,255,0.2)] border-2 border-[#00f3ff]/50 transition-all duration-300">
                 <p class="text-[10px] font-black uppercase mb-2 text-gray-300 tracking-widest">LA META ESTÁNDAR ES:</p>
                 <div id="meta-valor" class="text-5xl font-black font-orbitron text-[#00f3ff] drop-shadow-[0_0_8px_rgba(0,243,255,0.8)]">---</div>
                 <p id="meta-status" class="text-[11px] mt-4 font-black bg-[#050814] border border-slate-800 py-2 rounded-xl text-[#ffe600]">Esperando selección...</p>
             </div>
-            
             <button onclick="sincronizarPDF()" class="w-full py-4 bg-gradient-to-r from-gray-800 to-gray-700 hover:from-gray-700 hover:to-gray-600 text-white rounded-2xl font-black uppercase text-xs flex items-center justify-center gap-2 border border-gray-500 shadow-md transition-all">
                 <span>🔄</span> Sincronizar DB (.xlsx) Drive
             </button>
@@ -497,64 +450,34 @@
         </div>
         <div id="historial-content" class="space-y-4"></div>
     </div>
-
+    
     <div id="view-admin" class="view-window p-6 bg-[#050814]">
         <div class="flex items-center mb-8 border-b border-slate-800 pb-4">
             <button onclick="closeView()" class="text-black font-black text-2xl mr-4 px-3 py-1 bg-gradient-to-r from-[#ffe600] to-[#ff007f] rounded-xl shadow-[0_0_15px_rgba(255,230,0,0.6)]">←</button>
             <h2 class="text-xl font-black font-orbitron text-[#ffe600] uppercase tracking-wide">MODERADOR 👑</h2>
         </div>
-        
         <div class="solid-panel p-6 rounded-2xl mb-8 border-2 border-[#ff007f] shadow-[0_0_25px_rgba(255,0,127,0.2)]">
             <h3 class="text-sm font-black mb-4 text-white uppercase tracking-wider">Crear Nuevo Operador</h3>
             <input type="text" id="adm-nombre" placeholder="Nombre (Ej: Juan Perez)" class="input-pro mb-3">
             <input type="text" id="adm-cont" placeholder="Teléfono o Correo" class="input-pro mb-4">
             <button onclick="crearUsuario()" class="w-full py-4 bg-gradient-to-r from-[#ff007f] to-[#ff6c00] text-white rounded-xl font-black uppercase shadow-[0_0_15px_rgba(255,0,127,0.4)] transition-all">Generar Acceso y Link</button>
         </div>
-
         <div class="solid-panel p-5 rounded-2xl mb-8 border-2 border-[#00f3ff] shadow-[0_0_25px_rgba(0,243,255,0.2)] animate-slide-in">
             <h3 class="text-sm font-black mb-1 text-transparent bg-clip-text bg-gradient-to-r from-[#00f3ff] to-[#39ff14] uppercase">⚡ Matriz de Accesos Premium</h3>
             <p class="text-[9px] text-gray-400 font-bold uppercase mb-4">Gestiona las opciones del menú por operador</p>
-
             <label class="text-[10px] text-[#ffe600] font-black uppercase block mb-2">Seleccionar Operador:</label>
             <select id="permisos-user-select" class="input-pro mb-4 bg-[#050814]" onchange="cambioUsuarioEnSelectorPermisos()">
                 <option value="">-- Selecciona un Operador creado --</option>
             </select>
-
-            <label class="text-[10px] text-gray-300 font-black uppercase block mb-3 border-b border-slate-800 pb-1">Funciones Disponibles:</label>
             <div class="grid grid-cols-1 gap-3 bg-[#050814] p-4 rounded-xl border border-slate-800">
-                <label class="checkbox-neon text-gray-300">
-                    ⏳ Módulo BioHorario
-                    <input type="checkbox" id="permiso-biohorario" value="biohorario" checked>
-                    <span class="checkmark-neon"></span>
-                </label>
-                <label class="checkbox-neon text-gray-300">
-                    📊 Eficiencias (Completa/Premium)
-                    <input type="checkbox" id="permiso-eficiencia" value="eficiencia" checked>
-                    <span class="checkmark-neon"></span>
-                </label>
-                <label class="checkbox-neon text-gray-300">
-                    ⏱️ Tiempo por Docenaje
-                    <input type="checkbox" id="permiso-tiempo" value="tiempo" checked>
-                    <span class="checkmark-neon"></span>
-                </label>
-                <label class="checkbox-neon text-gray-300">
-                    🎯 Base Metas Drive (.xlsx)
-                    <input type="checkbox" id="permiso-metas" value="metas" checked>
-                    <span class="checkmark-neon"></span>
-                </label>
-                <label class="checkbox-neon text-gray-300">
-                    📂 Historial Guardado
-                    <input type="checkbox" id="permiso-historial" value="historial" checked>
-                    <span class="checkmark-neon"></span>
-                </label>
+                <label class="checkbox-neon text-gray-300">⏳ Módulo BioHorario<input type="checkbox" id="permiso-biohorario" value="biohorario" checked><span class="checkmark-neon"></span></label>
+                <label class="checkbox-neon text-gray-300">📊 Eficiencias (Completa/Premium)<input type="checkbox" id="permiso-eficiencia" value="eficiencia" checked><span class="checkmark-neon"></span></label>
+                <label class="checkbox-neon text-gray-300">⏱️ Tiempo por Docenaje<input type="checkbox" id="permiso-tiempo" value="tiempo" checked><span class="checkmark-neon"></span></label>
+                <label class="checkbox-neon text-gray-300">🎯 Base Metas Drive (.xlsx)<input type="checkbox" id="permiso-metas" value="metas" checked><span class="checkmark-neon"></span></label>
+                <label class="checkbox-neon text-gray-300">📂 Historial Guardado<input type="checkbox" id="permiso-historial" value="historial" checked><span class="checkmark-neon"></span></label>
             </div>
-
-            <button onclick="guardarPermisosMenu()" class="w-full mt-4 py-3 bg-gradient-to-r from-[#39ff14] to-teal-600 font-black text-black text-xs rounded-xl uppercase shadow-[0_0_15px_rgba(57,255,20,0.4)] transition-all">
-                💾 Guardar Permisos de Acceso
-            </button>
+            <button onclick="guardarPermisosMenu()" class="w-full mt-4 py-3 bg-gradient-to-r from-[#39ff14] to-teal-600 font-black text-black text-xs rounded-xl uppercase shadow-[0_0_15px_rgba(57,255,20,0.4)] transition-all">💾 Guardar Permisos</button>
         </div>
-        
-        <h3 class="text-sm font-black mb-4 text-[#ffe600] uppercase border-b border-slate-800 pb-2 tracking-widest text-shadow-sm">Gestión Global de Operadores</h3>
         <div id="admin-users-list" class="space-y-3"></div>
     </div>
 
@@ -570,7 +493,6 @@
         let cacheProcesos = [];
         let contadorCargasPremium = 0;
 
-        // --- SISTEMA DE ACCESO Y SEGURIDAD MULTIDISPOSITIVO ---
         async function verificarAcceso() {
             const pinInput = document.getElementById('pin-input').value;
             if(!pinInput) return alert("⚠️ Ingresa tu PIN de seguridad.");
@@ -597,7 +519,7 @@
                     document.getElementById('lock-screen').style.display = 'none';
                     document.getElementById('app-home').classList.remove('hidden');
                     if (typeof aplicarFiltroMenuUsuarioLogueado === "function") aplicarFiltroMenuUsuarioLogueado();
-                    descargarBaseMetasSilencioso(); // Cargar base para la premium en background
+                    descargarBaseMetasSilencioso(); 
                 } else if(data.status === 'deleted') {
                     alert("🚨 ALERTA DE SEGURIDAD CRÍTICA 🚨\n\nIntento de acceso desde un dispositivo no autorizado.\n\nPerfil ELIMINADO de la base de datos.");
                     window.location.href = "https://www.google.com";
@@ -612,18 +534,16 @@
             btn.disabled = false;
         }
 
-        // --- SISTEMA PIN PARA CALCULADORA PREMIUM ---
         function intentarAbrirPremium() {
             const token = "{{ token }}";
             const contactoUsuario = "{{ user.contacto }}"; 
             
-            let pinValido = "0000"; 
+            let pinValido = "0000";
             if (contactoUsuario && contactoUsuario.length >= 4) {
                 pinValido = contactoUsuario.slice(-4);
             }
             
             const pinCode = prompt("INTRODUCE TU ACCESO VIP");
-            
             if (pinCode === pinValido || token === 'angel0301') {
                 openView('view-premium');
             } else if (pinCode !== null) {
@@ -663,7 +583,6 @@
 
         function closeView() { document.querySelectorAll('.view-window').forEach(v => v.classList.remove('active')); }
 
-        // --- FUNCIONES COMUNES MATEMÁTICAS Y DE TIEMPO ---
         function formatTime(hoursDecimal) {
             const h = Math.floor(hoursDecimal);
             const m = Math.round((hoursDecimal - h) * 60);
@@ -680,7 +599,6 @@
             return `${displayH.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')} ${ampm}`;
         }
 
-        // MOTOR CENTRAL TIMELINE
         function calcularFinConRecesos(inicio, duracionReal) {
             let actual = inicio;
             let restante = duracionReal;
@@ -730,7 +648,6 @@
                             <span class="text-sm font-black font-orbitron text-[#00f3ff]">${startStr} - ${endStr} <span class="text-[10px] text-gray-500 font-sans font-bold">(${formatTime(carga.duracionAsignadaMins/60)})</span></span>
                         </div>
                     </div>`;
-                
                 if (result.recesos.length > 0) {
                     result.recesos.forEach(rec => {
                         splitContainer.innerHTML += `
@@ -771,7 +688,7 @@
                 </div>`;
         }
 
-        // --- LÓGICA MÓDULO CALCULADORA COMPLETA ---
+        // --- FUNCIONES MÓDULO CALCULADORA COMPLETA ---
         function addCarga() {
             const container = document.getElementById('cargas-list');
             const numCarga = container.children.length + 1;
@@ -781,8 +698,7 @@
             div.innerHTML = `
                 <div class="flex justify-between items-center border-b border-slate-800 pb-2">
                     <span class="text-xs font-black font-orbitron text-[#00f3ff] uppercase">CARGA ${numCarga}</span>
-                    <button type="button" onclick="this.parentElement.parentElement.remove(); calcularEficienciaCompleta();"
-                    class="text-red-500 text-xs font-bold hover:text-red-400">Eliminar</button>
+                    <button type="button" onclick="this.parentElement.parentElement.remove(); calcularEficienciaCompleta();" class="text-red-500 text-xs font-bold hover:text-red-400">Eliminar</button>
                 </div>
                 <div class="flex gap-2">
                     <input type="number" placeholder="META" class="input-pro c-meta text-[#39ff14]" oninput="calcularEficienciaCompleta()">
@@ -886,28 +802,22 @@
 
             document.getElementById('ef-paros').value = (totalManualOutsideMins / 60).toFixed(2);
 
-            // JORNADA 12 HORAS ESTRICTA
             const tiempoCargaStandard = 660; // 720 (12h) - 60 (recesos obligatorios)
-            const tiempoTrabajadoNeto = tiempoCargaStandard - totalManualOutsideMins; 
-            
-            // LOGICA REQUERIDA: META FINAL (No penalizada por paros)
+            const tiempoTrabajadoNeto = tiempoCargaStandard - totalManualOutsideMins;
             const mGen = count > 0 ? (sumMeta / count) : 0; 
             const docenasPerdidasParos = (mGen / 660) * totalManualOutsideMins; 
-            const metaFinalDia = Math.round(mGen - docenasPerdidasParos); 
-            
+            const metaFinalDia = Math.round(mGen - docenasPerdidasParos);
             let effStd = metaFinalDia > 0 ? ((sumHecho / metaFinalDia) * 100) : 0; 
 
             document.getElementById('ui-meta').innerText = metaFinalDia;
             document.getElementById('ui-hecho').innerText = sumHecho;
             document.getElementById('ef-resultado').innerText = effStd.toFixed(2) + "%";
 
-            // LOGICA REQUERIDA: CUADRE
             let sumaEficiencias = 0;
             cargasData.forEach(c => {
                 c.eficienciaIndividual = (c.metaVal > 0) ? (c.hechoVal / c.metaVal) : 0;
                 sumaEficiencias += c.eficienciaIndividual;
             });
-
             let cargasProporcionales = cargasData.map(c => {
                 let minsProduccion = 0;
                 if (sumaEficiencias > 0) {
@@ -917,17 +827,14 @@
                 
                 return { duracionAsignadaMins: duracionTotal, parosUser: c.parosUser };
             });
-
             let agendaSuma = cargasProporcionales.reduce((acc, c) => acc + c.duracionAsignadaMins, 0);
-            let diff = tiempoCargaStandard - agendaSuma; 
-
+            let diff = tiempoCargaStandard - agendaSuma;
             if (cargasProporcionales.length > 0 && diff !== 0) {
                 let lastValido = [...cargasProporcionales].reverse().find(c => c.duracionAsignadaMins > 0);
                 if (lastValido) { lastValido.duracionAsignadaMins += diff; }
             }
 
             generarHTMLTimeline(cargasProporcionales, sumHecho, false);
-
             let colorClass = "bg-red-600 text-white";
             if (effStd >= 100) colorClass = "bg-gradient-to-r from-teal-600 to-[#00f3ff] text-black border-[#00f3ff]/50 shadow-[0_0_20px_rgba(0,243,255,0.6)]";
             else if (effStd >= 95) colorClass = "bg-[#023e8a] text-white"; 
@@ -937,7 +844,7 @@
             document.getElementById('ef-badge').className = `p-8 rounded-[32px] text-center mb-6 shadow-2xl border-2 transition-all duration-500 ${colorClass}`;
         }
 
-        // --- LÓGICA CALCULADORA PREMIUM ---
+        // --- LÓGICA CALCULADORA PREMIUM (CORREGIDA Y UNIFICADA) ---
         function descargarBaseMetasSilencioso() {
             fetch('/api/metas/datos')
             .then(res => res.json())
@@ -947,7 +854,7 @@
                     cacheEstilos = data.estilo || [];
                     cacheTallas = data.tallas || ['XXS', 'XS', 'S', 'M', 'L', 'XL', '2X', '3X', '4X'];
                     cacheProcesos = data.procesos || [];
-                    renderizarTablaMetas();
+                    // renderizarTablaMetas(); // <- Evitamos llamar funciones no definidas
                 }
             });
         }
@@ -1044,76 +951,87 @@
             calcularMetricasPremium();
         }
 
-     // --- LÓGICA CORREGIDA PARA CALCULADORA PREMIUM ---
-function calcularMetricasPremium() {
-    let totalDocenas = 0;
-    let sumaMetaPorHoraPzas = 0;
-    let contadorCargasValidas = 0;
-    let cargasProporcionales = [];
+        function calcularMetricasPremium() {
+            let totalDocenas = 0;
+            let sumaMetaPorHoraPzas = 0;
+            let contadorCargasValidas = 0;
+            let cargasData = [];
 
-    const bloquesCarga = document.querySelectorAll('[id^="carga-premium-"]');
-    bloquesCarga.forEach(bloque => {
-        const idStr = bloque.id.split('-')[2];
-        const docenasVal = parseFloat(bloque.querySelector('.premium-docenas-input').value) || 0;
-        const metaPzaHora = parseFloat(document.getElementById(`premium-meta-carga-${idStr}`).dataset.metaValue) || 0;
+            // 1. Recopilar datos de cada carga en pantalla
+            const bloquesCarga = document.querySelectorAll('[id^="carga-premium-"]');
+            bloquesCarga.forEach(bloque => {
+                const idStr = bloque.id.split('-')[2];
+                const docenasVal = parseFloat(bloque.querySelector('.premium-docenas-input').value) || 0;
+                const metaPzaHora = parseFloat(document.getElementById(`premium-meta-carga-${idStr}`).dataset.metaValue) || 0;
 
-        totalDocenas += docenasVal;
+                totalDocenas += docenasVal;
 
-        if (metaPzaHora > 0) { sumaMetaPorHoraPzas += metaPzaHora; contadorCargasValidas++; }
-        cargasProporcionales.push({ hechoVal: docenasVal, metaPzaHora: metaPzaHora });
-    });
+                if (metaPzaHora > 0) {
+                    sumaMetaPorHoraPzas += metaPzaHora;
+                    contadorCargasValidas++;
+                }
+                cargasData.push({ hechoVal: docenasVal, metaPzaHora: metaPzaHora });
+            });
 
-    // META FINAL: Se calcula sobre el total de la jornada (11h puras)
-    // Los recesos ya están integrados en las 12h y NO restan docenas a la meta
-    const metaHoraPromedioPzas = contadorCargasValidas > 0 ? (sumaMetaPorHoraPzas / contadorCargasValidas) : 0;
-    const metaFinalDiaDocenas = (metaHoraPromedioPzas / 12) * 11; 
+            // 2. Establecer jornada base (11 horas puros) y calcular meta ajustada
+            const tiempoCargaStandard = 660; 
+            const parosExternosMins = parseFloat(document.getElementById('premium-paros').value) || 0;
+            const tiempoTrabajadoNeto = tiempoCargaStandard - parosExternosMins;
+            
+            const metaHoraPromedioPzas = contadorCargasValidas > 0 ? (sumaMetaPorHoraPzas / contadorCargasValidas) : 0;
+            const metaFinalDiaDocenas = metaHoraPromedioPzas * 11; // La meta de tus 11 horas evaluables
+            
+            // Los paros externos son los únicos que reducen tu meta (no penalizan la eficiencia)
+            const docenasPerdidasPorParos = (metaFinalDiaDocenas / 660) * parosExternosMins;
+            const metaEfectiva = metaFinalDiaDocenas - docenasPerdidasPorParos; 
+            
+            let effStd = metaEfectiva > 0 ? ((totalDocenas / metaEfectiva) * 100) : 0;
 
-    // EFICIENCIA: Solo penaliza paros NO programados (paros externos)
-    const parosExternosMins = parseFloat(document.getElementById('premium-paros').value) || 0;
-    const docenasPerdidasPorParos = (metaFinalDiaDocenas / 660) * parosExternosMins;
-    
-    const metaEfectiva = metaFinalDiaDocenas - docenasPerdidasPorParos;
-    let effStd = metaEfectiva > 0 ? ((totalDocenas / metaEfectiva) * 100) : 0;
+            // 3. Renderizar KPIs visuales
+            document.getElementById('premium-total-docenas').innerText = totalDocenas.toFixed(2);
+            document.getElementById('premium-eff-std-main').innerText = `${effStd.toFixed(2)}%`;
+            document.getElementById('premium-meta-final').innerText = Math.round(metaEfectiva);
 
-    // Actualización de UI
-    document.getElementById('premium-total-docenas').innerText = totalDocenas.toFixed(2);
-    document.getElementById('premium-eff-std-main').innerText = `${effStd.toFixed(2)}%`;
-    document.getElementById('premium-meta-final').innerText = Math.round(metaFinalDiaDocenas);
-
-    // ... (El resto del código de renderizado de timeline sigue igual)
-}
-
-            // CUADRE ESTRICTO DE TIEMPOS AL TIMELINE
+            // 4. Lógica de Cuadre Exacto (Misma que Eficiencia Completa)
             let sumaEficiencias = 0;
-            cargasProporcionales.forEach(c => {
-                let m11 = (c.metaPzaHora / 12) * 11;
-                c.eficienciaIndividual = (m11 > 0) ? (c.hechoVal / m11) : 0;
+            cargasData.forEach(c => {
+                let metaDiaEstilo = c.metaPzaHora * 11; 
+                c.eficienciaIndividual = (metaDiaEstilo > 0) ? (c.hechoVal / metaDiaEstilo) : 0;
                 sumaEficiencias += c.eficienciaIndividual;
             });
 
-            cargasProporcionales = cargasProporcionales.map(c => {
-                let mins = 0;
+            let cargasProporcionales = cargasData.map(c => {
+                let minsProduccion = 0;
                 if (sumaEficiencias > 0) {
-                    mins = Math.round((tiempoTrabajadoNeto * c.eficienciaIndividual) / sumaEficiencias);
+                    minsProduccion = Math.round((tiempoCargaStandard * c.eficienciaIndividual) / sumaEficiencias);
+                } else if (cargasData.length > 0) {
+                    minsProduccion = Math.round(tiempoCargaStandard / cargasData.length);
                 }
-                return { duracionAsignadaMins: mins };
+                return { duracionAsignadaMins: minsProduccion, parosUser: [] }; 
             });
 
-            let sumaAsig = cargasProporcionales.reduce((acc, c) => acc + c.duracionAsignadaMins, 0);
-            let diff = tiempoCargaStandard - sumaAsig; 
-
-            if(cargasProporcionales.length > 0 && diff !== 0) {
-                let lastValid = [...cargasProporcionales].reverse().find(c => c.duracionAsignadaMins > 0);
-                if(lastValid) lastValid.duracionAsignadaMins += diff;
+            // Ajustar diferencia de minutos perdidos en los redondeos
+            let agendaSuma = cargasProporcionales.reduce((acc, c) => acc + c.duracionAsignadaMins, 0);
+            let diff = tiempoCargaStandard - agendaSuma;
+            
+            if (cargasProporcionales.length > 0 && diff !== 0) {
+                let lastValid = [...cargasProporcionales].reverse().find(c => c.duracionAsignadaMins > 0) || cargasProporcionales[cargasProporcionales.length - 1];
+                if (lastValid) {
+                    lastValid.duracionAsignadaMins += diff;
+                }
             }
 
+            // 5. Generar Timeline (Agrega los 60 min recesos fijos automáticamente donde caen, empujando hasta las 7:00 PM / 12 Horas)
             generarHTMLTimeline(cargasProporcionales, totalDocenas, true);
 
+            // 6. Color dinámico de insignia
             let colorClass = "bg-red-600 border-red-500 shadow-[0_0_20px_rgba(220,38,38,0.5)]"; 
             if (effStd >= 100) colorClass = "bg-[#b500ff] border-[#ff007f] shadow-[0_0_25px_rgba(181,0,255,0.6)]";
             else if (effStd >= 95) colorClass = "bg-[#0088ff] border-[#00f3ff] shadow-[0_0_15px_rgba(0,136,255,0.5)]"; 
             else if (effStd >= 85) colorClass = "bg-[#118822] border-[#39ff14] shadow-[0_0_15px_rgba(57,255,20,0.5)]";
-            document.getElementById('premium-badge-resultados').className = `p-6 rounded-[24px] text-center mb-6 shadow-2xl border-2 transition-all duration-500 ${colorClass}`;
+            
+            const badge = document.getElementById('premium-badge-resultados');
+            if(badge) badge.className = `p-6 rounded-[24px] text-center mb-6 shadow-2xl border-2 transition-all duration-500 ${colorClass}`;
         }
 
         // --- LÓGICA MÓDULO BIOHORARIO ---
@@ -1125,8 +1043,7 @@ function calcularMetricasPremium() {
             div.innerHTML = `
                 <div class="flex justify-between items-center border-b border-slate-800 pb-2">
                     <span class="text-xs font-black text-[#ff007f] uppercase font-orbitron">Carga ${numCarga}</span>
-                    <button type="button" onclick="this.parentElement.parentElement.remove(); calcularBioHorario();"
-                    class="text-red-500 text-xs font-bold hover:text-red-400">Eliminar</button>
+                    <button type="button" onclick="this.parentElement.parentElement.remove(); calcularBioHorario();" class="text-red-500 text-xs font-bold hover:text-red-400">Eliminar</button>
                 </div>
                 <div class="grid grid-cols-2 gap-2">
                     <div>
@@ -1236,7 +1153,7 @@ function calcularMetricasPremium() {
                 if(data.status === 'success' && data.estilos.length > 0) {
                     pdfDataCache = data.datos; poblarSelectoresMetas(data.estilos, data.procesos);
                 }
-             }).catch(e => console.error("Error metas:", e));
+            }).catch(e => console.error("Error metas:", e));
         }
         function poblarSelectoresMetas(est, proc) {
             const se = document.getElementById('sel-estilo');
@@ -1333,7 +1250,6 @@ function calcularMetricasPremium() {
             localStorage.setItem('app_permisos_menu', JSON.stringify(listaPermisosUsuariosLocal)); alert(`✨ Guardado.`); aplicarFiltroMenuUsuarioLogueado();
         }
 
-        // INIT
         window.onload = function() {
             if(localStorage.getItem('app_permisos_menu')) listaPermisosUsuariosLocal = JSON.parse(localStorage.getItem('app_permisos_menu'));
             addCarga(); addBioCarga();
