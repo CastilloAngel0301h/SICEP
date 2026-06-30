@@ -293,7 +293,7 @@
                 <button onclick="closeView()" class="text-black font-black text-2xl mr-4 px-3 py-1 bg-gradient-to-r from-[#00f3ff] to-[#39ff14] rounded-xl shadow-[0_0_15px_rgba(0,243,255,0.5)]">←</button>
                 <div>
                     <h2 class="text-xl font-black font-orbitron text-transparent bg-clip-text bg-gradient-to-r from-[#00f3ff] to-[#39ff14] uppercase">EFICIENCIA COMPLETA</h2>
-                    <p class="text-[9px] font-bold text-gray-500 uppercase tracking-widest mt-1">Algoritmo Cuadre 12 Horas (7 AM - 7 PM)</p>
+                    <p class="text-[9px] font-bold text-gray-500 uppercase tracking-widest mt-1"> 12 Horas (7 AM - 7 PM)</p>
                 </div>
             </div>
         </div>
@@ -881,30 +881,55 @@
             const totalPrendas = sumHecho * 12;
 
             let effOn = factorEficiencia > 0 ? ((totalPrendas / (tiempoTrabajadoNeto * factorEficiencia)) * 100) : 0;
-            let effOff = factorEficiencia > 0 ? ((totalPrendas / (tiempoCargaStandard * factorEficiencia)) * 100) : 0;
             let effStd = metaFinalDia > 0 ? ((totalPrendas / metaFinalDia) * 100) : 0;
 
             document.getElementById('ui-meta').innerText = metaFinalDia;
             document.getElementById('ui-hecho').innerText = sumHecho;
             document.getElementById('ef-resultado').innerText = effStd.toFixed(2) + "%";
 
-            // Asignación proporcional de minutos para Timeline
-            let cargasProporcionales = cargasData.map(c => {
-                let minsAsig = 0;
-                if(c.hechoVal > 0 && sumHecho > 0) {
-                    minsAsig = Math.round(tiempoTrabajadoNeto * (c.hechoVal / sumHecho));
-                }
-                return { duracionAsignadaMins: minsAsig, parosUser: c.parosUser };
-            });
+       // // Asignación proporcional de minutos basada en Eficiencia por Carga
+let cargasProporcionales = cargasData.map(c => {
+    let minsAsig = 0;
+    
+    // 1. Calcular eficiencia individual de esta carga (Hecho / Meta)
+    // Evitamos división por cero si la meta es 0
+    let metaIndividual = c.metaFinalDia || 1; 
+    let eficienciaIndividual = c.hechoVal / metaIndividual;
 
-            // Forzar que la suma de minutos cuadre exacto con el tiempo neto
-            let sumaAsig = cargasProporcionales.reduce((acc, c) => acc + c.duracionAsignadaMins, 0);
-            if(cargasProporcionales.length > 0 && sumaAsig !== tiempoTrabajadoNeto) {
-                let diff = tiempoTrabajadoNeto - sumaAsig;
-                let lastValid = [...cargasProporcionales].reverse().find(c => c.duracionAsignadaMins > 0);
-                if(lastValid) lastValid.duracionAsignadaMins += diff;
-            }
+    // Guardamos la eficiencia en el objeto para usarla adelante
+    return {
+        ...c,
+        eficienciaIndividual: eficienciaIndividual,
+        duracionAsignadaMins: 0 // Se calculará en el siguiente paso
+    };
+});
 
+// 2. Sumar todas las eficiencias individuales para sacar el peso total
+let sumaEficiencias = cargasProporcionales.reduce((acc, c) => acc + c.eficienciaIndividual, 0);
+
+// 3. Asignar los minutos en base a esa proporción de eficiencia
+if (sumaEficiencias > 0) {
+    cargasProporcionales = cargasProporcionales.map(c => {
+        let minsAsig = Math.round((tiempoTrabajadoNeto * c.eficienciaIndividual) / sumaEficiencias);
+        
+        return {
+            duracionAsignadaMins: minsAsig,
+            parosUser: c.parosUser
+            // Puedes mantener aquí otras propiedades de 'c' si las necesitas
+        };
+    });
+}
+
+// // Forzar que la suma de minutos cuadre exacto con el tiempo neto (Tu lógica original)
+let agendaSuma = cargasProporcionales.reduce((acc, c) => acc + c.duracionAsignadaMins, 0);
+let diff = tiempoTrabajadoNeto - agendaSuma;
+
+if (cargasProporcionales.length > 0 && diff !== 0) {
+    let lastValido = [...cargasProporcionales].reverse().find(c => c.duracionAsignadaMins > 0);
+    if (lastValido) {
+        lastValido.duracionAsignadaMins += diff;
+    }
+}
             generarHTMLTimeline(cargasProporcionales, sumHecho, false);
 
             let colorClass = "bg-red-600 text-white"; 
