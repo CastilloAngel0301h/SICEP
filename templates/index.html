@@ -1044,48 +1044,44 @@
             calcularMetricasPremium();
         }
 
-        function calcularMetricasPremium() {
-            let totalDocenas = 0;
-            let sumaMetaPorHoraPzas = 0;
-            let contadorCargasValidas = 0;
-            let cargasProporcionales = [];
+     // --- LÓGICA CORREGIDA PARA CALCULADORA PREMIUM ---
+function calcularMetricasPremium() {
+    let totalDocenas = 0;
+    let sumaMetaPorHoraPzas = 0;
+    let contadorCargasValidas = 0;
+    let cargasProporcionales = [];
 
-            const bloquesCarga = document.querySelectorAll('[id^="carga-premium-"]');
-            bloquesCarga.forEach(bloque => {
-                const idStr = bloque.id.split('-')[2];
-                const docenasVal = parseFloat(bloque.querySelector('.premium-docenas-input').value) || 0;
-                const metaPzaHora = parseFloat(document.getElementById(`premium-meta-carga-${idStr}`).dataset.metaValue) || 0;
+    const bloquesCarga = document.querySelectorAll('[id^="carga-premium-"]');
+    bloquesCarga.forEach(bloque => {
+        const idStr = bloque.id.split('-')[2];
+        const docenasVal = parseFloat(bloque.querySelector('.premium-docenas-input').value) || 0;
+        const metaPzaHora = parseFloat(document.getElementById(`premium-meta-carga-${idStr}`).dataset.metaValue) || 0;
 
-                totalDocenas += docenasVal;
+        totalDocenas += docenasVal;
 
-                if (metaPzaHora > 0) { sumaMetaPorHoraPzas += metaPzaHora; contadorCargasValidas++; }
-                cargasProporcionales.push({ hechoVal: docenasVal, metaPzaHora: metaPzaHora, duracionAsignadaMins: 0 });
-            });
+        if (metaPzaHora > 0) { sumaMetaPorHoraPzas += metaPzaHora; contadorCargasValidas++; }
+        cargasProporcionales.push({ hechoVal: docenasVal, metaPzaHora: metaPzaHora });
+    });
 
-            // LOGICA REQUERIDA META FINAL (Promedio de las metas menos docenas perdidas por paros no receso)
-            const metaHoraPromedioPzas = contadorCargasValidas > 0 ? (sumaMetaPorHoraPzas / contadorCargasValidas) : 0;
-            const metaHoraPromedioDocenas = metaHoraPromedioPzas / 12; 
-            const meta11HorasDocenas = metaHoraPromedioDocenas * 11; // Meta total en docenas para 11h de trabajo puro
+    // META FINAL: Se calcula sobre el total de la jornada (11h puras)
+    // Los recesos ya están integrados en las 12h y NO restan docenas a la meta
+    const metaHoraPromedioPzas = contadorCargasValidas > 0 ? (sumaMetaPorHoraPzas / contadorCargasValidas) : 0;
+    const metaFinalDiaDocenas = (metaHoraPromedioPzas / 12) * 11; 
 
-            const parosGlobalesMins = parseFloat(document.getElementById('premium-paros').value) || 0;
-            const tiempoCargaStandard = 660; // 720 (12h) - 60 (Recesos)
-            const tiempoTrabajadoNeto = tiempoCargaStandard - parosGlobalesMins;
+    // EFICIENCIA: Solo penaliza paros NO programados (paros externos)
+    const parosExternosMins = parseFloat(document.getElementById('premium-paros').value) || 0;
+    const docenasPerdidasPorParos = (metaFinalDiaDocenas / 660) * parosExternosMins;
+    
+    const metaEfectiva = metaFinalDiaDocenas - docenasPerdidasPorParos;
+    let effStd = metaEfectiva > 0 ? ((totalDocenas / metaEfectiva) * 100) : 0;
 
-            // Docenas perdidas por los paros externos (tiempos muertos), no incluye recesos
-            const docenasPerdidas = (meta11HorasDocenas / 660) * parosGlobalesMins;
-            
-            // Meta Final ajustada (no se afecta negativamente por los paros)
-            const metaFinalDiaDocenas = Math.round((meta11HorasDocenas - docenasPerdidas) * 10) / 10;
+    // Actualización de UI
+    document.getElementById('premium-total-docenas').innerText = totalDocenas.toFixed(2);
+    document.getElementById('premium-eff-std-main').innerText = `${effStd.toFixed(2)}%`;
+    document.getElementById('premium-meta-final').innerText = Math.round(metaFinalDiaDocenas);
 
-            let effStd = metaFinalDiaDocenas > 0 ? ((totalDocenas / metaFinalDiaDocenas) * 100) : 0;
-            let effOn = (meta11HorasDocenas > 0 && tiempoTrabajadoNeto > 0) ? ((totalDocenas / ((meta11HorasDocenas / 660) * tiempoTrabajadoNeto)) * 100) : 0;
-            let effOff = meta11HorasDocenas > 0 ? ((totalDocenas / meta11HorasDocenas) * 100) : 0;
-
-            document.getElementById('premium-total-docenas').innerText = totalDocenas.toFixed(2);
-            document.getElementById('premium-eff-on').innerText = `${effOn.toFixed(2)}%`;
-            document.getElementById('premium-eff-off').innerText = `${effOff.toFixed(2)}%`;
-            document.getElementById('premium-eff-std-main').innerText = `${effStd.toFixed(2)}%`;
-            document.getElementById('premium-meta-final').innerText = metaFinalDiaDocenas > 0 ? metaFinalDiaDocenas : 0;
+    // ... (El resto del código de renderizado de timeline sigue igual)
+}
 
             // CUADRE ESTRICTO DE TIEMPOS AL TIMELINE
             let sumaEficiencias = 0;
