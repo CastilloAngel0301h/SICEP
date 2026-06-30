@@ -1045,72 +1045,43 @@
         }
 
      // --- LÓGICA CORREGIDA PARA CALCULADORA PREMIUM ---
-function calcularProduccionPremium() {
-    // 1. Obtener la meta global y las horas configuradas para el turno
-    const metaGlobal = parseFloat(document.getElementById('meta-global-input')?.value) || 0;
-    const horasTurno = parseFloat(document.getElementById('horas-turno-input')?.value) || 9.5; // Ajustar según tu jornada
-    
-    // Calcular la meta por hora exacta basada en tu realidad de fábrica
-    const metaPorHora = metaGlobal / horasTurno;
+function calcularMetricasPremium() {
+    let totalDocenas = 0;
+    let sumaMetaPorHoraPzas = 0;
+    let contadorCargasValidas = 0;
+    let cargasProporcionales = [];
 
-    let totalPiezasProducidas = 0;
-    let totalMinutosAsignados = 0;
-    let totalMinutosRecesos = 0;
+    const bloquesCarga = document.querySelectorAll('[id^="carga-premium-"]');
+    bloquesCarga.forEach(bloque => {
+        const idStr = bloque.id.split('-')[2];
+        const docenasVal = parseFloat(bloque.querySelector('.premium-docenas-input').value) || 0;
+        const metaPzaHora = parseFloat(document.getElementById(`premium-meta-carga-${idStr}`).dataset.metaValue) || 0;
 
-    // Supongamos que tus filas de la calculadora tienen la clase 'fila-carga'
-    const filas = document.querySelectorAll('.fila-carga');
+        totalDocenas += docenasVal;
 
-    filas.forEach(fila => {
-        const tipoCarga = fila.querySelector('.tipo-carga-select')?.value; // Ejemplo: "Producción", "R" (Receso), "Paro"
-        const piezas = parseFloat(fila.querySelector('.piezas-input')?.value) || 0;
-        const minutosCarga = parseFloat(fila.querySelector('.minutos-input')?.value) || 0;
-
-        if (tipoCarga === 'R') {
-            // RECESO: Suma el tiempo total de la carga pero NO aporta piezas ni afecta negativamente la meta
-            totalMinutosRecesos += minutosCarga;
-            totalMinutosAsignados += minutosCarga; // Se añade el tiempo a la carga donde quede
-        } else {
-            // PRODUCCIÓN NORMAL o PAROS CONTROLADOS
-            totalPiezasProducidas += piezas;
-            totalMinutosAsignados += minutosCarga;
-        }
+        if (metaPzaHora > 0) { sumaMetaPorHoraPzas += metaPzaHora; contadorCargasValidas++; }
+        cargasProporcionales.push({ hechoVal: docenasVal, metaPzaHora: metaPzaHora });
     });
 
-    // 2. Lógica del Cuadre de Horas
-    // Convertimos el tiempo total acumulado a horas para el divisor de eficiencia
-    const horasTrabajadasEfectivas = (totalMinutosAsignados - totalMinutosRecesos) / 60;
+    // META FINAL: Se calcula sobre el total de la jornada (11h puras)
+    // Los recesos ya están integrados en las 12h y NO restan docenas a la meta
+    const metaHoraPromedioPzas = contadorCargasValidas > 0 ? (sumaMetaPorHoraPzas / contadorCargasValidas) : 0;
+    const metaFinalDiaDocenas = (metaHoraPromedioPzas / 12) * 11; 
+
+    // EFICIENCIA: Solo penaliza paros NO programados (paros externos)
+    const parosExternosMins = parseFloat(document.getElementById('premium-paros').value) || 0;
+    const docenasPerdidasPorParos = (metaFinalDiaDocenas / 660) * parosExternosMins;
     
-    // La meta ajustada solo toma en cuenta el tiempo real de producción (excluyendo recesos R)
-    const metaAjustadaTiempoReal = metaPorHora * horasTrabajadasEfectivas;
+    const metaEfectiva = metaFinalDiaDocenas - docenasPerdidasPorParos;
+    let effStd = metaEfectiva > 0 ? ((totalDocenas / metaEfectiva) * 100) : 0;
 
-    // 3. Cálculo de Eficiencia Completa
-    let porcentajeEficiencia = 0;
-    if (metaAjustadaTiempoReal > 0) {
-        porcentajeEficiencia = (totalPiezasProducidas / metaAjustadaTiempoReal) * 100;
-    }
+    // Actualización de UI
+    document.getElementById('premium-total-docenas').innerText = totalDocenas.toFixed(2);
+    document.getElementById('premium-eff-std-main').innerText = `${effStd.toFixed(2)}%`;
+    document.getElementById('premium-meta-final').innerText = Math.round(metaFinalDiaDocenas);
 
-    // 4. Renderizar resultados en la interfaz sin alterar otros componentes
-    const contenedorEficiencia = document.getElementById('resultado-eficiencia-premium');
-    const contenedorMetaReal = document.getElementById('resultado-meta-real');
-    const contenedorCuadreHoras = document.getElementById('resultado-cuadre-horas');
-
-    if (contenedorEficiencia) {
-        contenedorEficiencia.textContent = `${porcentajeEficiencia.toFixed(2)}%`;
-        // Cambio de color dinámico según rendimiento
-        contenedorEficiencia.className = porcentajeEficiencia >= 100 ? "text-green-400 font-bold" : "text-amber-400";
-    }
-    
-    if (contenedorMetaReal) {
-        contenedorMetaReal.textContent = Math.round(metaAjustadaTiempoReal);
-    }
-
-    if (contenedorCuadreHoras) {
-        const horasTotalesMarcadas = (totalMinutosAsignados / 60).toFixed(2);
-        contenedorCuadreHoras.textContent = `${horasTotalesMarcadas} hrs de ${horasTurno} hrs`;
-    }
-}
     // ... (El resto del código de renderizado de timeline sigue igual)
-
+}
 
             // CUADRE ESTRICTO DE TIEMPOS AL TIMELINE
             let sumaEficiencias = 0;
@@ -1143,6 +1114,7 @@ function calcularProduccionPremium() {
             else if (effStd >= 95) colorClass = "bg-[#0088ff] border-[#00f3ff] shadow-[0_0_15px_rgba(0,136,255,0.5)]"; 
             else if (effStd >= 85) colorClass = "bg-[#118822] border-[#39ff14] shadow-[0_0_15px_rgba(57,255,20,0.5)]";
             document.getElementById('premium-badge-resultados').className = `p-6 rounded-[24px] text-center mb-6 shadow-2xl border-2 transition-all duration-500 ${colorClass}`;
+        }
 
         // --- LÓGICA MÓDULO BIOHORARIO ---
         function addBioCarga() {
