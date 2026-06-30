@@ -979,7 +979,7 @@
             const tiempoTrabajadoNeto = tiempoCargaStandard - parosExternosMins;
             
             const metaHoraPromedioPzas = contadorCargasValidas > 0 ? (sumaMetaPorHoraPzas / contadorCargasValidas) : 0;
-            const metaFinalDiaDocenas = metaHoraPromedioPzas * 11; // La meta de tus 11 horas evaluables
+          const metaFinalDiaDocenas = contadorCargasValidas > 0 ? (sumaMetaPorHoraPzas / contadorCargasValidas) : 0;
             
             // Los paros externos son los únicos que reducen tu meta (no penalizan la eficiencia)
             const docenasPerdidasPorParos = (metaFinalDiaDocenas / 660) * parosExternosMins;
