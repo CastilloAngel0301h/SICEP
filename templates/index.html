@@ -924,7 +924,7 @@
             .then(data => {
                 if (data.status === 'success') {
                     cacheMetasGlobal = data.datos;
-                    cacheEstilos = data.estilos || [];
+                    cacheEstilos = data.estilo || [];
                     cacheTallas = data.tallas || ['XXS', 'XS', 'S', 'M', 'L', 'XL', '2X', '3X', '4X'];
                     cacheProcesos = data.procesos || [];
                     renderizarTablaMetas();
