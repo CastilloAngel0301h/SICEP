@@ -1,4 +1,4 @@
-  <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -140,7 +140,7 @@
             <span class="text-6xl mb-4 block animate-bounce">🦁</span>
             <h1 class="text-2xl font-black uppercase tracking-wider font-orbitron text-transparent bg-clip-text bg-gradient-to-r from-[#00f3ff] to-[#39ff14] mb-2">S.I.C.E.P.</h1>
             <p class="text-[10px] text-gray-400 mb-6 uppercase tracking-widest font-bold">Sistema Integrado de Cálculos de Eficiencia y Producción</p>
-            <input type="password" id="pin-input" maxlength="4" class="input-pro text-center text-3xl tracking-[0.5em] mb-6 bg-[#050814]" placeholder="****">
+            <input type="password" id="pin-input" maxlength="4" autocomplete="current-password" class="input-pro text-center text-3xl tracking-[0.5em] mb-6 bg-[#050814]" placeholder="****" aria-label="Código PIN de Seguridad">
             <button onclick="verificarAcceso()" class="w-full py-4 bg-gradient-to-r from-[#00f3ff] to-[#0088ff] hover:from-[#33f5ff] hover:to-[#339eff] rounded-xl font-black text-white shadow-[0_0_15px_rgba(0,243,255,0.4)] transition-all uppercase tracking-wider">ENTRAR SISTEMA</button>
         </div>
     </div>
@@ -304,7 +304,7 @@
         <div id="cargas-list" class="space-y-4 mb-4"></div>
         <button onclick="addCarga()" class="w-full py-4 bg-[#0b1120] border-2 border-dashed border-[#ffe600] text-[#ffe600] rounded-xl text-xs font-black mb-6 hover:bg-[#ffe600] hover:text-black transition-all shadow-[0_0_10px_rgba(255,230,0,0.2)]">+ AÑADIR NUEVA CARGA</button>
 
-        <label class="text-[10px] text-[#ffe600] font-black uppercase">Horas de Paro Externo (Automático)</label>
+        <label for="ef-paros" class="text-[10px] text-[#ffe600] font-black uppercase">Horas de Paro Externo (Automático)</label>
         <input type="number" id="ef-paros" step="0.01" readonly class="input-pro mt-2 mb-6 bg-[#050814] border-dashed border-[#00f3ff]/50" placeholder="Se calcula automáticamente de tus paros">
 
         <div id="ef-badge" class="p-8 rounded-[32px] text-center mb-6 shadow-2xl border-2 border-transparent transition-all duration-500 bg-red-600">
@@ -344,7 +344,7 @@
 
         <div class="solid-panel p-4 rounded-xl border border-slate-800 mb-6 grid grid-cols-2 gap-4">
             <div>
-                <label class="block text-[10px] font-black uppercase text-gray-400 tracking-wider mb-2">Paros Externos (Mins)</label>
+                <label for="premium-paros" class="block text-[10px] font-black uppercase text-gray-400 tracking-wider mb-2">Paros Externos (Mins)</label>
                 <input type="number" id="premium-paros" value="0" oninput="calcularMetricasPremium()" class="input-pro text-red-400 font-bold text-center text-lg p-2 focus:border-red-500">
             </div>
             <div class="flex items-end">
@@ -386,10 +386,10 @@
         <div class="space-y-6">
             <div class="solid-panel p-6 rounded-2xl border border-[#39ff14]/50 shadow-[0_0_15px_rgba(57,255,20,0.2)]">
                 <h3 class="text-sm font-black mb-4 text-white uppercase text-center border-b border-slate-800 pb-2">Tiempo al 100% Eficiencia</h3>
-                <label class="text-[10px] text-[#ffe600] font-black uppercase">Meta de la Carga (Total 11h)</label>
+                <label for="ts-meta" class="text-[10px] text-[#ffe600] font-black uppercase">Meta de la Carga (Total 11h)</label>
                 <input type="number" id="ts-meta" oninput="calcTiempoSimple()" class="input-pro mt-2 mb-4" placeholder="Ej: 550">
 
-                <label class="text-[10px] text-[#ffe600] font-black uppercase">Docenaje de Carga Actual</label>
+                <label for="ts-doc" class="text-[10px] text-[#ffe600] font-black uppercase">Docenaje de Carga Actual</label>
                 <input type="number" id="ts-doc" oninput="calcTiempoSimple()" class="input-pro mt-2" placeholder="Ej: 100">
             </div>
 
@@ -401,13 +401,13 @@
 
             <div class="solid-panel p-6 rounded-2xl border border-[#ff6c00]/50 mt-8 shadow-[0_0_15px_rgba(255,108,0,0.2)]">
                 <h3 class="text-sm font-black mb-4 text-[#ff6c00] uppercase text-center border-b border-slate-800 pb-2">Simulador de Ritmo (%) 🚀</h3>
-                <label class="text-[10px] text-[#ffe600] font-black uppercase">Meta Total de Carga (11h)</label>
+                <label for="tp-meta" class="text-[10px] text-[#ffe600] font-black uppercase">Meta Total de Carga (11h)</label>
                 <input type="number" id="tp-meta" oninput="calcTiempoPorcentaje()" class="input-pro mt-2 mb-4" placeholder="Ej: 550">
 
-                <label class="text-[10px] text-[#ffe600] font-black uppercase">Docenas a Realizar</label>
+                <label for="tp-doc" class="text-[10px] text-[#ffe600] font-black uppercase">Docenas a Realizar</label>
                 <input type="number" id="tp-doc" oninput="calcTiempoPorcentaje()" class="input-pro mt-2 mb-4" placeholder="Ej: 100">
 
-                <label class="text-[10px] text-[#39ff14] font-black uppercase">Porcentaje de Eficiencia Deseado (%)</label>
+                <label for="tp-porc" class="text-[10px] text-[#39ff14] font-black uppercase">Porcentaje de Eficiencia Deseado (%)</label>
                 <input type="number" id="tp-porc" oninput="calcTiempoPorcentaje()" class="input-pro mt-2 border-[#39ff14]/60 text-[#39ff14]" placeholder="Ej: 50, 100, 200">
 
                 <div class="bg-[#050814] p-4 rounded-xl text-center mt-6 border border-slate-800">
@@ -430,7 +430,7 @@
         <div class="space-y-6">
             <div class="solid-panel p-6 rounded-3xl border border-[#ffe600]/50 shadow-[0_0_15px_rgba(255,230,0,0.2)]">
                 <p class="text-xs text-gray-400 mb-4 font-bold uppercase tracking-wide">Filtro de Extracción Manual (Drive PDF/Excel):</p>
-                <label class="text-[10px] text-[#ffe600] font-black uppercase">1. Estilo</label>
+                <label for="sel-estilo" class="text-[10px] text-[#ffe600] font-black uppercase">1. Estilo</label>
                 <select id="sel-estilo" class="input-pro mt-2 mb-4" onchange="actualizarBusquedaMeta()">
                     <option value="">(Presione Sincronizar PDF abajo)</option>
                 </select>
@@ -447,7 +447,7 @@
                     <option value="3X">3X</option>
                     <option value="4X">4X</option>
                 </select>
-                <label class="text-[10px] text-[#ffe600] font-black uppercase">3. Proceso</label>
+                <label for="sel-proceso" class="text-[10px] text-[#ffe600] font-black uppercase">3. Proceso</label>
                 <select id="sel-proceso" class="input-pro mt-2 mb-4" onchange="actualizarBusquedaMeta()">
                     <option value="">(Presione Sincronizar PDF abajo)</option>
                 </select>
@@ -480,14 +480,14 @@
         </div>
         <div class="solid-panel p-6 rounded-2xl mb-8 border-2 border-[#ff007f] shadow-[0_0_25px_rgba(255,0,127,0.2)]">
             <h3 class="text-sm font-black mb-4 text-white uppercase tracking-wider">Crear Nuevo Operador</h3>
-            <input type="text" id="adm-nombre" placeholder="Nombre (Ej: Juan Perez)" class="input-pro mb-3">
-            <input type="text" id="adm-cont" placeholder="Teléfono o Correo" class="input-pro mb-4">
+            <input type="text" id="adm-nombre" placeholder="Nombre (Ej: Juan Perez)" class="input-pro mb-3" aria-label="Nombre del Operador">
+            <input type="text" id="adm-cont" placeholder="Teléfono o Correo" class="input-pro mb-4" aria-label="Contacto del Operador">
             <button onclick="crearUsuario()" class="w-full py-4 bg-gradient-to-r from-[#ff007f] to-[#ff6c00] text-white rounded-xl font-black uppercase shadow-[0_0_15px_rgba(255,0,127,0.4)] transition-all">Generar Acceso y Link</button>
         </div>
         <div class="solid-panel p-5 rounded-2xl mb-8 border-2 border-[#00f3ff] shadow-[0_0_25px_rgba(0,243,255,0.2)] animate-slide-in">
             <h3 class="text-sm font-black mb-1 text-transparent bg-clip-text bg-gradient-to-r from-[#00f3ff] to-[#39ff14] uppercase">⚡ Matriz de Accesos Premium</h3>
             <p class="text-[9px] text-gray-400 font-bold uppercase mb-4">Gestiona las opciones del menú por operador</p>
-            <label class="text-[10px] text-[#ffe600] font-black uppercase block mb-2">Seleccionar Operador:</label>
+            <label for="permisos-user-select" class="text-[10px] text-[#ffe600] font-black uppercase block mb-2">Seleccionar Operador:</label>
             <select id="permisos-user-select" class="input-pro mb-4 bg-[#050814]" onchange="cambioUsuarioEnSelectorPermisos()">
                 <option value="">-- Selecciona un Operador creado --</option>
             </select>
@@ -668,6 +668,7 @@
         function generarHTMLTimeline(cargas, totalDocenasGeneral, esPremium = false) {
             let containerId = esPremium ? 'premium-tiempos-cargas' : 'tiempos-cargas';
             const splitContainer = document.getElementById(containerId);
+            if (!splitContainer) return;
             splitContainer.innerHTML = '';
 
             let currentMinutes = 420; 
@@ -741,8 +742,8 @@
                     <button type="button" onclick="this.parentElement.parentElement.remove(); calcularEficienciaCompleta();" class="text-red-500 text-xs font-bold hover:text-red-400">Eliminar</button>
                 </div>
                 <div class="flex gap-2">
-                    <input type="number" placeholder="META" class="input-pro c-meta text-[#39ff14]" oninput="calcularEficienciaCompleta()">
-                    <input type="number" placeholder="HECHO" class="input-pro c-hecho text-cyan-400" oninput="calcularEficienciaCompleta()">
+                    <input type="number" placeholder="META" class="input-pro c-meta text-[#39ff14]" oninput="calcularEficienciaCompleta()" aria-label="Meta Carga ${numCarga}">
+                    <input type="number" placeholder="HECHO" class="input-pro c-hecho text-cyan-400" oninput="calcularEficienciaCompleta()" aria-label="Hecho Carga ${numCarga}">
                 </div>
                 <div class="paros-container space-y-2"></div>
                 <button type="button" onclick="addParoToCarga(this)" class="w-full py-2 bg-[#050814] border border-[#00f3ff]/30 rounded-lg text-[10px] font-black text-[#00f3ff] uppercase tracking-wider hover:bg-slate-900 transition-all">
@@ -770,22 +771,22 @@
                 <div class="flex flex-col gap-1">
                     <span class="text-[9px] font-black text-gray-500 uppercase tracking-tighter">Inicio</span>
                     <div class="flex items-center bg-[#050814] px-1 rounded border border-slate-800">
-                        <select class="bg-transparent text-white py-1 outline-none p-start-h" onchange="calcularEficienciaCompleta()">${hoursOpts}</select>
+                        <select class="bg-transparent text-white py-1 outline-none p-start-h" onchange="calcularEficienciaCompleta()" aria-label="Hora Inicio Paro">${hoursOpts}</select>
                         <span class="text-gray-600 px-0.5">:</span>
-                        <select class="bg-transparent text-white py-1 outline-none p-start-m" onchange="calcularEficienciaCompleta()">${minsOpts}</select>
+                        <select class="bg-transparent text-white py-1 outline-none p-start-m" onchange="calcularEficienciaCompleta()" aria-label="Minuto Inicio Paro">${minsOpts}</select>
                     </div>
                 </div>
                 <div class="flex flex-col gap-1">
                     <span class="text-[9px] font-black text-gray-500 uppercase tracking-tighter">Fin</span>
                     <div class="flex items-center bg-[#050814] px-1 rounded border border-slate-800">
-                        <select class="bg-transparent text-white py-1 outline-none p-end-h" onchange="calcularEficienciaCompleta()">${hoursOpts}</select>
+                        <select class="bg-transparent text-white py-1 outline-none p-end-h" onchange="calcularEficienciaCompleta()" aria-label="Hora Fin Paro">${hoursOpts}</select>
                         <span class="text-gray-600 px-0.5">:</span>
-                        <select class="bg-transparent text-white py-1 outline-none p-end-m" onchange="calcularEficienciaCompleta()">${minsOpts}</select>
+                        <select class="bg-transparent text-white py-1 outline-none p-end-m" onchange="calcularEficienciaCompleta()" aria-label="Minuto Fin Paro">${minsOpts}</select>
                     </div>
                 </div>
                 <div class="flex flex-col flex-1 min-w-[100px] gap-1">
                     <span class="text-[9px] font-black text-[#ffe600] uppercase tracking-tighter">Motivo</span>
-                    <select class="bg-[#050814] border border-[#ffe600]/40 text-[#ffe600] font-bold p-1 rounded outline-none p-motivo" onchange="calcularEficienciaCompleta()">
+                    <select class="bg-[#050814] border border-[#ffe600]/40 text-[#ffe600] font-bold p-1 rounded outline-none p-motivo" onchange="calcularEficienciaCompleta()" aria-label="Motivo del Paro">
                         <option value="A">A (Falta De Trabajo)</option>
                         <option value="B">B (Falta De Energia)</option>
                         <option value="D">D (Falta De Troco)</option>
@@ -889,12 +890,12 @@
             .then(res => res.json())
             .then(data => {
                 if (data.status === 'success') {
-                    cacheMetasGlobal = data.datos;
-                    cacheEstilos = data.estilo || [];
+                    cacheMetasGlobal = data.datos || [];
+                    cacheEstilos = data.estilos || [];
                     cacheTallas = data.tallas || ['XXS', 'XS', 'S', 'M', 'L', 'XL', '2X', '3X', '4X'];
                     cacheProcesos = data.procesos || [];
                 }
-            });
+            }).catch(e => console.error("Error descarga silenciosa:", e));
         }
 
         function recargarDatosPremium() {
@@ -902,7 +903,7 @@
             .then(res => res.json())
             .then(data => {
                 if (data.status === 'success') {
-                    cacheMetasGlobal = data.datos;
+                    cacheMetasGlobal = data.datos || [];
                     cacheEstilos = data.estilos || [];
                     cacheProcesos = data.procesos || [];
                     document.querySelectorAll('.premium-estilo-select').forEach(sel => {
@@ -911,12 +912,14 @@
                     alert("Metas Premium sincronizadas.");
                     calcularMetricasPremium();
                 }
-            });
+            }).catch(e => alert("Error al sincronizar datos Premium."));
         }
 
         function llenarSelector(el, arr, placeholder) {
             el.innerHTML = `<option value="">-- ${placeholder} --</option>`;
-            arr.sort().forEach(i => el.innerHTML += `<option value="${i}">${i}</option>`);
+            if (arr && arr.length > 0) {
+                [...arr].sort().forEach(i => el.innerHTML += `<option value="${i}">${i}</option>`);
+            }
         }
 
         function agregarCargaPremium() {
@@ -928,24 +931,24 @@
             div.innerHTML = `
                 <div class="flex justify-between items-center border-b border-slate-800 pb-2">
                     <span class="text-xs font-black uppercase font-orbitron text-[#b500ff]">Carga #${contadorCargasPremium}</span>
-                    <button onclick="eliminarCargaPremium(${contadorCargasPremium})" class="text-red-500 hover:text-red-400 text-xs font-bold"><i class="fa-solid fa-trash-can"></i> Quitar</button>
+                    <button onclick="eliminarCargaPremium(${contadorCargasPremium})" class="text-red-500 hover:text-red-400 text-xs font-bold"> Quitar</button>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
                     <div>
                         <label class="block text-[10px] font-black uppercase text-gray-400 mb-1">Estilo</label>
-                        <select onchange="actualizarMetaCargaPremium(${contadorCargasPremium})" class="premium-estilo-select input-pro p-2 text-xs text-white focus:border-[#b500ff]"></select>
+                        <select onchange="actualizarMetaCargaPremium(${contadorCargasPremium})" class="premium-estilo-select input-pro p-2 text-xs text-white focus:border-[#b500ff]" aria-label="Estilo Carga Premium ${contadorCargasPremium}"></select>
                     </div>
                     <div>
                         <label class="block text-[10px] font-black uppercase text-gray-400 mb-1">Talla</label>
-                        <select onchange="actualizarMetaCargaPremium(${contadorCargasPremium})" class="premium-talla-select input-pro p-2 text-xs text-cyan-400 focus:border-[#b500ff]"></select>
+                        <select onchange="actualizarMetaCargaPremium(${contadorCargasPremium})" class="premium-talla-select input-pro p-2 text-xs text-cyan-400 focus:border-[#b500ff]" aria-label="Talla Carga Premium ${contadorCargasPremium}"></select>
                     </div>
                     <div>
                         <label class="block text-[10px] font-black uppercase text-gray-400 mb-1">Proceso</label>
-                        <select onchange="actualizarMetaCargaPremium(${contadorCargasPremium})" class="premium-proceso-select input-pro p-2 text-xs text-[#b500ff] focus:border-[#b500ff]"></select>
+                        <select onchange="actualizarMetaCargaPremium(${contadorCargasPremium})" class="premium-proceso-select input-pro p-2 text-xs text-[#b500ff] focus:border-[#b500ff]" aria-label="Proceso Carga Premium ${contadorCargasPremium}"></select>
                     </div>
                     <div>
                         <label class="block text-[10px] font-black uppercase text-gray-400 mb-1">Docenas Hechas</label>
-                        <input type="number" value="0" oninput="calcularMetricasPremium()" class="premium-docenas-input input-pro p-1.5 text-center text-[#39ff14] focus:border-[#39ff14]">
+                        <input type="number" value="0" oninput="calcularMetricasPremium()" class="premium-docenas-input input-pro p-1.5 text-center text-[#39ff14] focus:border-[#39ff14]" aria-label="Docenas Hechas Premium ${contadorCargasPremium}">
                     </div>
                 </div>
                 <div class="flex justify-between items-center text-[11px] bg-[#050814] p-2.5 rounded-lg border border-slate-800">
@@ -973,6 +976,8 @@
             const tal = el.querySelector('.premium-talla-select').value;
             const pro = el.querySelector('.premium-proceso-select').value;
             const md = document.getElementById(`premium-meta-carga-${id}`);
+            if (!md) return;
+
             if (!est || !tal || !pro) {
                 md.innerText = "0 pza/h";
                 md.dataset.metaValue = "0"; calcularMetricasPremium(); return;
@@ -997,9 +1002,10 @@
 
             const bloquesCarga = document.querySelectorAll('[id^="carga-premium-"]');
             bloquesCarga.forEach(bloque => {
-                const idStr = bloquesCarga.id.split('-')[2];
+                const idStr = bloque.id.split('-')[2];
                 const docenasVal = parseFloat(bloque.querySelector('.premium-docenas-input').value) || 0;
-                const metaPzaHora = parseFloat(document.getElementById(`premium-meta-carga-${idStr}`).dataset.metaValue) || 0;
+                const metaContainer = document.getElementById(`premium-meta-carga-${idStr}`);
+                const metaPzaHora = metaContainer ? (parseFloat(metaContainer.dataset.metaValue) || 0) : 0;
 
                 totalDocenas += docenasVal;
 
@@ -1012,10 +1018,9 @@
 
             const tiempoCargaStandard = 660; 
             const parosExternosMins = parseFloat(document.getElementById('premium-paros').value) || 0;
-            const tiempoTrabajadoNeto = tiempoCargaStandard - parosExternosMins;
 
             const metaHoraPromedioPzas = contadorCargasValidas > 0 ? (sumaMetaPorHoraPzas / contadorCargasValidas) : 0;
-            const metaFinalDiaDocenas = contadorCargasValidas > 0 ? (sumaMetaPorHoraPzas / contadorCargasValidas) : 0;
+            const metaFinalDiaDocenas = metaHoraPromedioPzas; 
 
             const docenasPerdidasPorParos = (metaFinalDiaDocenas / 660) * parosExternosMins;
             const metaEfectiva = metaFinalDiaDocenas - docenasPerdidasPorParos; 
@@ -1077,11 +1082,11 @@
                 <div class="grid grid-cols-2 gap-2">
                     <div>
                         <label class="text-[9px] text-gray-400 font-bold uppercase block mb-1">Meta Carga ${numCarga}</label>
-                        <input type="number" class="input-pro p-2.5 text-center text-[#ffe600] bio-meta-input" oninput="calcularBioHorario()">
+                        <input type="number" class="input-pro p-2.5 text-center text-[#ffe600] bio-meta-input" oninput="calcularBioHorario()" aria-label="Meta Bio Carga ${numCarga}">
                     </div>
                     <div>
                         <label class="text-[9px] text-gray-400 font-bold uppercase block mb-1">Docenas Hechas</label>
-                        <input type="number" class="input-pro p-2.5 text-center text-[#ff007f] bio-hecho-input" oninput="calcularBioHorario()">
+                        <input type="number" class="input-pro p-2.5 text-center text-[#ff007f] bio-hecho-input" oninput="calcularBioHorario()" aria-label="Docenas Hechas Bio Carga ${numCarga}">
                     </div>
                 </div>
             `;
@@ -1171,22 +1176,24 @@
             .then(res => res.json())
             .then(data => {
                 if(data.status === 'success') {
-                    pdfDataCache = data.datos; poblarSelectoresMetas(data.estilos, data.procesos); alert("✅ DB sincronizada.");
+                    pdfDataCache = data.datos || [];
+                    poblarSelectoresMetas(data.estilos, data.procesos); alert("✅ DB sincronizada.");
                 } else alert("❌ Error DB: " + data.message);
             }).catch(e => alert("❌ Error conexión DB.")).finally(() => { btn.innerHTML = originalText; btn.disabled = false; });
         }
         function cargarOpcionesMetas() {
             fetch('/api/metas/datos').then(res => res.json()).then(data => {
-                if(data.status === 'success' && data.estilos.length > 0) {
-                    pdfDataCache = data.datos; poblarSelectoresMetas(data.estilos, data.procesos);
+                if(data.status === 'success' && data.estilos && data.estilos.length > 0) {
+                    pdfDataCache = data.datos || [];
+                    poblarSelectoresMetas(data.estilos, data.procesos);
                 }
             }).catch(e => console.error("Error metas:", e));
         }
         function poblarSelectoresMetas(est, proc) {
             const se = document.getElementById('sel-estilo');
             const sp = document.getElementById('sel-proceso');
-            se.innerHTML = '<option value="">-- Estilo --</option>'; est.sort().forEach(e => se.innerHTML += `<option value="${e}">${e}</option>`);
-            sp.innerHTML = '<option value="">-- Proceso --</option>'; proc.sort().forEach(p => sp.innerHTML += `<option value="${p}">${p}</option>`);
+            if(se && est) { se.innerHTML = '<option value="">-- Estilo --</option>'; [...est].sort().forEach(e => se.innerHTML += `<option value="${e}">${e}</option>`); }
+            if(sp && proc) { sp.innerHTML = '<option value="">-- Proceso --</option>'; [...proc].sort().forEach(p => sp.innerHTML += `<option value="${p}">${p}</option>`); }
         }
         function actualizarBusquedaMeta() {
             const e = document.getElementById('sel-estilo').value;
@@ -1212,22 +1219,30 @@
             } else {
                 info = { res: document.getElementById('ts-res').innerText, meta: document.getElementById('ts-meta').value };
             }
-            await fetch('/api/save', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({tipo, info, extenso}) });
-            alert("💾 Guardado Exitosamente en tu Historial de Drive.");
+            try {
+                await fetch('/api/save', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({tipo, info, extenso}) });
+                alert("💾 Guardado Exitosamente en tu Historial de Drive.");
+            } catch(e) {
+                alert("Error al intentar guardar en el Historial.");
+            }
         }
         async function fetchHistorial() {
-            const res = await fetch('/api/load');
-            const data = await res.json();
-            const cont = document.getElementById('historial-content');
-            if(data.length === 0) { cont.innerHTML = '<p class="text-center text-gray-500 mt-10">Vacío.</p>'; return; }
-            cont.innerHTML = data.reverse().map(i => `
-                <div class="solid-panel p-4 rounded-xl border-l-4 border-[#ffe600] mb-3">
-                    <div class="flex justify-between text-[10px] mb-2 font-black text-gray-400 uppercase"><span class="text-[#ffe600]">${i.tipo}</span><span>${i.fecha_hora}</span></div>
-                    ${i.usuario ? `<div class="text-[10px] text-[#00f3ff] mb-2">Operador: ${i.usuario}</div>` : ''}
-                    <div class="text-2xl font-black font-orbitron text-white mb-1">${i.info.res}</div>
-                    ${i.info.detalle ? `<div class="text-[9px] text-gray-500">${i.info.detalle}</div>` : ''}
-                    ${i.drive_url ? `<a href="${i.drive_url}" target="_blank" class="text-[10px] text-teal-400 font-bold block mt-2 underline">📂 Ver Archivo en Drive</a>` : ''}
-                </div>`).join('');
+            try {
+                const res = await fetch('/api/load');
+                const data = await res.json();
+                const cont = document.getElementById('historial-content');
+                if(!data || data.length === 0) { cont.innerHTML = '<p class="text-center text-gray-500 mt-10">Vacío.</p>'; return; }
+                cont.innerHTML = [...data].reverse().map(i => `
+                    <div class="solid-panel p-4 rounded-xl border-l-4 border-[#ffe600] mb-3">
+                        <div class="flex justify-between text-[10px] mb-2 font-black text-gray-400 uppercase"><span class="text-[#ffe600]">${i.tipo}</span><span>${i.fecha_hora}</span></div>
+                        ${i.usuario ? `<div class="text-[10px] text-[#00f3ff] mb-2">Operador: ${i.usuario}</div>` : ''}
+                        <div class="text-2xl font-black font-orbitron text-white mb-1">${i.info.res}</div>
+                        ${i.info.detalle ? `<div class="text-[9px] text-gray-500">${i.info.detalle}</div>` : ''}
+                        ${i.drive_url ? `<a href="${i.drive_url}" target="_blank" class="text-[10px] text-teal-400 font-bold block mt-2 underline">📂 Ver Archivo en Drive</a>` : ''}
+                    </div>`).join('');
+            } catch(e) {
+                console.error("Error al cargar historial:", e);
+            }
         }
 
         async function crearUsuario() {
