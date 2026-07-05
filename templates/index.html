@@ -1,4 +1,5 @@
-<!DOCTYPE html>
+
+          <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
@@ -7,12 +8,12 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#050814">
-    
+
     <title>SISTEMA INTEGRADO DE CÁLCULOS DE EFICIENCIA Y PRODUCCIÓN</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;700;900&family=Orbitron:wght@700;900&display=swap');
-        
+
         :root {
             --neon-magenta: #ff007f;
             --neon-cian: #00f3ff;
@@ -116,9 +117,24 @@
 
         .animate-slide-in { animation: slideIn 0.25s ease-out forwards; }
         @keyframes slideIn { from { transform: translateY(10px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        
+        .switch-container { display: flex; align-items: center; justify-content: space-between; background: #050814; padding: 10px; border-radius: 8px; margin-top: 5px; }
+        .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+        .switch input { opacity: 0; width: 0; height: 0; }
+        .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #374151; transition: .3s; border-radius: 24px; }
+        .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background-color: white; transition: .3s; border-radius: 50%; }
+        input:checked + .slider { background-color: #ff4d4d; box-shadow: 0 0 10px rgba(255,77,77,0.5); }
+        input:checked + .slider:before { transform: translateX(20px); }
+        
+        .hibernacion-full-block { display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: #050814; z-index: 99999; flex-direction: column; justify-content: center; align-items: center; text-align: center; color: #ff4d4d; }
     </style>
 </head>
 <body class="max-w-md mx-auto relative min-h-screen">
+
+    <div id="hibernacion-pwa-blocker" class="hibernacion-full-block">
+        <h1 class="text-3xl font-black tracking-widest uppercase mb-4 font-orbitron drop-shadow-[0_0_15px_rgba(255,77,77,0.7)]">SISTEMA Y SERVER<br>EN MODO HIBERNACION</h1>
+        <p class="text-xs text-gray-400 uppercase font-bold tracking-wider">Acceso bloqueado de forma remota por Angel Castillo</p>
+    </div>
 
     <div id="lock-screen" class="min-h-screen flex flex-col justify-center items-center p-6 text-center bg-[#050814] absolute w-full z-50">
         <div class="solid-panel p-8 rounded-[32px] w-full border-2 border-[#00f3ff] shadow-[0_0_30px_rgba(0,243,255,0.3)]">
@@ -148,7 +164,7 @@
                 <span class="text-3xl block mb-2">⏳</span>
                 <span class="text-xs font-black uppercase text-white tracking-wider">BioHorario Dinámico</span>
             </div>
-            
+
             <div id="btn-menu-eficiencia" onclick="openView('view-eficiencia')" class="lion-btn solid-panel p-5 rounded-2xl text-center neon-border-cian">
                 <span class="text-3xl block mb-2">📊</span>
                 <span class="text-[10px] font-black uppercase text-white leading-tight">Eficiencia<br>Completa</span>
@@ -158,32 +174,33 @@
                 <span class="text-3xl block mb-2">💎</span>
                 <span class="text-[10px] font-black uppercase text-white leading-tight">Calculadora<br>Premium DB</span>
             </div>
-            
+
             <div id="btn-menu-tiempo" onclick="openView('view-tiempo')" class="lion-btn solid-panel p-5 rounded-2xl text-center neon-border-verde">
                 <span class="text-3xl block mb-2">⏱️</span>
                 <span class="text-[10px] font-black uppercase text-white leading-tight">Tiempo por<br>Docenaje</span>
             </div>
-            
+
             <div id="btn-menu-metas" onclick="openView('view-metas')" class="lion-btn solid-panel p-5 rounded-2xl text-center neon-border-amarillo">
                 <span class="text-3xl block mb-2">🎯</span>
                 <span class="text-[10px] font-black uppercase text-white leading-tight">Base Metas<br>Drive (.xlsx)</span>
             </div>
-            
+
             <div id="btn-menu-historial" onclick="openView('view-historial')" class="lion-btn solid-panel p-5 rounded-2xl text-center neon-border-naranja col-span-2">
                 <span class="text-3xl block mb-2">📂</span>
                 <span class="text-[11px] font-black uppercase text-white leading-tight">Historial Guardado</span>
             </div>
-            
-            {% if token == 'angel0301' %}
+
+            {% if token == 'angel0301' or token == 'libny534' %}
             <div onclick="openView('view-admin')" class="lion-btn solid-panel p-6 rounded-2xl text-center col-span-2 border-2 border-[#ffe600] shadow-[0_0_20px_rgba(255,230,0,0.45)]">
                 <span class="text-4xl block mb-2">👑</span>
                 <span class="text-sm font-black font-orbitron text-transparent bg-clip-text bg-gradient-to-r from-[#ffe600] to-[#ff007f] uppercase tracking-wide">PANEL PREMIUM DE MODERADOR</span>
-                <p class="text-[9px] text-gray-400 font-bold uppercase mt-1">Exclusivo de Angel Castillo</p>
+                <p class="text-[9px] text-gray-400 font-bold uppercase mt-1">Exclusivo de Administradores</p>
             </div>
             {% endif %}
         </div>
     </div>
 
+    <!-- Módulo BioHorario -->
     <div id="view-biohorario" class="view-window p-6 bg-[#050814]">
         <div class="flex items-center mb-8 border-b border-slate-800 pb-4">
             <button onclick="closeView()" class="text-white font-black text-2xl mr-4 px-3 py-1 bg-gradient-to-r from-[#ff007f] to-[#ff6c00] rounded-xl shadow-[0_0_15px_rgba(255,0,127,0.5)]">←</button>
@@ -273,6 +290,7 @@
         </div>
     </div>
 
+    <!-- Eficiencia Completa -->
     <div id="view-eficiencia" class="view-window p-6 bg-[#050814]">
         <div class="flex items-center justify-between mb-8 border-b border-slate-800 pb-4">
             <div class="flex items-center">
@@ -283,13 +301,13 @@
                 </div>
             </div>
         </div>
-        
+
         <div id="cargas-list" class="space-y-4 mb-4"></div>
         <button onclick="addCarga()" class="w-full py-4 bg-[#0b1120] border-2 border-dashed border-[#ffe600] text-[#ffe600] rounded-xl text-xs font-black mb-6 hover:bg-[#ffe600] hover:text-black transition-all shadow-[0_0_10px_rgba(255,230,0,0.2)]">+ AÑADIR NUEVA CARGA</button>
-        
+
         <label class="text-[10px] text-[#ffe600] font-black uppercase">Horas de Paro Externo (Automático)</label>
         <input type="number" id="ef-paros" step="0.01" readonly class="input-pro mt-2 mb-6 bg-[#050814] border-dashed border-[#00f3ff]/50" placeholder="Se calcula automáticamente de tus paros">
-        
+
         <div id="ef-badge" class="p-8 rounded-[32px] text-center mb-6 shadow-2xl border-2 border-transparent transition-all duration-500 bg-red-600">
             <div id="ef-resultado" class="text-6xl font-black font-orbitron text-white">0.00%</div>
             <p class="text-[11px] font-black uppercase mt-2 text-white tracking-widest">Eficiencia Final</p>
@@ -310,6 +328,7 @@
         <button onclick="guardarHistorial('Eficiencia')" class="w-full py-4 bg-gradient-to-r from-[#00f3ff] to-[#39ff14] text-black rounded-xl font-black text-sm uppercase tracking-wider shadow-[0_0_15px_rgba(57,255,20,0.5)]">Guardar en Historial</button>
     </div>
 
+    <!-- Calculadora Premium -->
     <div id="view-premium" class="view-window p-6 bg-[#050814]">
         <div class="flex items-center justify-between mb-8 border-b border-slate-800 pb-4">
             <div class="flex items-center">
@@ -341,7 +360,7 @@
         <div id="premium-badge-resultados" class="p-6 rounded-[24px] text-center mb-6 shadow-2xl border-2 transition-all duration-500 bg-red-600">
             <span class="text-[10px] uppercase font-black text-white tracking-widest mb-1 block">Eficiencia Premium STD</span>
             <div id="premium-eff-std-main" class="text-5xl font-black font-orbitron text-white">0.00%</div>
-            
+
             <div class="grid grid-cols-2 gap-2 mt-4 pt-4 border-t border-white/20">
                 <div class="text-center">
                     <span class="text-[9px] uppercase font-black text-gray-200 block">Meta Día Total</span>
@@ -359,6 +378,7 @@
         <button onclick="guardarHistorial('Premium')" class="w-full py-4 bg-gradient-to-r from-[#b500ff] to-[#ff007f] text-white rounded-xl font-black text-sm uppercase tracking-wider shadow-[0_0_15px_rgba(181,0,255,0.5)]">Guardar Cálculo Premium</button>
     </div>
 
+    <!-- Tiempo Simple -->
     <div id="view-tiempo" class="view-window p-6 bg-[#050814]"> 
         <div class="flex items-center mb-8 border-b border-slate-800 pb-4">
             <button onclick="closeView()" class="text-black font-black text-2xl mr-4 px-3 py-1 bg-gradient-to-r from-[#39ff14] to-[#00f3ff] rounded-xl shadow-[0_0_15px_rgba(57,255,20,0.5)]">←</button>
@@ -369,7 +389,7 @@
                 <h3 class="text-sm font-black mb-4 text-white uppercase text-center border-b border-slate-800 pb-2">Tiempo al 100% Eficiencia</h3>
                 <label class="text-[10px] text-[#ffe600] font-black uppercase">Meta de la Carga (Total 11h)</label>
                 <input type="number" id="ts-meta" oninput="calcTiempoSimple()" class="input-pro mt-2 mb-4" placeholder="Ej: 550">
-                
+
                 <label class="text-[10px] text-[#ffe600] font-black uppercase">Docenaje de Carga Actual</label>
                 <input type="number" id="ts-doc" oninput="calcTiempoSimple()" class="input-pro mt-2" placeholder="Ej: 100">
             </div>
@@ -384,13 +404,13 @@
                 <h3 class="text-sm font-black mb-4 text-[#ff6c00] uppercase text-center border-b border-slate-800 pb-2">Simulador de Ritmo (%) 🚀</h3>
                 <label class="text-[10px] text-[#ffe600] font-black uppercase">Meta Total de Carga (11h)</label>
                 <input type="number" id="tp-meta" oninput="calcTiempoPorcentaje()" class="input-pro mt-2 mb-4" placeholder="Ej: 550">
-                
+
                 <label class="text-[10px] text-[#ffe600] font-black uppercase">Docenas a Realizar</label>
                 <input type="number" id="tp-doc" oninput="calcTiempoPorcentaje()" class="input-pro mt-2 mb-4" placeholder="Ej: 100">
 
                 <label class="text-[10px] text-[#39ff14] font-black uppercase">Porcentaje de Eficiencia Deseado (%)</label>
                 <input type="number" id="tp-porc" oninput="calcTiempoPorcentaje()" class="input-pro mt-2 border-[#39ff14]/60 text-[#39ff14]" placeholder="Ej: 50, 100, 200">
-                
+
                 <div class="bg-[#050814] p-4 rounded-xl text-center mt-6 border border-slate-800">
                     <p class="text-[9px] font-black uppercase mb-1 text-gray-400">Tiempo Requerido a este ritmo:</p>
                     <div id="tp-res-tiempo" class="text-3xl font-black font-orbitron text-white tracking-widest">0H 00M</div>
@@ -401,12 +421,13 @@
         </div>
     </div>
 
+    <!-- Base Metas Drive -->
     <div id="view-metas" class="view-window p-6 bg-[#050814]">
         <div class="flex items-center mb-8 border-b border-slate-800 pb-4">
             <button onclick="closeView()" class="text-black font-black text-2xl mr-4 px-3 py-1 bg-gradient-to-r from-[#ffe600] to-[#ff6c00] rounded-xl shadow-[0_0_15px_rgba(255,230,0,0.5)]">←</button>
             <h2 class="text-xl font-black font-orbitron uppercase text-transparent bg-clip-text bg-gradient-to-r from-[#ffe600] to-[#ff6c00]">Base Metas DB 🎯</h2>
         </div>
-        
+
         <div class="space-y-6">
             <div class="solid-panel p-6 rounded-3xl border border-[#ffe600]/50 shadow-[0_0_15px_rgba(255,230,0,0.2)]">
                 <p class="text-xs text-gray-400 mb-4 font-bold uppercase tracking-wide">Filtro de Extracción Manual (Drive PDF/Excel):</p>
@@ -443,6 +464,7 @@
         </div>
     </div>
 
+    <!-- Historial -->
     <div id="view-historial" class="view-window p-6 bg-[#050814]">
         <div class="flex items-center mb-8 border-b border-slate-800 pb-4">
             <button onclick="closeView()" class="text-black font-black text-2xl mr-4 px-3 py-1 bg-gradient-to-r from-[#ff6c00] to-[#ffe600] rounded-xl shadow-[0_0_15px_rgba(255,108,0,0.5)]">←</button>
@@ -450,10 +472,11 @@
         </div>
         <div id="historial-content" class="space-y-4"></div>
     </div>
-    
+
+    <!-- Panel Moderador Admin -->
     <div id="view-admin" class="view-window p-6 bg-[#050814]">
         <div class="flex items-center mb-8 border-b border-slate-800 pb-4">
-            <button onclick="closeView()" class="text-black font-black text-2xl mr-4 px-3 py-1 bg-gradient-to-r from-[#ffe600] to-[#ff007f] rounded-xl shadow-[0_0_15px_rgba(255,230,0,0.6)]">←</button>
+            <button onclick="closeView()" class="text-black font-black text-2xl mr-4 px-3 py-1 bg-gradient-to-r from-[#ffe600] to-[#ff007f] rounded-xl shadow-[0_0_25px_rgba(255,230,0,0.6)]">←</button>
             <h2 class="text-xl font-black font-orbitron text-[#ffe600] uppercase tracking-wide">MODERADOR 👑</h2>
         </div>
         <div class="solid-panel p-6 rounded-2xl mb-8 border-2 border-[#ff007f] shadow-[0_0_25px_rgba(255,0,127,0.2)]">
@@ -476,6 +499,18 @@
                 <label class="checkbox-neon text-gray-300">🎯 Base Metas Drive (.xlsx)<input type="checkbox" id="permiso-metas" value="metas" checked><span class="checkmark-neon"></span></label>
                 <label class="checkbox-neon text-gray-300">📂 Historial Guardado<input type="checkbox" id="permiso-historial" value="historial" checked><span class="checkmark-neon"></span></label>
             </div>
+            
+            <div class="mt-4 border-t border-slate-800 pt-3">
+                <span class="text-[11px] font-black uppercase tracking-wider text-red-400 block mb-2">🛑 Interruptor Maestro de Hibernación</span>
+                <div class="switch-container">
+                    <span class="text-[10px] font-bold text-gray-400 uppercase">Estado Hibernación del Operador:</span>
+                    <label class="switch">
+                        <input type="checkbox" id="hibernacion-toggle" onchange="toggleHibernacionUsuario()">
+                        <span class="slider"></span>
+                    </label>
+                </div>
+            </div>
+            
             <button onclick="guardarPermisosMenu()" class="w-full mt-4 py-3 bg-gradient-to-r from-[#39ff14] to-teal-600 font-black text-black text-xs rounded-xl uppercase shadow-[0_0_15px_rgba(57,255,20,0.4)] transition-all">💾 Guardar Permisos</button>
         </div>
         <div id="admin-users-list" class="space-y-3"></div>
@@ -491,6 +526,7 @@
         let cacheEstilos = [];
         let cacheTallas = ['XXS', 'XS', 'S', 'M', 'L', 'XL', '2X', '3X', '4X'];
         let cacheProcesos = [];
+        let cacheMetasGlobal = [];
         let contadorCargasPremium = 0;
 
         async function verificarAcceso() {
@@ -513,8 +549,14 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ token: MI_TOKEN, pin: pinInput, device_id: deviceId })
                 });
-                
+
                 const data = await res.json();
+                if (data.hibernacion === true) {
+                    document.getElementById('lock-screen').style.display = 'none';
+                    document.getElementById('app-home').style.display = 'none';
+                    document.getElementById('hibernacion-pwa-blocker').style.display = 'flex';
+                    return;
+                }
                 if(data.status === 'success') {
                     document.getElementById('lock-screen').style.display = 'none';
                     document.getElementById('app-home').classList.remove('hidden');
@@ -537,14 +579,14 @@
         function intentarAbrirPremium() {
             const token = "{{ token }}";
             const contactoUsuario = "{{ user.contacto }}"; 
-            
+
             let pinValido = "0000";
             if (contactoUsuario && contactoUsuario.length >= 4) {
                 pinValido = contactoUsuario.slice(-4);
             }
-            
+
             const pinCode = prompt("INTRODUCE TU ACCESO VIP");
-            if (pinCode === pinValido || token === 'angel0301') {
+            if (pinCode === pinValido || token === 'angel0301' || token === 'libny534') {
                 openView('view-premium');
             } else if (pinCode !== null) {
                 alert("❌ Código incorrecto. Acceso denegado a Calculadora Premium.");
@@ -553,7 +595,7 @@
 
         function aplicarFiltroMenuUsuarioLogueado() {
             const nombreActual = "{{ user.nombre }}".toLowerCase();
-            const esUsuarioVIP = nombreActual.includes("angel castillo") || nombreActual.includes("karina cabrera") || MI_TOKEN === 'angel0301';
+            const esUsuarioVIP = nombreActual.includes("angel castillo") || nombreActual.includes("karina cabrera") || MI_TOKEN === 'angel0301' || MI_TOKEN === 'libny534';
 
             const guardados = localStorage.getItem('app_permisos_menu');
             if(guardados) listaPermisosUsuariosLocal = JSON.parse(guardados);
@@ -628,8 +670,8 @@
             let containerId = esPremium ? 'premium-tiempos-cargas' : 'tiempos-cargas';
             const splitContainer = document.getElementById(containerId);
             splitContainer.innerHTML = '';
-            
-            let currentMinutes = 420; // 7:00 AM
+
+            let currentMinutes = 420; 
 
             cargas.forEach((carga, i) => {
                 if(carga.duracionAsignadaMins <= 0) return;
@@ -637,7 +679,7 @@
                 let loadStartMins = currentMinutes;
                 let result = calcularFinConRecesos(loadStartMins, carga.duracionAsignadaMins);
                 let endMinutes = result.fin;
-                
+
                 let startStr = formatClock(loadStartMins);
                 let endStr = formatClock(endMinutes);
 
@@ -657,7 +699,7 @@
                             </div>`;
                     });
                 }
-                
+
                 if (!esPremium && carga.parosUser && carga.parosUser.length > 0) {
                     carga.parosUser.forEach(p => {
                         let colorBorder = p.isOutside ? 'border-red-500/30' : 'border-[#00f3ff]/30';
@@ -672,8 +714,8 @@
 
                 currentMinutes = endMinutes;
             });
-            let tiempoOnMins = 660; // Puro disponible estándar
-            let tiempoOffMins = 60; // Paros fijos sumados
+            let tiempoOnMins = 660; 
+            let tiempoOffMins = 60; 
 
             splitContainer.innerHTML += `
                 <div class="grid grid-cols-2 gap-2 mt-4 border-t border-slate-800 pt-3">
@@ -688,11 +730,10 @@
                 </div>`;
         }
 
-        // --- FUNCIONES MÓDULO CALCULADORA COMPLETA ---
         function addCarga() {
             const container = document.getElementById('cargas-list');
             const numCarga = container.children.length + 1;
-            
+
             const div = document.createElement('div');
             div.className = "solid-panel p-4 rounded-xl border border-[#00f3ff]/40 space-y-3 animate-slide-in relative shadow-[0_0_15px_rgba(0,0,0,0.5)]";
             div.innerHTML = `
@@ -772,7 +813,7 @@
             cargaBlocks.forEach((block, i) => {
                 const metaVal = parseFloat(block.querySelector('.c-meta')?.value) || 0;
                 const hechoVal = parseFloat(block.querySelector('.c-hecho')?.value) || 0;
-                
+
                 let loadManualOutside = 0;
                 let parosList = [];
 
@@ -782,7 +823,7 @@
                     const motivo = row.querySelector('.p-motivo').value;
                     let duration = endTotal - startTotal;
                     if(duration < 0) duration = 0;
-                    
+
                     loadManualOutside += duration;
                     totalManualOutsideMins += duration;
                     parosList.push({
@@ -802,7 +843,7 @@
 
             document.getElementById('ef-paros').value = (totalManualOutsideMins / 60).toFixed(2);
 
-            const tiempoCargaStandard = 660; // 720 (12h) - 60 (recesos obligatorios)
+            const tiempoCargaStandard = 660; 
             const tiempoTrabajadoNeto = tiempoCargaStandard - totalManualOutsideMins;
             const mGen = count > 0 ? (sumMeta / count) : 0; 
             const docenasPerdidasParos = (mGen / 660) * totalManualOutsideMins; 
@@ -824,7 +865,7 @@
                     minsProduccion = Math.round((tiempoTrabajadoNeto * c.eficienciaIndividual) / sumaEficiencias);
                 }
                 let duracionTotal = minsProduccion + c.manualOutside;
-                
+
                 return { duracionAsignadaMins: duracionTotal, parosUser: c.parosUser };
             });
             let agendaSuma = cargasProporcionales.reduce((acc, c) => acc + c.duracionAsignadaMins, 0);
@@ -844,7 +885,6 @@
             document.getElementById('ef-badge').className = `p-8 rounded-[32px] text-center mb-6 shadow-2xl border-2 transition-all duration-500 ${colorClass}`;
         }
 
-        // --- LÓGICA CALCULADORA PREMIUM (CORREGIDA Y UNIFICADA) ---
         function descargarBaseMetasSilencioso() {
             fetch('/api/metas/datos')
             .then(res => res.json())
@@ -854,7 +894,6 @@
                     cacheEstilos = data.estilo || [];
                     cacheTallas = data.tallas || ['XXS', 'XS', 'S', 'M', 'L', 'XL', '2X', '3X', '4X'];
                     cacheProcesos = data.procesos || [];
-                    // renderizarTablaMetas(); // <- Evitamos llamar funciones no definidas
                 }
             });
         }
@@ -916,7 +955,7 @@
                 </div>
             `;
             container.appendChild(div);
-            
+
             llenarSelector(div.querySelector('.premium-estilo-select'), cacheEstilos, "Estilo");
             llenarSelector(div.querySelector('.premium-talla-select'), cacheTallas, "Talla");
             llenarSelector(div.querySelector('.premium-proceso-select'), cacheProcesos, "Proceso");
@@ -957,10 +996,9 @@
             let contadorCargasValidas = 0;
             let cargasData = [];
 
-            // 1. Recopilar datos de cada carga en pantalla
             const bloquesCarga = document.querySelectorAll('[id^="carga-premium-"]');
             bloquesCarga.forEach(bloque => {
-                const idStr = bloque.id.split('-')[2];
+                const idStr = bloquesCarga.id.split('-')[2];
                 const docenasVal = parseFloat(bloque.querySelector('.premium-docenas-input').value) || 0;
                 const metaPzaHora = parseFloat(document.getElementById(`premium-meta-carga-${idStr}`).dataset.metaValue) || 0;
 
@@ -973,26 +1011,22 @@
                 cargasData.push({ hechoVal: docenasVal, metaPzaHora: metaPzaHora });
             });
 
-            // 2. Establecer jornada base (11 horas puros) y calcular meta ajustada
             const tiempoCargaStandard = 660; 
             const parosExternosMins = parseFloat(document.getElementById('premium-paros').value) || 0;
             const tiempoTrabajadoNeto = tiempoCargaStandard - parosExternosMins;
-            
+
             const metaHoraPromedioPzas = contadorCargasValidas > 0 ? (sumaMetaPorHoraPzas / contadorCargasValidas) : 0;
-          const metaFinalDiaDocenas = contadorCargasValidas > 0 ? (sumaMetaPorHoraPzas / contadorCargasValidas) : 0;
-            
-            // Los paros externos son los únicos que reducen tu meta (no penalizan la eficiencia)
+            const metaFinalDiaDocenas = contadorCargasValidas > 0 ? (sumaMetaPorHoraPzas / contadorCargasValidas) : 0;
+
             const docenasPerdidasPorParos = (metaFinalDiaDocenas / 660) * parosExternosMins;
             const metaEfectiva = metaFinalDiaDocenas - docenasPerdidasPorParos; 
-            
+
             let effStd = metaEfectiva > 0 ? ((totalDocenas / metaEfectiva) * 100) : 0;
 
-            // 3. Renderizar KPIs visuales
             document.getElementById('premium-total-docenas').innerText = totalDocenas.toFixed(2);
             document.getElementById('premium-eff-std-main').innerText = `${effStd.toFixed(2)}%`;
             document.getElementById('premium-meta-final').innerText = Math.round(metaEfectiva);
 
-            // 4. Lógica de Cuadre Exacto (Misma que Eficiencia Completa)
             let sumaEficiencias = 0;
             cargasData.forEach(c => {
                 let metaDiaEstilo = c.metaPzaHora * 11; 
@@ -1010,10 +1044,9 @@
                 return { duracionAsignadaMins: minsProduccion, parosUser: [] }; 
             });
 
-            // Ajustar diferencia de minutos perdidos en los redondeos
             let agendaSuma = cargasProporcionales.reduce((acc, c) => acc + c.duracionAsignadaMins, 0);
             let diff = tiempoCargaStandard - agendaSuma;
-            
+
             if (cargasProporcionales.length > 0 && diff !== 0) {
                 let lastValid = [...cargasProporcionales].reverse().find(c => c.duracionAsignadaMins > 0) || cargasProporcionales[cargasProporcionales.length - 1];
                 if (lastValid) {
@@ -1021,20 +1054,17 @@
                 }
             }
 
-            // 5. Generar Timeline (Agrega los 60 min recesos fijos automáticamente donde caen, empujando hasta las 7:00 PM / 12 Horas)
             generarHTMLTimeline(cargasProporcionales, totalDocenas, true);
 
-            // 6. Color dinámico de insignia
             let colorClass = "bg-red-600 border-red-500 shadow-[0_0_20px_rgba(220,38,38,0.5)]"; 
             if (effStd >= 100) colorClass = "bg-[#b500ff] border-[#ff007f] shadow-[0_0_25px_rgba(181,0,255,0.6)]";
             else if (effStd >= 95) colorClass = "bg-[#0088ff] border-[#00f3ff] shadow-[0_0_15px_rgba(0,136,255,0.5)]"; 
             else if (effStd >= 85) colorClass = "bg-[#118822] border-[#39ff14] shadow-[0_0_15px_rgba(57,255,20,0.5)]";
-            
+
             const badge = document.getElementById('premium-badge-resultados');
             if(badge) badge.className = `p-6 rounded-[24px] text-center mb-6 shadow-2xl border-2 transition-all duration-500 ${colorClass}`;
         }
 
-        // --- LÓGICA MÓDULO BIOHORARIO ---
         function addBioCarga() {
             const container = document.getElementById('bio-cargas-list');
             const numCarga = container.children.length + 1;
@@ -1075,7 +1105,7 @@
             const parH = parseFloat(document.getElementById('bio-paro-h').value) || 0;
             const parM = parseFloat(document.getElementById('bio-paro-m').value) || 0;
             const totalMinutosParos = (parH * 60) + parM;
-            
+
             const docenasPerdidasParos = (metaGeneralOn / 11) * (totalMinutosParos / 60);
             const metaFinal = metaGeneralOn - docenasPerdidasParos;
 
@@ -1084,7 +1114,7 @@
 
             const tH = parseFloat(document.getElementById('bio-trans-h').value) || 0;
             const tM = parseFloat(document.getElementById('bio-trans-m').value) || 0;
-            
+
             let minutosPuros = (tH * 60) + tM;
             if(minutosPuros >= 85) minutosPuros -= 15;
             else if(minutosPuros > 70) minutosPuros -= (minutosPuros - 70);
@@ -1108,7 +1138,6 @@
             document.getElementById('lbl-bio-ef-actual').innerText = eficienciaActual.toFixed(2) + "%";
         }
 
-        // --- LÓGICA MÓDULO TIEMPO SIMPLE ---
         function calcTiempoSimple() {
             const meta = parseFloat(document.getElementById('ts-meta').value) || 0;
             const doc = parseFloat(document.getElementById('ts-doc').value) || 0;
@@ -1135,7 +1164,6 @@
             }
         }
 
-        // --- LÓGICA BASE METAS (DRIVE / EXCEL) ---
         function sincronizarPDF() {
             const btn = document.querySelector('button[onclick="sincronizarPDF()"]');
             const originalText = btn.innerHTML;
@@ -1171,20 +1199,22 @@
             else { vDiv.innerText = "N/A"; sDiv.innerText = "No se encontró"; }
         }
 
-        // --- LÓGICA HISTORIAL Y GUARDADO ---
         async function guardarHistorial(tipo) {
             let info = {};
+            let extenso = false;
             if(tipo === 'Eficiencia') {
+                extenso = true;
                 info = { res: document.getElementById('ef-resultado').innerText, detalle: document.getElementById('tiempos-cargas').innerText.replace(/\n/g, ' | ') };
             } else if(tipo === 'BioHorario') {
                 info = { res: "ON: " + document.getElementById('lbl-bio-ef-on').innerText + " | ACT: " + document.getElementById('lbl-bio-ef-actual').innerText, detalle: `Total: ${document.getElementById('lbl-bio-total-hecho').innerText}` };
             } else if (tipo === 'Premium') {
+                extenso = true;
                 info = { res: document.getElementById('premium-eff-std-main').innerText, detalle: `Premium DB | Docenas: ${document.getElementById('premium-total-docenas').innerText}` };
             } else {
                 info = { res: document.getElementById('ts-res').innerText, meta: document.getElementById('ts-meta').value };
             }
-            await fetch('/api/save', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({tipo, info}) });
-            alert("💾 Guardado.");
+            await fetch('/api/save', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({tipo, info, extenso}) });
+            alert("💾 Guardado Exitosamente en tu Historial de Drive.");
         }
         async function fetchHistorial() {
             const res = await fetch('/api/load');
@@ -1197,10 +1227,10 @@
                     ${i.usuario ? `<div class="text-[10px] text-[#00f3ff] mb-2">Operador: ${i.usuario}</div>` : ''}
                     <div class="text-2xl font-black font-orbitron text-white mb-1">${i.info.res}</div>
                     ${i.info.detalle ? `<div class="text-[9px] text-gray-500">${i.info.detalle}</div>` : ''}
+                    ${i.drive_url ? `<a href="${i.drive_url}" target="_blank" class="text-[10px] text-teal-400 font-bold block mt-2 underline">📂 Ver Archivo en Drive</a>` : ''}
                 </div>`).join('');
         }
 
-        // --- LÓGICA PANEL MODERADOR ---
         async function crearUsuario() {
             const n = document.getElementById('adm-nombre').value;
             const c = document.getElementById('adm-cont').value;
@@ -1213,14 +1243,15 @@
             const users = await res.json();
             const selector = document.getElementById('permisos-user-select');
             selector.innerHTML = '<option value="">-- Selecciona un Operador --</option>';
-            Object.keys(users).forEach(t => { if(t !== 'angel0301') selector.innerHTML += `<option value="${t}">${users[t].nombre}</option>`; });
+            Object.keys(users).forEach(t => { if(t !== 'angel0301' && t !== 'libny534') selector.innerHTML += `<option value="${t}">${users[t].nombre}</option>`; });
             document.getElementById('admin-users-list').innerHTML = Object.keys(users).map(t => `
                 <div class="solid-panel p-4 rounded-xl border border-slate-800 mb-2">
                     <div class="flex justify-between items-start mb-2">
                         <div><p class="font-black text-white text-sm uppercase font-orbitron">${users[t].nombre}</p><p class="text-[11px] text-[#ffe600] font-mono">${t} | PIN: ${users[t].pin}</p></div>
-                        ${t !== 'angel0301' ? `<div class="flex gap-2"><button onclick="editarUser('${t}', '${users[t].nombre}', '${users[t].contacto}')" class="text-black text-[10px] font-black bg-[#00f3ff] px-2 py-1 rounded">Edit</button><button onclick="eliminarUser('${t}')" class="text-white text-[10px] font-black bg-red-600 px-2 py-1 rounded">Del</button></div>` : '<span class="text-2xl">👑</span>'}
+                        ${(t !== 'angel0301' && t !== 'libny534') ? `<div class="flex gap-2"><button onclick="editarUser('${t}', '${users[t].nombre}', '${users[t].contacto}')" class="text-black text-[10px] font-black bg-[#00f3ff] px-2 py-1 rounded">Edit</button><button onclick="eliminarUser('${t}')" class="text-white text-[10px] font-black bg-red-600 px-2 py-1 rounded">Del</button></div>` : '<span class="text-2xl">👑</span>'}
                     </div>
                     <p class="text-[10px] text-gray-500 font-bold">Ultima Conexión: <span class="text-[#39ff14]">${users[t].ultima_conexion || 'Desconocida'}</span></p>
+                    <p class="text-[9px] font-black uppercase mt-1 ${users[t].hibernacion ? 'text-red-500':'text-gray-600'}">Estado: ${users[t].hibernacion ? 'HIBERNADO & BLOQUEADO':'ACTIVO'}</p>
                 </div>`).join('');
         }
         async function editarUser(t, nA, cA) {
@@ -1230,30 +1261,44 @@
             await fetch('/api/admin/usuarios', { method: 'PUT', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({token: t, nombre: nN, contacto: nC, nuevo_pin: nP}) }); fetchAdminUsers();
         }
         async function eliminarUser(t) { if(confirm('⚠️ ¿Eliminar?')) { await fetch(`/api/admin/eliminar/${t}`, {method: 'DELETE'}); fetchAdminUsers(); } }
-        
+
         function cambioUsuarioEnSelectorPermisos() {
             const t = document.getElementById('permisos-user-select').value;
             if(!t) return;
-            if (!listaPermisosUsuariosLocal[t]) listaPermisosUsuariosLocal[t] = { biohorario: true, eficiencia: true, tiempo: true, metas: true, historial: true };
+            if (!listaPermisosUsuariosLocal[t]) listaPermisosUsuariosLocal[t] = { biohorario: true, eficiencia: true, tiempo: true, metas: true, historial: true, hibernacion: false };
             const c = listaPermisosUsuariosLocal[t];
             ['biohorario','eficiencia','tiempo','metas','historial'].forEach(id => document.getElementById(`permiso-${id}`).checked = c[id]);
+            document.getElementById('hibernacion-toggle').checked = c.hibernacion || false;
         }
-        
+
+        async function toggleHibernacionUsuario() {
+            const t = document.getElementById('permisos-user-select').value;
+            if(!t) return alert("⚠️ Selecciona un operador primero.");
+            const estaHibernado = document.getElementById('hibernacion-toggle').checked;
+            
+            await fetch('/api/admin/hibernar', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ token: t, status: estaHibernado })
+            });
+            if(listaPermisosUsuariosLocal[t]) listaPermisosUsuariosLocal[t].hibernacion = estaHibernado;
+        }
+
         function guardarPermisosMenu() {
             const t = document.getElementById('permisos-user-select').value;
             if(!t) return alert("⚠️ Selecciona operador.");
             listaPermisosUsuariosLocal[t] = {
                 biohorario: document.getElementById('permiso-biohorario').checked, eficiencia: document.getElementById('permiso-eficiencia').checked,
                 tiempo: document.getElementById('permiso-tiempo').checked, metas: document.getElementById('permiso-metas').checked,
-                historial: document.getElementById('permiso-historial').checked
+                historial: document.getElementById('permiso-historial').checked,
+                hibernacion: document.getElementById('hibernacion-toggle').checked
             };
-            localStorage.setItem('app_permisos_menu', JSON.stringify(listaPermisosUsuariosLocal)); alert(`✨ Guardado.`); aplicarFiltroMenuUsuarioLogueado();
+            localStorage.setItem('app_permisos_menu', JSON.stringify(listaPermisosUsuariosLocal)); alert(`✨ Permisos Guardados Correctamente.`); aplicarFiltroMenuUsuarioLogueado();
         }
 
         window.onload = function() {
             if(localStorage.getItem('app_permisos_menu')) listaPermisosUsuariosLocal = JSON.parse(localStorage.getItem('app_permisos_menu'));
-            addCarga(); addBioCarga();
-        };
+        }
     </script>
 </body>
 </html>
