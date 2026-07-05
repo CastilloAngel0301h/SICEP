@@ -82,22 +82,22 @@ def procesar_metas_drive():
         done = False
         while done is False:
             status, done = downloader.next_chunk()
-            
+
         fh.seek(0)
         wb = openpyxl.load_workbook(fh, data_only=True)
         hoja_metas = wb.active
-        
+
         data = []
         estilos = set()
         procesos = set()
-        
+
         for row in hoja_metas.iter_rows(min_row=2, values_only=True):
             if len(row) >= 6:
                 estilo = str(row[0]).strip() if row[0] is not None else ""
                 talla_raw = str(row[1]).strip() if row[1] is not None else ""
                 proceso = str(row[3]).strip() if row[3] is not None else ""
                 meta = str(row[5]).strip() if row[5] is not None else ""
-                
+
                 if estilo and talla_raw and proceso and meta:
                     if meta.replace('.', '', 1).isdigit():
                         talla_norm = normalizar_talla(talla_raw)
@@ -148,7 +148,7 @@ def login_verificar():
     token = data.get('token')
     pin_ingresado = str(data.get('pin')).strip()
     device_id_cliente = str(data.get('device_id')).strip()
-    
+
     # EXCEPCIÓN DEL ADMINISTRADOR
     if token == 'angel0301':
         usuarios_actuales = cargar_usuarios_drive()
@@ -164,7 +164,7 @@ def login_verificar():
         celda = sheet.find(token)
         fila = celda.row
         valores_fila = sheet.row_values(fila)
-        
+
         pin_correcto = str(valores_fila[3]).strip()
         if pin_ingresado != pin_correcto:
             return jsonify({"status": "error", "message": "PIN Incorrecto"}), 401
@@ -180,7 +180,7 @@ def login_verificar():
             sheet.delete_row(fila)
             return jsonify({"status": "deleted"}), 403
 
-        # Login Exitoso: Actualizar última conexión (Columna 12)
+        # Login Exitoso: Actualizar última conexión (Columna 12 / L)
         fecha_actual = datetime.now().strftime("%d/%m/%Y %H:%M")
         sheet.update_cell(fila, 12, fecha_actual)
 
@@ -206,17 +206,18 @@ def login_verificar():
 def admin_drive():
     if session.get('user_token') != 'angel0301': 
         return jsonify({"error": "No autorizado"}), 403
-    
+
     if request.method == 'GET':
         return jsonify(cargar_usuarios_drive())
 
     data = request.json
-    
+
     if request.method == 'POST':
         nuevo_tkn = generar_token(data['nombre'])
         nuevo_pin = data.get('pin') if data.get('pin') else "".join(random.choices(string.digits, k=4))
-        # Se añaden las nuevas columnas activadas ("true") por defecto al crear usuario
-        sheet.append_row([nuevo_tkn, data['nombre'], data['contacto'], nuevo_pin, "operador", "", "true", "true", "true", "true", "true"])
+        # Se añaden las columnas con la estructura limpia de 12 campos:
+        # Tkn (1), Nombre (2), Contacto (3), Pin (4), Rol (5), Device_id (6), Permisos x5 (7-11), Ultima_conexion (12)
+        sheet.append_row([nuevo_tkn, data['nombre'], data['contacto'], nuevo_pin, "operador", "", "true", "true", "true", "true", "true", "Nunca"])
         return jsonify({"token": nuevo_tkn, "pin": nuevo_pin})
 
     if request.method == 'PUT':
