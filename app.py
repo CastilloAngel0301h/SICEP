@@ -8,7 +8,7 @@ import io
 import openpyxl  # Para leer archivos Excel (.xlsx) de Google Drive
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseDownload 
-from datetime import datetime  # <--- IMPORTACIÓN AGREGADA
+from datetime import datetime
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'angel_admin_2026_secure')
@@ -24,12 +24,15 @@ except Exception as e:
 
 def cargar_usuarios_drive():
     try:
-        # Usamos get_all_values() para leer columnas exactas por índice
         records = sheet.get_all_values()
         usuarios = {}
         for row in records[1:]:  # Saltar encabezados
             if len(row) > 0 and str(row[0]).strip():
                 tkn = str(row[0]).strip()
+                
+                # REVISIÓN DE HIBERNACIÓN: Si la columna G es 'false', está hibernado
+                is_hibernated = str(row[6]).lower() == 'false' if len(row) > 6 and row[6] != "" else False
+                
                 usuarios[tkn] = {
                     "token": tkn,
                     "nombre": str(row[1]).strip() if len(row) > 1 else "",
@@ -37,9 +40,10 @@ def cargar_usuarios_drive():
                     "pin": str(row[3]).strip() if len(row) > 3 else "",
                     "rol": str(row[4]).strip() if len(row) > 4 else "operador",
                     "device_id": str(row[5]).strip() if len(row) > 5 else "",
-                    "ultima_conexion": str(row[11]).strip() if len(row) > 11 else "Desconocida", # <--- DATO NUEVO
+                    "ultima_conexion": str(row[11]).strip() if len(row) > 11 else "Desconocida",
                     "permisos": {
-                        "biohorario": str(row[6]).lower() == 'true' if len(row) > 6 and row[6] != "" else True,
+                        # El interruptor se mostrará APAGADO (False) si el usuario está hibernado
+                        "biohorario": not is_hibernated, 
                         "eficiencia": str(row[7]).lower() == 'true' if len(row) > 7 and row[7] != "" else True,
                         "tiempo": str(row[8]).lower() == 'true' if len(row) > 8 and row[8] != "" else True,
                         "metas": str(row[9]).lower() == 'true' if len(row) > 9 and row[9] != "" else True,
@@ -51,7 +55,7 @@ def cargar_usuarios_drive():
         print("Error al cargar usuarios de Drive:", e)
         return {}
 
-# --- CONFIGURACIÓN DE BASE DE DATOS METAS (EXCEL .XLSX EN DRIVE) ---
+# --- CONFIGURACIÓN DE BASE DE DATOS METAS (EXCEL EN DRIVE) ---
 pdf_metas_cache = {
     "estilos": [],
     "tallas": ['XXS', 'XS', 'S', 'M', 'L', 'XL', '2X', '3X', '4X'],
@@ -160,7 +164,6 @@ def login_verificar():
         return jsonify({"status": "error", "message": "PIN Incorrecto"}), 401
 
     try:
-        # Validación de usuario y dispositivo en Sheets
         celda = sheet.find(token)
         fila = celda.row
         valores_fila = sheet.row_values(fila)
@@ -169,14 +172,20 @@ def login_verificar():
         if pin_ingresado != pin_correcto:
             return jsonify({"status": "error", "message": "PIN Incorrecto"}), 401
 
+        # 🚨 EVALUACIÓN DE MODO HIBERNACIÓN (Columna G / Índice 6)
+        estado_g = str(valores_fila[6]).strip().lower() if len(valores_fila) > 6 else "true"
+        if estado_g == "false":
+            return jsonify({
+                "status": "hibernacion", 
+                "message": "SISTEMA Y SERVER EN MODO HIBERNACION HASTA FUTURO AVISO"
+            }), 200
+
         # Protocolo Device ID (Columna F -> Índice 5)
         device_id_db = str(valores_fila[5]).strip() if len(valores_fila) >= 6 else ""
 
         if not device_id_db:
-            # Vinculación del primer dispositivo
             sheet.update_cell(fila, 6, device_id_cliente)
         elif device_id_db != device_id_cliente:
-            # Destrucción del perfil por violación de seguridad
             sheet.delete_row(fila)
             return jsonify({"status": "deleted"}), 403
 
@@ -184,9 +193,9 @@ def login_verificar():
         fecha_actual = datetime.now().strftime("%d/%m/%Y %H:%M")
         sheet.update_cell(fila, 12, fecha_actual)
 
-        # Login Exitoso: Construir permisos (Columnas G a K -> Índices 6 a 10)
+        # Construir permisos de retorno
         permisos = {
-            "biohorario": str(valores_fila[6]).lower() == 'true' if len(valores_fila) > 6 and valores_fila[6] != "" else True,
+            "biohorario": True, 
             "eficiencia": str(valores_fila[7]).lower() == 'true' if len(valores_fila) > 7 and valores_fila[7] != "" else True,
             "tiempo": str(valores_fila[8]).lower() == 'true' if len(valores_fila) > 8 and valores_fila[8] != "" else True,
             "metas": str(valores_fila[9]).lower() == 'true' if len(valores_fila) > 9 and valores_fila[9] != "" else True,
@@ -215,8 +224,6 @@ def admin_drive():
     if request.method == 'POST':
         nuevo_tkn = generar_token(data['nombre'])
         nuevo_pin = data.get('pin') if data.get('pin') else "".join(random.choices(string.digits, k=4))
-        # Se añaden las columnas con la estructura limpia de 12 campos:
-        # Tkn (1), Nombre (2), Contacto (3), Pin (4), Rol (5), Device_id (6), Permisos x5 (7-11), Ultima_conexion (12)
         sheet.append_row([nuevo_tkn, data['nombre'], data['contacto'], nuevo_pin, "operador", "", "true", "true", "true", "true", "true", "Nunca"])
         return jsonify({"token": nuevo_tkn, "pin": nuevo_pin})
 
@@ -232,7 +239,6 @@ def admin_drive():
         except:
             return jsonify({"error": "No encontrado"}), 404
 
-# NUEVA RUTA: Guardar permisos directamente a Google Sheets
 @app.route('/api/admin/permisos', methods=['POST'])
 def update_permisos():
     if session.get('user_token') != 'angel0301': 
@@ -243,7 +249,7 @@ def update_permisos():
     try:
         celda = sheet.find(token)
         fila = celda.row
-        # Escribimos los booleanos en las columnas G, H, I, J, K
+        # Guarda el estado booleano del interruptor 'biohorario' directamente en la columna G
         sheet.update_cell(fila, 7, str(permisos.get('biohorario', True)).lower())
         sheet.update_cell(fila, 8, str(permisos.get('eficiencia', True)).lower())
         sheet.update_cell(fila, 9, str(permisos.get('tiempo', True)).lower())
