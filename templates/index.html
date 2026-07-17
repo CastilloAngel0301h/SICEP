@@ -611,14 +611,16 @@
             }
         }
 
-        function openView(id) {
+        async function openView(id) {
             document.getElementById(id).classList.add('active');
             if(id === 'view-admin') fetchAdminUsers();
             if(id === 'view-historial') fetchHistorial();
             if(id === 'view-metas' && pdfDataCache.length === 0) cargarOpcionesMetas();
             if(id === 'view-premium' && contadorCargasPremium === 0) {
-                if(pdfDataCache.length === 0) descargarBaseMetasSilencioso();
-                else agregarCargaPremium();
+                if(cacheMetasGlobal.length === 0) {
+                    await descargarBaseMetasSilencioso();
+                }
+                agregarCargaPremium();
             }
         }
 
@@ -700,14 +702,15 @@
                     });
                 }
 
-                if (!esPremium && carga.parosUser && carga.parosUser.length > 0) {
+                if (carga.parosUser && carga.parosUser.length > 0) {
                     carga.parosUser.forEach(p => {
                         let colorBorder = p.isOutside ? 'border-red-500/30' : 'border-[#00f3ff]/30';
                         let colorText = p.isOutside ? 'text-red-400' : 'text-[#00f3ff]';
+                        let timeRangeStr = (p.realStartStr && p.realStartStr !== "N/A") ? `${p.realStartStr} - ${p.realEndStr} ` : '';
                         splitContainer.innerHTML += `
                             <div class="flex justify-between items-center bg-slate-900 px-3 py-1.5 rounded-lg border ${colorBorder} ml-4 my-1">
                                 <span class="text-[9px] font-bold ${colorText}">↳ MAN. ${p.motivo}</span>
-                                <span class="text-[10px] font-mono text-gray-400 font-bold">${p.realStartStr} - ${p.realEndStr} (${p.durationMins}m)</span>
+                                <span class="text-[10px] font-mono text-gray-400 font-bold">${timeRangeStr}(${p.durationMins}m)</span>
                             </div>`;
                     });
                 }
@@ -847,10 +850,10 @@
             const tiempoTrabajadoNeto = tiempoCargaStandard - totalManualOutsideMins;
             const mGen = count > 0 ? (sumMeta / count) : 0; 
             const docenasPerdidasParos = (mGen / 660) * totalManualOutsideMins; 
-            const metaFinalDia = Math.round(mGen - docenasPerdidasParos);
-            let effStd = metaFinalDia > 0 ? ((sumHecho / metaFinalDia) * 100) : 0; 
+            const metaFinalDiaDia = Math.round(mGen - docenasPerdidasParos);
+            let effStd = metaFinalDiaDia > 0 ? ((sumHecho / metaFinalDiaDia) * 100) : 0; 
 
-            document.getElementById('ui-meta').innerText = metaFinalDia;
+            document.getElementById('ui-meta').innerText = metaFinalDiaDia;
             document.getElementById('ui-hecho').innerText = sumHecho;
             document.getElementById('ef-resultado').innerText = effStd.toFixed(2) + "%";
 
@@ -885,16 +888,23 @@
             document.getElementById('ef-badge').className = `p-8 rounded-[32px] text-center mb-6 shadow-2xl border-2 transition-all duration-500 ${colorClass}`;
         }
 
+        function actualizarCachesGlobales(data) {
+            if (data && data.status === 'success') {
+                cacheMetasGlobal = data.datos || [];
+                pdfDataCache = data.datos || [];
+                cacheEstilos = data.estilos || [];
+                cacheProcesos = data.procesos || [];
+                if (data.tallas && data.tallas.length > 0) {
+                    cacheTallas = data.tallas;
+                }
+            }
+        }
+
         function descargarBaseMetasSilencioso() {
-            fetch('/api/metas/datos')
+            return fetch('/api/metas/datos')
             .then(res => res.json())
             .then(data => {
-                if (data.status === 'success') {
-                    cacheMetasGlobal = data.datos || [];
-                    cacheEstilos = data.estilos || [];
-                    cacheTallas = data.tallas || ['XXS', 'XS', 'S', 'M', 'L', 'XL', '2X', '3X', '4X'];
-                    cacheProcesos = data.procesos || [];
-                }
+                actualizarCachesGlobales(data);
             }).catch(e => console.error("Error descarga silenciosa:", e));
         }
 
@@ -903,11 +913,21 @@
             .then(res => res.json())
             .then(data => {
                 if (data.status === 'success') {
-                    cacheMetasGlobal = data.datos || [];
-                    cacheEstilos = data.estilos || [];
-                    cacheProcesos = data.procesos || [];
+                    actualizarCachesGlobales(data);
                     document.querySelectorAll('.premium-estilo-select').forEach(sel => {
-                        const val = sel.value; llenarSelector(sel, cacheEstilos, "Estilo"); sel.value = val;
+                        const val = sel.value; 
+                        llenarSelector(sel, cacheEstilos, "Estilo"); 
+                        sel.value = val;
+                    });
+                    document.querySelectorAll('.premium-talla-select').forEach(sel => {
+                        const val = sel.value; 
+                        llenarSelector(sel, cacheTallas, "Talla"); 
+                        sel.value = val;
+                    });
+                    document.querySelectorAll('.premium-proceso-select').forEach(sel => {
+                        const val = sel.value; 
+                        llenarSelector(sel, cacheProcesos, "Proceso"); 
+                        sel.value = val;
                     });
                     alert("Metas Premium sincronizadas.");
                     calcularMetricasPremium();
@@ -996,7 +1016,7 @@
 
         function calcularMetricasPremium() {
             let totalDocenas = 0;
-            let sumaMetaPorHoraPzas = 0;
+            let sumaMetaCargaDocenas = 0;
             let contadorCargasValidas = 0;
             let cargasData = [];
 
@@ -1009,21 +1029,22 @@
 
                 totalDocenas += docenasVal;
 
+                // Convierte piezas/hora a docenas/día estándar (11 horas) para comparar manzanas con manzanas.
+                let metaCargaDocenas = 0;
                 if (metaPzaHora > 0) {
-                    sumaMetaPorHoraPzas += metaPzaHora;
+                    metaCargaDocenas = (metaPzaHora * 11) / 12;
+                    sumaMetaCargaDocenas += metaCargaDocenas;
                     contadorCargasValidas++;
                 }
-                cargasData.push({ hechoVal: docenasVal, metaPzaHora: metaPzaHora });
+                cargasData.push({ hechoVal: docenasVal, metaCargaDocenas: metaCargaDocenas });
             });
 
             const tiempoCargaStandard = 660; 
             const parosExternosMins = parseFloat(document.getElementById('premium-paros').value) || 0;
 
-            const metaHoraPromedioPzas = contadorCargasValidas > 0 ? (sumaMetaPorHoraPzas / contadorCargasValidas) : 0;
-            const metaFinalDiaDocenas = metaHoraPromedioPzas; 
-
-            const docenasPerdidasPorParos = (metaFinalDiaDocenas / 660) * parosExternosMins;
-            const metaEfectiva = metaFinalDiaDocenas - docenasPerdidasPorParos; 
+            const mGen = contadorCargasValidas > 0 ? (sumaMetaCargaDocenas / contadorCargasValidas) : 0;
+            const docenasPerdidasPorParos = (mGen / 660) * parosExternosMins;
+            const metaEfectiva = Math.max(0, mGen - docenasPerdidasPorParos); 
 
             let effStd = metaEfectiva > 0 ? ((totalDocenas / metaEfectiva) * 100) : 0;
 
@@ -1033,19 +1054,33 @@
 
             let sumaEficiencias = 0;
             cargasData.forEach(c => {
-                let metaDiaEstilo = c.metaPzaHora * 11; 
-                c.eficienciaIndividual = (metaDiaEstilo > 0) ? (c.hechoVal / metaDiaEstilo) : 0;
+                c.eficienciaIndividual = (c.metaCargaDocenas > 0) ? (c.hechoVal / c.metaCargaDocenas) : 0;
                 sumaEficiencias += c.eficienciaIndividual;
             });
 
+            const tiempoTrabajadoNeto = tiempoCargaStandard - parosExternosMins;
+
             let cargasProporcionales = cargasData.map(c => {
                 let minsProduccion = 0;
+                let loadParo = (cargasData.length > 0) ? (parosExternosMins / cargasData.length) : 0;
                 if (sumaEficiencias > 0) {
-                    minsProduccion = Math.round((tiempoCargaStandard * c.eficienciaIndividual) / sumaEficiencias);
+                    minsProduccion = Math.round((tiempoTrabajadoNeto * c.eficienciaIndividual) / sumaEficiencias);
                 } else if (cargasData.length > 0) {
-                    minsProduccion = Math.round(tiempoCargaStandard / cargasData.length);
+                    minsProduccion = Math.round(tiempoTrabajadoNeto / cargasData.length);
                 }
-                return { duracionAsignadaMins: minsProduccion, parosUser: [] }; 
+                let duracionTotal = minsProduccion + loadParo;
+
+                let parosUserList = [];
+                if (loadParo > 0) {
+                    parosUserList.push({
+                        motivo: "Paro Externo",
+                        durationMins: Math.round(loadParo),
+                        isOutside: true,
+                        realStartStr: "N/A",
+                        realEndStr: "N/A"
+                    });
+                }
+                return { duracionAsignadaMins: duracionTotal, parosUser: parosUserList }; 
             });
 
             let agendaSuma = cargasProporcionales.reduce((acc, c) => acc + c.duracionAsignadaMins, 0);
@@ -1064,6 +1099,8 @@
             if (effStd >= 100) colorClass = "bg-[#b500ff] border-[#ff007f] shadow-[0_0_25px_rgba(181,0,255,0.6)]";
             else if (effStd >= 95) colorClass = "bg-[#0088ff] border-[#00f3ff] shadow-[0_0_15px_rgba(0,136,255,0.5)]"; 
             else if (effStd >= 85) colorClass = "bg-[#118822] border-[#39ff14] shadow-[0_0_15px_rgba(57,255,20,0.5)]";
+            else if (effStd >= 75) colorClass = "bg-[#ffe600] text-black border-[#ffe600]/50 shadow-[0_0_15px_rgba(255,230,0,0.5)]";
+            else if (effStd >= 65) colorClass = "bg-[#ff6c00] text-white";
 
             const badge = document.getElementById('premium-badge-resultados');
             if(badge) badge.className = `p-6 rounded-[24px] text-center mb-6 shadow-2xl border-2 transition-all duration-500 ${colorClass}`;
@@ -1176,7 +1213,7 @@
             .then(res => res.json())
             .then(data => {
                 if(data.status === 'success') {
-                    pdfDataCache = data.datos || [];
+                    actualizarCachesGlobales(data);
                     poblarSelectoresMetas(data.estilos, data.procesos); alert("✅ DB sincronizada.");
                 } else alert("❌ Error DB: " + data.message);
             }).catch(e => alert("❌ Error conexión DB.")).finally(() => { btn.innerHTML = originalText; btn.disabled = false; });
@@ -1184,7 +1221,7 @@
         function cargarOpcionesMetas() {
             fetch('/api/metas/datos').then(res => res.json()).then(data => {
                 if(data.status === 'success' && data.estilos && data.estilos.length > 0) {
-                    pdfDataCache = data.datos || [];
+                    actualizarCachesGlobales(data);
                     poblarSelectoresMetas(data.estilos, data.procesos);
                 }
             }).catch(e => console.error("Error metas:", e));
@@ -1210,25 +1247,47 @@
             let extenso = false;
             if(tipo === 'Eficiencia') {
                 extenso = true;
-                info = { res: document.getElementById('ef-resultado').innerText, detalle: document.getElementById('tiempos-cargas').innerText.replace(/\n/g, ' | ') };
+                info = { 
+                    res: document.getElementById('ef-resultado').innerText, 
+                    detalle: document.getElementById('tiempos-cargas').innerText.replace(/\n/g, ' | ') 
+                };
             } else if(tipo === 'BioHorario') {
-                info = { res: "ON: " + document.getElementById('lbl-bio-ef-on').innerText + " | ACT: " + document.getElementById('lbl-bio-ef-actual').innerText, detalle: `Total: ${document.getElementById('lbl-bio-total-hecho').innerText}` };
+                info = { 
+                    res: "ON: " + document.getElementById('lbl-bio-ef-on').innerText + " | ACT: " + document.getElementById('lbl-bio-ef-actual').innerText, 
+                    detalle: `Total: ${document.getElementById('lbl-bio-total-hecho').innerText}` 
+                };
             } else if (tipo === 'Premium') {
                 extenso = true;
-                info = { res: document.getElementById('premium-eff-std-main').innerText, detalle: `Premium DB | Docenas: ${document.getElementById('premium-total-docenas').innerText}` };
+                info = { 
+                    res: document.getElementById('premium-eff-std-main').innerText, 
+                    detalle: document.getElementById('premium-tiempos-cargas').innerText.replace(/\n/g, ' | ') 
+                };
             } else {
-                info = { res: document.getElementById('ts-res').innerText, meta: document.getElementById('ts-meta').value };
+                info = { 
+                    res: document.getElementById('ts-res').innerText, 
+                    meta: document.getElementById('ts-meta').value 
+                };
             }
             try {
-                await fetch('/api/save', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({tipo, info, extenso}) });
-                alert("💾 Guardado Exitosamente en tu Historial de Drive.");
+                const response = await fetch('/api/save', { 
+                    method: 'POST', 
+                    headers: {'Content-Type': 'application/json'}, 
+                    body: JSON.stringify({ token: MI_TOKEN, tipo, info, extenso }) 
+                });
+                const data = await response.json();
+                if (data.status === 'success' || data.success === true) {
+                    alert("💾 Guardado Exitosamente en tu Historial de Drive.");
+                } else {
+                    alert("❌ Error al guardar: " + (data.message || "La API no devolvió confirmación."));
+                }
             } catch(e) {
-                alert("Error al intentar guardar en el Historial.");
+                alert("Error de comunicación con el servidor al intentar guardar.");
             }
         }
         async function fetchHistorial() {
             try {
-                const res = await fetch('/api/load');
+                const res = await fetch(`/api/load?token=${MI_TOKEN}`);
+                if (!res.ok) throw new Error("Fallo en la comunicación del servidor");
                 const data = await res.json();
                 const cont = document.getElementById('historial-content');
                 if(!data || data.length === 0) { cont.innerHTML = '<p class="text-center text-gray-500 mt-10">Vacío.</p>'; return; }
@@ -1242,6 +1301,7 @@
                     </div>`).join('');
             } catch(e) {
                 console.error("Error al cargar historial:", e);
+                document.getElementById('historial-content').innerHTML = '<p class="text-center text-red-500 mt-10">Error al obtener los registros del servidor.</p>';
             }
         }
 
