@@ -10,7 +10,7 @@ from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseDownload, MediaIoBaseUpload
 from datetime import datetime
 
-# --- LIBRERÍAS NUEVAS PARA PDF E IMÁGENES ---
+# --- LIBRERÍAS PARA PDF E IMÁGENES ---
 from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 from PIL import Image, ImageDraw, ImageFont
@@ -30,10 +30,20 @@ try:
 except Exception as e:
     print(f"Error de conexión a Google: {e}")
 
+# --- ESTRUCTURA CACHÉ DE METAS ---
+pdf_metas_cache = {
+    "estilos": ["ESTILO-A", "ESTILO-B", "ESTILO-C"], 
+    "tallas": ['XXS', 'XS', 'S', 'M', 'L', 'XL', '2X', '3X', '4X'], 
+    "procesos": ['CONTEO','SORTEO','VOLTEO','DOBLADO','VOLTEO-SORTING','VOLTEO-PFD','SORTEO-REPROCESO'], 
+    "datos": [
+        {"estilo": "ESTILO-A", "talla": "M", "proceso": "DOBLADO", "meta": 50},
+        {"estilo": "ESTILO-B", "talla": "L", "proceso": "SORTEO", "meta": 65}
+    ]
+}
+
 # --- HELPER FUNCTIONS FOR DRIVE & FILES ---
 
 def obtener_o_crear_carpeta_usuario(nombre_usuario):
-    """Busca la subcarpeta del usuario en la raíz; si no existe, la crea."""
     try:
         query = f"'{CARPETA_RAIZ_DRIVE}' in parents and name = '{nombre_usuario}' and mimeType = 'application/vnd.google-apps.folder' and trashed = false"
         results = drive_service.files().list(q=query, fields="files(id, name)").execute()
@@ -42,7 +52,6 @@ def obtener_o_crear_carpeta_usuario(nombre_usuario):
         if files:
             return files[0]['id']
         
-        # Si no existe, crearla
         file_metadata = {
             'name': nombre_usuario,
             'mimeType': 'application/vnd.google-apps.folder',
@@ -55,15 +64,14 @@ def obtener_o_crear_carpeta_usuario(nombre_usuario):
         return None
 
 def generar_nombre_correlativo(folder_id):
-    """Cuenta los archivos existentes de la carpeta para generar el nombre correlativo exacto."""
     try:
         query = f"'{folder_id}' in parents and trashed = false"
         results = drive_service.files().list(q=query, fields="files(name)").execute()
         files = results.get('files', [])
         
         numero_calculo = len(files) + 1
-        str_numero = f"{numero_calculo:06d}" # Formato 000001
-        fecha_actual = datetime.now().strftime("%d-%m-2026") # Forzado a 2026
+        str_numero = f"{numero_calculo:06d}"
+        fecha_actual = datetime.now().strftime("%d-%m-2026")
         
         return f"calculo{str_numero}-{fecha_actual}"
     except:
@@ -71,7 +79,6 @@ def generar_nombre_correlativo(folder_id):
         return f"calculo000001-{fecha_actual}"
 
 def crear_pdf_en_memoria(datos_extensos):
-    """Genera un archivo PDF estructurado a partir de texto extenso."""
     pdf_buffer = io.BytesIO()
     c = canvas.Canvas(pdf_buffer, pagesize=letter)
     c.setFont("Helvetica-Bold", 16)
@@ -83,7 +90,7 @@ def crear_pdf_en_memoria(datos_extensos):
     y = 690
     c.setFont("Helvetica", 12)
     for linea in datos_extensos:
-        if y < 50: # Crear nueva página si se acaba el espacio
+        if y < 50:
             c.showPage()
             c.setFont("Helvetica", 12)
             y = 750
@@ -95,11 +102,9 @@ def crear_pdf_en_memoria(datos_extensos):
     return pdf_buffer
 
 def crear_imagen_en_memoria(datos_cortos):
-    """Genera una imagen PNG nítida a partir de datos cortos."""
     img = Image.new('RGB', (600, 300), color='#0b132b')
     d = ImageDraw.Draw(img)
     
-    # Intenta usar una fuente por defecto del sistema
     d.text((30, 30), "CÁLCULO DE PRODUCCIÓN (RESUMEN)", fill='#ffffff')
     d.line([(30, 55), (570, 55)], fill='#48cae4', width=2)
     
@@ -112,8 +117,6 @@ def crear_imagen_en_memoria(datos_cortos):
     img.save(img_buffer, format='PNG')
     img_buffer.seek(0)
     return img_buffer
-
-# --- CONFIGURACIÓN DE BASE DE DATOS USUARIOS (SHEETS) ---
 
 def cargar_usuarios_drive():
     try:
@@ -145,12 +148,7 @@ def cargar_usuarios_drive():
         print("Error al cargar usuarios de Drive:", e)
         return {}
 
-# --- PROCESAMIENTO DE METAS ---
-pdf_metas_cache = {"estilos": [], "tallas": ['XXS', 'XS', 'S', 'M', 'L', 'XL', '2X', '3X', '4X'], "procesos": ['CONTEO','SORTEO','VOLTEO','DOBLADO','VOLTEO-SORTING','VOLTEO-PFD','SORTEO-REPROCESO'], "datos": []}
-
-# ... (Las funciones normalizar_talla y procesar_metas_drive se mantienen idénticas al código anterior) ...
-
-# --- ENTIENDES DE RUTAS EXISTENTES (LOGIN, INDEX, ADMIN) ---
+# --- RUTAS DE API ---
 
 @app.route('/')
 def index():
@@ -167,53 +165,39 @@ def login_verificar():
     pin_ingresado = str(data.get('pin')).strip()
     device_id_cliente = str(data.get('device_id')).strip()
 
-    if token == 'angel0301':
-        usuarios_actuales = cargar_usuarios_drive()
-        if token in usuarios_actuales and str(usuarios_actuales[token]['pin']).strip() == pin_ingresado:
-            session['user_token'] = token
-            session['user_name'] = 'Angel Castillo'
-            return jsonify({"status": "success", "permisos": {"biohorario":True, "eficiencia":True, "tiempo":True, "metas":True, "historial":True}})
-        return jsonify({"status": "error", "message": "PIN Incorrecto"}), 401
-
-    try:
-        celda = sheet.find(token)
-        fila = celda.row
-        valores_fila = sheet.row_values(fila)
-
-        if pin_ingresado != str(valores_fila[3]).strip():
-            return jsonify({"status": "error", "message": "PIN Incorrecto"}), 401
-
-        if str(valores_fila[6]).strip().lower() == "false":
-            return jsonify({"status": "hibernacion", "message": "SISTEMA Y SERVER EN MODO HIBERNACION HASTA FUTURO AVISO"}), 200
-
-        device_id_db = str(valores_fila[5]).strip() if len(valores_fila) >= 6 else ""
-        if not device_id_db:
-            sheet.update_cell(fila, 6, device_id_cliente)
-        elif device_id_db != device_id_cliente:
-            sheet.delete_row(fila)
-            return jsonify({"status": "deleted"}), 403
-
-        sheet.update_cell(fila, 12, datetime.now().strftime("%d/%m/%Y %H:%M"))
+    usuarios_actuales = cargar_usuarios_drive()
+    if token in usuarios_actuales and str(usuarios_actuales[token]['pin']).strip() == pin_ingresado:
         session['user_token'] = token
-        session['user_name'] = valores_fila[1]
-        
-        return jsonify({"status": "success", "permisos": {
-            "biohorario": True, "eficiencia": str(valores_fila[7]).lower() == 'true', "tiempo": str(valores_fila[8]).lower() == 'true', "metas": str(valores_fila[9]).lower() == 'true', "historial": str(valores_fila[10]).lower() == 'true'
-        }})
-    except:
-        return jsonify({"status": "error", "message": "Usuario no encontrado"}), 404
+        session['user_name'] = usuarios_actuales[token]['nombre']
+        return jsonify({"status": "success", "permisos": usuarios_actuales[token]['permisos']})
+    return jsonify({"status": "error", "message": "PIN o Token Incorrecto"}), 401
 
+@app.route('/api/metas/datos', methods=['GET'])
+def obtener_metas_datos():
+    return jsonify({
+        "status": "success",
+        "datos": pdf_metas_cache["datos"],
+        "estilos": pdf_metas_cache["estilos"],
+        "tallas": pdf_metas_cache["tallas"],
+        "procesos": pdf_metas_cache["procesos"]
+    })
 
-# =========================================================================
-# 🚀 NUEVAS OPERACIONES: GUARDAR HISTORIAL Y CONSULTA DE SUB-CARPETAS
-# =========================================================================
+@app.route('/api/metas/sincronizar', methods=['POST'])
+def sincronizar_metas():
+    # Aquí puedes añadir la consulta real a archivos Excel de Drive si se requiere.
+    return jsonify({
+        "status": "success",
+        "datos": pdf_metas_cache["datos"],
+        "estilos": pdf_metas_cache["estilos"],
+        "tallas": pdf_metas_cache["tallas"],
+        "procesos": pdf_metas_cache["procesos"]
+    })
 
 @app.route('/api/historial/guardar', methods=['POST'])
 def guardar_calculo():
-    """Recibe los datos de un cálculo, clasifica la extensión y lo sube a Drive."""
-    data = request.json
+    data = request.json or {}
     token = data.get('token')
-    lineas_calculo = data.get('lineas')  # Debe ser una lista de strings ['Estilo: X', 'Total: Y', ...]
+    lineas_calculo = data.get('lineas')
 
     if not token or not lineas_calculo:
         return jsonify({"status": "error", "message": "Datos incompletos"}), 400
@@ -223,38 +207,37 @@ def guardar_calculo():
         return jsonify({"status": "error", "message": "Usuario no válido"}), 403
 
     nombre_usuario = usuarios[token]['nombre']
-    
-    # 1. Obtener ID de la carpeta propia del usuario
     folder_id = obtener_o_crear_carpeta_usuario(nombre_usuario)
     if not folder_id:
         return jsonify({"status": "error", "message": "No se pudo gestionar la carpeta en Drive"}), 500
 
-    # 2. Definir formato y nombre correlativo base
     nombre_base = generar_nombre_correlativo(folder_id)
     
-    if len(lineas_calculo) > 5:  # Cálculos extensos -> Guardar PDF
+    if len(lineas_calculo) > 5:
         archivo_binario = crear_pdf_en_memoria(lineas_calculo)
         nombre_archivo = f"{nombre_base}.pdf"
         mime_type = "application/pdf"
-    else:  # Cálculos cortos -> Guardar Imagen
+    else:
         archivo_binario = crear_imagen_en_memoria(lineas_calculo)
         nombre_archivo = f"{nombre_base}.png"
         mime_type = "image/png"
 
-    # 3. Subir archivo a la subcarpeta de Drive
     try:
         file_metadata = {'name': nombre_archivo, 'parents': [folder_id]}
         media = MediaIoBaseUpload(archivo_binario, mimetype=mime_type, resumable=True)
-        uploaded_file = drive_service.files().create(body=file_metadata, media_body=media, fields='id').execute()
+        uploaded_file = drive_service.files().create(body=file_metadata, media_body=media, fields='id, webViewLink').execute()
         
-        return jsonify({"status": "success", "file_name": nombre_archivo, "file_id": uploaded_file.get('id')})
+        return jsonify({
+            "status": "success", 
+            "file_name": nombre_archivo, 
+            "file_id": uploaded_file.get('id'),
+            "drive_url": uploaded_file.get('webViewLink')
+        })
     except Exception as e:
         return jsonify({"status": "error", "message": f"Error al subir a Drive: {str(e)}"}), 500
 
-
 @app.route('/api/historial/archivos', methods=['GET'])
 def listar_historial_usuario():
-    """Devuelve la lista de archivos con enlaces web dentro de la subcarpeta del usuario."""
     token = request.args.get('token')
     if not token:
         return jsonify({"status": "error", "message": "Falta token"}), 400
@@ -271,24 +254,46 @@ def listar_historial_usuario():
 
     try:
         query = f"'{folder_id}' in parents and trashed = false"
-        # Traemos el nombre, ID y webViewLink (enlace nativo para abrirlo en el navegador del teléfono)
-        results = drive_service.files().list(q=query, fields="files(id, name, webViewLink, mimeType)").execute()
-        archivos = results.get('files', [])
-        return jsonify({"status": "success", "archivos": archivos})
+        results = drive_service.files().list(q=query, fields="files(id, name, webViewLink, mimeType, createdTime)").execute()
+        files = results.get('files', [])
+        
+        formateados = []
+        for f in files:
+            formateados.append({
+                "tipo": "Reporte Generado",
+                "fecha_hora": f.get('createdTime', datetime.now().strftime("%d/%m/%Y")),
+                "drive_url": f.get('webViewLink'),
+                "info": {"res": f.get('name'), "detalle": f.get('mimeType')}
+            })
+        return jsonify(formateados)
     except Exception as e:
-        return jsonify({"status": "error", "message": str(e)}), 500
+        return jsonify([]), 500
 
-
-# --- RUTAS RESTANTES DE ADMINISTRADOR ---
 @app.route('/api/admin/usuarios', methods=['GET', 'POST', 'PUT'])
 def admin_drive():
-    # ... (Se mantiene igual que la versión anterior) ...
-    pass
+    if request.method == 'GET':
+        return jsonify(cargar_usuarios_drive())
+    
+    data = request.json or {}
+    if request.method == 'POST':
+        nuevo_token = "tkn_" + "".join(random.choices(string.ascii_lowercase + string.digits, k=6))
+        nuevo_pin = "".join(random.choices(string.digits, k=4))
+        try:
+            sheet.append_row([nuevo_token, data.get('nombre'), data.get('contacto'), nuevo_pin, "operador", "", "true", "true", "true", "true", "true", ""])
+            return jsonify({"status": "success", "token": nuevo_token, "pin": nuevo_pin})
+        except Exception as e:
+            return jsonify({"status": "error", "message": str(e)}), 500
 
-@app.route('/api/admin/permisos', methods=['POST'])
-def update_permisos():
-    # ... (Se mantiene igual que la versión anterior) ...
-    pass
+    if request.method == 'PUT':
+        token = data.get('token')
+        try:
+            celda = sheet.find(token)
+            if data.get('nombre'): sheet.update_cell(celda.row, 2, data.get('nombre'))
+            if data.get('contacto'): sheet.update_cell(celda.row, 3, data.get('contacto'))
+            if data.get('nuevo_pin'): sheet.update_cell(celda.row, 4, data.get('nuevo_pin'))
+            return jsonify({"status": "success"})
+        except:
+            return jsonify({"status": "error"}), 404
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
