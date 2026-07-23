@@ -48,10 +48,10 @@ def obtener_o_crear_carpeta_usuario(nombre_usuario):
         query = f"'{CARPETA_RAIZ_DRIVE}' in parents and name = '{nombre_usuario}' and mimeType = 'application/vnd.google-apps.folder' and trashed = false"
         results = drive_service.files().list(q=query, fields="files(id, name)").execute()
         files = results.get('files', [])
-        
+
         if files:
             return files[0]['id']
-        
+
         file_metadata = {
             'name': nombre_usuario,
             'mimeType': 'application/vnd.google-apps.folder',
@@ -68,11 +68,11 @@ def generar_nombre_correlativo(folder_id):
         query = f"'{folder_id}' in parents and trashed = false"
         results = drive_service.files().list(q=query, fields="files(name)").execute()
         files = results.get('files', [])
-        
+
         numero_calculo = len(files) + 1
         str_numero = f"{numero_calculo:06d}"
         fecha_actual = datetime.now().strftime("%d-%m-2026")
-        
+
         return f"calculo{str_numero}-{fecha_actual}"
     except:
         fecha_actual = datetime.now().strftime("%d-%m-2026")
@@ -86,7 +86,7 @@ def crear_pdf_en_memoria(datos_extensos):
     c.setFont("Helvetica", 10)
     c.drawString(50, 730, f"Fecha de registro: {datetime.now().strftime('%d/%m/2026 %H:%M')}")
     c.line(50, 720, 550, 720)
-    
+
     y = 690
     c.setFont("Helvetica", 12)
     for linea in datos_extensos:
@@ -96,7 +96,7 @@ def crear_pdf_en_memoria(datos_extensos):
             y = 750
         c.drawString(50, y, str(linea))
         y -= 20
-        
+
     c.save()
     pdf_buffer.seek(0)
     return pdf_buffer
@@ -104,15 +104,15 @@ def crear_pdf_en_memoria(datos_extensos):
 def crear_imagen_en_memoria(datos_cortos):
     img = Image.new('RGB', (600, 300), color='#0b132b')
     d = ImageDraw.Draw(img)
-    
+
     d.text((30, 30), "CÁLCULO DE PRODUCCIÓN (RESUMEN)", fill='#ffffff')
     d.line([(30, 55), (570, 55)], fill='#48cae4', width=2)
-    
+
     y = 80
     for linea in datos_cortos:
         d.text((30, y), str(linea), fill='#edf2f4')
         y += 30
-        
+
     img_buffer = io.BytesIO()
     img.save(img_buffer, format='PNG')
     img_buffer.seek(0)
@@ -126,7 +126,7 @@ def cargar_usuarios_drive():
             if len(row) > 0 and str(row[0]).strip():
                 tkn = str(row[0]).strip()
                 is_hibernated = str(row[6]).lower() == 'false' if len(row) > 6 and row[6] != "" else False
-                
+
                 usuarios[tkn] = {
                     "token": tkn,
                     "nombre": str(row[1]).strip() if len(row) > 1 else "",
@@ -155,7 +155,7 @@ def index():
     token = request.args.get('token')
     usuarios_actuales = cargar_usuarios_drive()
     if not token or token not in usuarios_actuales:
-        return "<h1 style='color:white;background:#0b132b;text-align:center;padding:50px;font-family:sans-serif;'>ACCESO DENEGADO: TOKEN INVÁLIDO</h1>", 403
+        return "<h1 style='color:white;background:#050814;text-align:center;padding:50px;font-family:sans-serif;'>ACCESO DENEGADO: TOKEN INVÁLIDO</h1>", 403
     return render_template('index.html', user=usuarios_actuales[token], token=token)
 
 @app.route('/api/login', methods=['POST'])
@@ -184,7 +184,6 @@ def obtener_metas_datos():
 
 @app.route('/api/metas/sincronizar', methods=['POST'])
 def sincronizar_metas():
-    # Aquí puedes añadir la consulta real a archivos Excel de Drive si se requiere.
     return jsonify({
         "status": "success",
         "datos": pdf_metas_cache["datos"],
@@ -193,13 +192,16 @@ def sincronizar_metas():
         "procesos": pdf_metas_cache["procesos"]
     })
 
+@app.route('/api/save', methods=['POST'])
 @app.route('/api/historial/guardar', methods=['POST'])
 def guardar_calculo():
     data = request.json or {}
     token = data.get('token')
-    lineas_calculo = data.get('lineas')
+    tipo = data.get('tipo', 'Cálculo Generado')
+    info = data.get('info', {})
+    lineas_calculo = data.get('lineas', [f"{tipo}: {info.get('res', '')}"])
 
-    if not token or not lineas_calculo:
+    if not token:
         return jsonify({"status": "error", "message": "Datos incompletos"}), 400
 
     usuarios = cargar_usuarios_drive()
@@ -212,7 +214,7 @@ def guardar_calculo():
         return jsonify({"status": "error", "message": "No se pudo gestionar la carpeta en Drive"}), 500
 
     nombre_base = generar_nombre_correlativo(folder_id)
-    
+
     if len(lineas_calculo) > 5:
         archivo_binario = crear_pdf_en_memoria(lineas_calculo)
         nombre_archivo = f"{nombre_base}.pdf"
@@ -226,7 +228,7 @@ def guardar_calculo():
         file_metadata = {'name': nombre_archivo, 'parents': [folder_id]}
         media = MediaIoBaseUpload(archivo_binario, mimetype=mime_type, resumable=True)
         uploaded_file = drive_service.files().create(body=file_metadata, media_body=media, fields='id, webViewLink').execute()
-        
+
         return jsonify({
             "status": "success", 
             "file_name": nombre_archivo, 
@@ -236,6 +238,7 @@ def guardar_calculo():
     except Exception as e:
         return jsonify({"status": "error", "message": f"Error al subir a Drive: {str(e)}"}), 500
 
+@app.route('/api/load', methods=['GET'])
 @app.route('/api/historial/archivos', methods=['GET'])
 def listar_historial_usuario():
     token = request.args.get('token')
@@ -248,19 +251,19 @@ def listar_historial_usuario():
 
     nombre_usuario = usuarios[token]['nombre']
     folder_id = obtener_o_crear_carpeta_usuario(nombre_usuario)
-    
+
     if not folder_id:
-        return jsonify({"status": "success", "archivos": []})
+        return jsonify([])
 
     try:
         query = f"'{folder_id}' in parents and trashed = false"
         results = drive_service.files().list(q=query, fields="files(id, name, webViewLink, mimeType, createdTime)").execute()
         files = results.get('files', [])
-        
+
         formateados = []
         for f in files:
             formateados.append({
-                "tipo": "Reporte Generado",
+                "tipo": "Reporte Guardado",
                 "fecha_hora": f.get('createdTime', datetime.now().strftime("%d/%m/%Y")),
                 "drive_url": f.get('webViewLink'),
                 "info": {"res": f.get('name'), "detalle": f.get('mimeType')}
@@ -273,7 +276,7 @@ def listar_historial_usuario():
 def admin_drive():
     if request.method == 'GET':
         return jsonify(cargar_usuarios_drive())
-    
+
     data = request.json or {}
     if request.method == 'POST':
         nuevo_token = "tkn_" + "".join(random.choices(string.ascii_lowercase + string.digits, k=6))
