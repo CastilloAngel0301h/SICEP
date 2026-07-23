@@ -5,3 +5,4 @@ oauth2client
 PyPDF2
 google-api-python-client
 openpyxl
+reportlab
