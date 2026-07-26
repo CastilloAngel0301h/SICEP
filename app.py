@@ -26,8 +26,8 @@ SERVICE_ACCOUNT_FILE = 'credentials.json'
 SHEET_ID = '1U9rvF4Uj55N9kV-sVuwP0y6OutkP___H'
 CSV_URL = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv"
 
-# ID del documento de Sheets para los USUARIOS (Reemplazar con el ID real)
-SHEET_USUARIOS_ID = 'AQUI_EL_ID_DE_TU_SHEET_DE_USUARIOS'
+# ID del documento de Sheets para los USUARIOS 
+SHEET_USUARIOS_ID = '1flxIGd4eBiGYe2vrSsPU318Feg2KHFV4Ip9oTF2aPvA'
 URL_USUARIOS = f"https://docs.google.com/spreadsheets/d/{SHEET_USUARIOS_ID}/export?format=csv"
 
 # =============================================================================
