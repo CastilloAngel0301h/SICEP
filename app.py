@@ -1,369 +1,495 @@
-from flask import Flask, render_template, request, jsonify, session, redirect, url_for
-import gspread
-from oauth2client.service_account import ServiceAccountCredentials
+# -*- coding: utf-8 -*-
+"""
+SICEP NEXUS - SISTEMA DE CONTROL DE PRODUCCIÓN
+==============================================
+Módulo Principal de Backend (Flask) para la Gestión de Metas y Reportes.
+
+Este script maneja:
+1. Conexión con Google Sheets para extraer la base de datos de metas.
+2. Conexión con Google Drive API para la gestión de archivos y carpetas.
+3. API RESTful para servir datos al frontend (Progressive Web App).
+4. Sistema de logging y manejo de errores estructurado.
+
+Desarrollado para asegurar alta disponibilidad y trazabilidad.
+"""
+
 import os
-import random
-import string
 import io
-import openpyxl
+import sys
+import logging
+from logging.handlers import RotatingFileHandler
+import pandas as pd
+from flask import Flask, request, jsonify, render_template
 from googleapiclient.discovery import build
-from googleapiclient.http import MediaIoBaseDownload, MediaIoBaseUpload
-from datetime import datetime
+from googleapiclient.http import MediaIoBaseUpload
+from google.oauth2.service_account import Credentials
+from google.auth.exceptions import DefaultCredentialsError
+from typing import List, Dict, Any, Optional, Tuple
 
-# --- LIBRERÍAS PARA PDF E IMÁGENES ---
-from reportlab.lib.pagesizes import letter
-from reportlab.pdfgen import canvas
-from PIL import Image, ImageDraw, ImageFont
+# =============================================================================
+# CONFIGURACIÓN GLOBAL Y CONSTANTES
+# =============================================================================
 
-app = Flask(__name__, static_folder='static', template_folder='templates')
-app.secret_key = os.environ.get('SECRET_KEY', 'vektor_nexus_secure_key_2026')
+# ID de la carpeta principal 'SICEP' en Google Drive
+SICEP_FOLDER_ID = '1PbH8767Q86O-TntoxDxozaGiBl3WJqE0'
 
-CARPETA_RAIZ_DRIVE = "1PbH8767Q86O-TntoxDxozaGiBl3WJqE0"
+# Configuración del archivo de credenciales de Google Drive API
+SCOPES = ['https://www.googleapis.com/auth/drive']
+SERVICE_ACCOUNT_FILE = 'credentials.json'
 
-# --- COMUNICADO VIP ADMINISTRADOR ---
-comunicado_admin_actual = {
-    "titulo": "¡BIENVENIDO A VEKTOR NEXUS!",
-    "mensaje": "Sistema actualizado a la versión Neón DB 2026. Calcula tu eficiencia para el turno.",
-    "fecha": datetime.now().strftime("%d/%m/%Y")
-}
+# ID del documento de Sheets extraído del enlace proporcionado
+SHEET_ID = '1U9rvF4Uj55N9kV-sVuwP0y6OutkP___H'
+CSV_URL = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv"
 
-# --- CONFIGURACIÓN DE GOOGLE SERVICES ---
-scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-try:
-    creds = ServiceAccountCredentials.from_json_keyfile_name('credenciales.json', scope)
-    client = gspread.authorize(creds)
-    # Abre la hoja base configurada
-    sheet = client.open_by_key("1flxIGd4eBiGYe2vrSsPU318Feg2KHFV4Ip9oTF2aPvA").sheet1
-    drive_service = build('drive', 'v3', credentials=creds)
-except Exception as e:
-    print(f"Error de conexión a Google Services: {e}")
-    sheet = None
-    drive_service = None
+# =============================================================================
+# INICIALIZACIÓN DE LA APLICACIÓN FLASK
+# =============================================================================
 
-# --- ESTRUCTURA CACHÉ DE METAS ---
-pdf_metas_cache = {
-    "estilos": ["ESTILO-A", "ESTILO-B", "ESTILO-C"], 
-    "tallas": ['XXS', 'XS', 'S', 'M', 'L', 'XL', '2X', '3X', '4X'], 
-    "procesos": ['CONTEO','SORTEO','VOLTEO','DOBLADO','VOLTEO-SORTING','VOLTEO-PFD','SORTEO-REPROCESO'], 
-    "datos": [
-        {"estilo": "ESTILO-A", "talla": "M", "proceso": "DOBLADO", "meta": 50},
-        {"estilo": "ESTILO-B", "talla": "L", "proceso": "SORTEO", "meta": 65}
-    ]
-}
+app = Flask(__name__)
 
-# --- FUNCIONES AUXILIARES PARA DRIVE Y ARCHIVOS ---
+# =============================================================================
+# CONFIGURACIÓN DE LOGGING (REGISTROS)
+# =============================================================================
 
-def obtener_o_crear_carpeta_usuario(nombre_usuario):
-    if not drive_service:
-        return None
+def configurar_logging() -> None:
+    """
+    Configura el sistema de registro (logging) de la aplicación.
+    Crea un archivo 'sicep_backend.log' que guarda el historial de eventos
+    y errores, rotando el archivo cuando alcanza 5MB.
+    """
+    log_formatter = logging.Formatter(
+        '[%(asctime)s] %(levelname)s in %(module)s: %(message)s'
+    )
+    
+    # Crear manejador para archivo
+    file_handler = RotatingFileHandler(
+        'sicep_backend.log', 
+        maxBytes=5000000, 
+        backupCount=5,
+        encoding='utf-8'
+    )
+    file_handler.setFormatter(log_formatter)
+    file_handler.setLevel(logging.INFO)
+    
+    # Crear manejador para consola
+    console_handler = logging.StreamHandler(sys.stdout)
+    console_handler.setFormatter(log_formatter)
+    console_handler.setLevel(logging.DEBUG)
+
+    # Añadir manejadores al logger de Flask
+    app.logger.addHandler(file_handler)
+    app.logger.addHandler(console_handler)
+    app.logger.setLevel(logging.DEBUG)
+    app.logger.info("Sistema de logging inicializado correctamente.")
+
+# Ejecutar configuración de logging
+configurar_logging()
+
+# =============================================================================
+# CLASES DE EXCEPCIONES PERSONALIZADAS
+# =============================================================================
+
+class SicepError(Exception):
+    """Clase base para excepciones personalizadas del sistema SICEP."""
+    pass
+
+class DriveAuthError(SicepError):
+    """Excepción lanzada cuando hay problemas de autenticación con Google Drive."""
+    pass
+
+class DataFetchError(SicepError):
+    """Excepción lanzada cuando falla la obtención de datos de Google Sheets."""
+    pass
+
+# =============================================================================
+# SERVICIOS DE GOOGLE DRIVE
+# =============================================================================
+
+def get_drive_service() -> Any:
+    """
+    Autentica y devuelve el servicio de Google Drive API.
+    
+    Returns:
+        Objeto resource de la API de Google Drive.
+        
+    Raises:
+        DriveAuthError: Si el archivo de credenciales no se encuentra o es inválido.
+    """
     try:
-        query = f"'{CARPETA_RAIZ_DRIVE}' in parents and name = '{nombre_usuario}' and mimeType = 'application/vnd.google-apps.folder' and trashed = false"
-        results = drive_service.files().list(q=query, fields="files(id, name)").execute()
-        files = results.get('files', [])
+        if not os.path.exists(SERVICE_ACCOUNT_FILE):
+            app.logger.error(f"Archivo de credenciales no encontrado: {SERVICE_ACCOUNT_FILE}")
+            raise DriveAuthError(f"Falta el archivo {SERVICE_ACCOUNT_FILE}")
+            
+        creds = Credentials.from_service_account_file(
+            SERVICE_ACCOUNT_FILE, 
+            scopes=SCOPES
+        )
+        service = build('drive', 'v3', credentials=creds)
+        app.logger.debug("Servicio de Google Drive inicializado con éxito.")
+        return service
+        
+    except DefaultCredentialsError as e:
+        app.logger.error(f"Error de credenciales por defecto: {str(e)}")
+        raise DriveAuthError("Credenciales inválidas o expiradas.")
+    except Exception as e:
+        app.logger.error(f"Error inesperado al conectar con Drive: {str(e)}")
+        raise DriveAuthError(f"Fallo de conexión: {str(e)}")
 
+def buscar_carpeta_en_drive(service: Any, nombre_carpeta: str, parent_id: str) -> Optional[str]:
+    """
+    Busca una carpeta específica por nombre dentro de un directorio padre en Drive.
+    
+    Args:
+        service: Servicio de Google Drive instanciado.
+        nombre_carpeta: Nombre de la carpeta a buscar.
+        parent_id: ID de la carpeta padre (SICEP).
+        
+    Returns:
+        El ID de la carpeta si existe, de lo contrario None.
+    """
+    app.logger.debug(f"Buscando carpeta '{nombre_carpeta}' en el padre '{parent_id}'")
+    query = (
+        f"'{parent_id}' in parents and "
+        f"name = '{nombre_carpeta}' and "
+        f"mimeType = 'application/vnd.google-apps.folder' and "
+        f"trashed = false"
+    )
+    
+    try:
+        response = service.files().list(
+            q=query, 
+            spaces='drive', 
+            fields='files(id, name)'
+        ).execute()
+        
+        files = response.get('files', [])
         if files:
-            return files[0]['id']
-
-        file_metadata = {
-            'name': nombre_usuario,
-            'mimeType': 'application/vnd.google-apps.folder',
-            'parents': [CARPETA_RAIZ_DRIVE]
-        }
-        folder = drive_service.files().create(body=file_metadata, fields='id').execute()
-        return folder.get('id')
-    except Exception as e:
-        print(f"Error al gestionar carpeta de usuario {nombre_usuario}: {e}")
+            folder_id = files[0]['id']
+            app.logger.debug(f"Carpeta encontrada. ID: {folder_id}")
+            return folder_id
         return None
-
-def generar_nombre_correlativo(folder_id):
-    if not drive_service:
-        return f"calculo000001-{datetime.now().strftime('%d-%m-2026')}"
-    try:
-        query = f"'{folder_id}' in parents and trashed = false"
-        results = drive_service.files().list(q=query, fields="files(name)").execute()
-        files = results.get('files', [])
-
-        numero_calculo = len(files) + 1
-        str_numero = f"{numero_calculo:06d}"
-        fecha_actual = datetime.now().strftime("%d-%m-2026")
-
-        return f"calculo{str_numero}-{fecha_actual}"
-    except:
-        fecha_actual = datetime.now().strftime("%d-%m-2026")
-        return f"calculo000001-{fecha_actual}"
-
-def crear_pdf_en_memoria(datos_extensos):
-    pdf_buffer = io.BytesIO()
-    c = canvas.Canvas(pdf_buffer, pagesize=letter)
-    c.setFont("Helvetica-Bold", 16)
-    c.drawString(50, 750, "VEKTOR NEXUS - REPORTE DE PRODUCCIÓN")
-    c.setFont("Helvetica", 10)
-    c.drawString(50, 730, f"Fecha de registro: {datetime.now().strftime('%d/%m/%Y %H:%M')}")
-    c.line(50, 720, 550, 720)
-
-    y = 690
-    c.setFont("Helvetica", 12)
-    for linea in datos_extensos:
-        if y < 50:
-            c.showPage()
-            c.setFont("Helvetica", 12)
-            y = 750
-        c.drawString(50, y, str(linea))
-        y -= 20
-
-    c.save()
-    pdf_buffer.seek(0)
-    return pdf_buffer
-
-def crear_imagen_en_memoria(datos_cortos):
-    img = Image.new('RGB', (600, 300), color='#030008')
-    d = ImageDraw.Draw(img)
-
-    d.text((30, 30), "VEKTOR NEXUS - CÁLCULO DE PRODUCCIÓN", fill='#ff0055')
-    d.line([(30, 55), (570, 55)], fill='#00f0ff', width=2)
-
-    y = 80
-    for linea in datos_cortos:
-        d.text((30, y), str(linea), fill='#ffffff')
-        y += 30
-
-    img_buffer = io.BytesIO()
-    img.save(img_buffer, format='PNG')
-    img_buffer.seek(0)
-    return img_buffer
-
-def cargar_usuarios_drive():
-    # Usuario Administrador Maestro por defecto
-    usuarios = {
-        "angel0301": {
-            "token": "angel0301",
-            "nombre": "Angel Castillo (Admin 👑)",
-            "contacto": "+504 00000000",
-            "pin": "2004",
-            "rol": "admin",
-            "device_id": "",
-            "ultima_conexion": "Ahora",
-            "permisos": {
-                "biohorario": True, "eficiencia": True, "tiempo": True, "metas": True, "historial": True
-            }
-        }
-    }
-    if not sheet:
-        return usuarios
-
-    try:
-        records = sheet.get_all_values()
-        for row in records[1:]:
-            if len(row) > 0 and str(row[0]).strip():
-                tkn = str(row[0]).strip()
-                is_hibernated = str(row[6]).lower() == 'false' if len(row) > 6 and row[6] != "" else False
-
-                usuarios[tkn] = {
-                    "token": tkn,
-                    "nombre": str(row[1]).strip() if len(row) > 1 else "Operador",
-                    "contacto": str(row[2]).strip() if len(row) > 2 else "",
-                    "pin": str(row[3]).strip() if len(row) > 3 else "0000",
-                    "rol": "admin" if tkn == 'angel0301' else (str(row[4]).strip() if len(row) > 4 else "operador"),
-                    "device_id": str(row[5]).strip() if len(row) > 5 else "",
-                    "ultima_conexion": str(row[11]).strip() if len(row) > 11 else "Desconocida",
-                    "permisos": {
-                        "biohorario": not is_hibernated, 
-                        "eficiencia": str(row[7]).lower() == 'true' if len(row) > 7 and row[7] != "" else True,
-                        "tiempo": str(row[8]).lower() == 'true' if len(row) > 8 and row[8] != "" else True,
-                        "metas": str(row[9]).lower() == 'true' if len(row) > 9 and row[9] != "" else True,
-                        "historial": str(row[10]).lower() == 'true' if len(row) > 10 and row[10] != "" else True
-                    }
-                }
-        return usuarios
+        
     except Exception as e:
-        print("Error al cargar usuarios de Drive:", e)
-        return usuarios
+        app.logger.error(f"Error al buscar la carpeta {nombre_carpeta}: {str(e)}")
+        raise
 
-# --- RUTAS PRINCIPALES Y PWA ---
+def crear_carpeta_en_drive(service: Any, nombre_carpeta: str, parent_id: str) -> str:
+    """
+    Crea una nueva carpeta en Google Drive dentro del directorio especificado.
+    
+    Args:
+        service: Servicio de Google Drive instanciado.
+        nombre_carpeta: Nombre para la nueva carpeta.
+        parent_id: ID de la carpeta padre donde se alojará.
+        
+    Returns:
+        El ID de la carpeta recién creada.
+    """
+    app.logger.info(f"Creando nueva carpeta '{nombre_carpeta}'...")
+    file_metadata = {
+        'name': nombre_carpeta,
+        'mimeType': 'application/vnd.google-apps.folder',
+        'parents': [parent_id]
+    }
+    
+    try:
+        folder = service.files().create(
+            body=file_metadata, 
+            fields='id'
+        ).execute()
+        
+        folder_id = folder.get('id')
+        app.logger.info(f"Carpeta '{nombre_carpeta}' creada exitosamente. ID: {folder_id}")
+        return folder_id
+        
+    except Exception as e:
+        app.logger.error(f"Fallo al crear la carpeta {nombre_carpeta}: {str(e)}")
+        raise
+
+def obtener_o_crear_carpeta_usuario(service: Any, nombre_usuario: str) -> str:
+    """
+    Busca la subcarpeta del usuario en SICEP. Si no existe, la crea dinámicamente.
+    
+    Args:
+        service: Servicio de Google Drive instanciado.
+        nombre_usuario: Identificador del operador.
+        
+    Returns:
+        ID de la carpeta personal del usuario.
+    """
+    if not nombre_usuario:
+        nombre_usuario = "OPERADOR_DESCONOCIDO"
+        
+    nombre_limpio = nombre_usuario.strip().upper()
+    
+    # Paso 1: Intentar buscar la carpeta
+    folder_id = buscar_carpeta_en_drive(service, nombre_limpio, SICEP_FOLDER_ID)
+    
+    # Paso 2: Si no existe, crearla
+    if not folder_id:
+        folder_id = crear_carpeta_en_drive(service, nombre_limpio, SICEP_FOLDER_ID)
+        
+    return folder_id
+
+# =============================================================================
+# SERVICIOS DE PROCESAMIENTO DE DATOS (PANDAS)
+# =============================================================================
+
+def procesar_dataframe_metas(df: pd.DataFrame) -> Tuple[List[str], List[str], List[str], List[Dict[str, Any]]]:
+    """
+    Limpia y procesa el DataFrame extraído de Google Sheets.
+    Asegura que los datos correspondan a las columnas:
+    A=ESTILO, B=TALLA, D=OPERACION, F=META, G=DZ/HORA, H=PZ/MINUTO
+    
+    Args:
+        df: DataFrame crudo de Pandas.
+        
+    Returns:
+        Tupla conteniendo: (lista_estilos, lista_tallas, lista_procesos, lista_datos_formateados)
+    """
+    app.logger.debug("Iniciando limpieza y procesamiento del DataFrame de metas.")
+    
+    # Limpiar nombres de columnas para evitar errores de espacios invisibles
+    df.columns = df.columns.str.strip()
+
+    # Mapeo estricto de índices de columnas según requerimiento:
+    # 0 = A (ESTILO)
+    # 1 = B (TALLA)
+    # 3 = D (OPERACION)
+    # 5 = F (META)
+    # 6 = G (DZ/HORA)
+    # 7 = H (PZ/MINUTO)
+    
+    # Limpieza de valores nulos y formateo a string sin espacios extra
+    df.iloc[:, 0] = df.iloc[:, 0].astype(str).str.strip()
+    df.iloc[:, 1] = df.iloc[:, 1].astype(str).str.strip()
+    df.iloc[:, 3] = df.iloc[:, 3].astype(str).str.strip()
+
+    # Generación de listas únicas y ordenadas, filtrando valores 'nan' literales
+    estilos = sorted([e for e in df.iloc[:, 0].unique() if e.lower() != 'nan'])
+    tallas = sorted([t for t in df.iloc[:, 1].unique() if t.lower() != 'nan'])
+    procesos = sorted([p for p in df.iloc[:, 3].unique() if p.lower() != 'nan'])
+
+    # Construcción de la lista de diccionarios para el JSON de respuesta
+    datos_estructurados = []
+    
+    for indice, row in df.iterrows():
+        # Extracción segura de valores numéricos
+        try:
+            meta_val = float(row.iloc[5]) if pd.notnull(row.iloc[5]) else 0.0
+            dz_hora_val = float(row.iloc[6]) if pd.notnull(row.iloc[6]) else 0.0
+            pz_minuto_val = float(row.iloc[7]) if pd.notnull(row.iloc[7]) else 0.0
+        except ValueError:
+            meta_val, dz_hora_val, pz_minuto_val = 0.0, 0.0, 0.0
+
+        datos_estructurados.append({
+            'estilo': str(row.iloc[0]).strip(),
+            'talla': str(row.iloc[1]).strip(),
+            'proceso': str(row.iloc[3]).strip(),
+            'meta': meta_val,
+            'dz_hora': dz_hora_val,
+            'pz_minuto': pz_minuto_val
+        })
+        
+    app.logger.info(f"Procesamiento completo. Registros procesados: {len(datos_estructurados)}")
+    return estilos, tallas, procesos, datos_estructurados
+
+# =============================================================================
+# RUTAS DE LA API (ENDPOINTS)
+# =============================================================================
 
 @app.route('/')
 def index():
+    """
+    Ruta raíz. Sirve la interfaz gráfica (Frontend HTML).
+    """
+    app.logger.info("Solicitud recibida en la ruta raíz '/'")
     return render_template('index.html')
 
-@app.route('/manifest.json')
-def manifest():
-    return jsonify({
-        "short_name": "VEKTOR",
-        "name": "VEKTOR NEXUS - Eficiencia DB",
-        "icons": [{"src": "https://img.icons8.com/neon/512/goku.png", "type": "image/png", "sizes": "512x512"}],
-        "start_url": "/",
-        "background_color": "#030008",
-        "theme_color": "#ff0055",
-        "display": "standalone",
-        "orientation": "portrait"
-    })
-
-@app.route('/sw.js')
-def service_worker():
-    sw_code = """
-    const CACHE_NAME = 'vektor-nexus-v2';
-    self.addEventListener('install', (e) => {
-      e.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(['/'])));
-    });
-    self.addEventListener('fetch', (e) => {
-      e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
-    });
+@app.route('/api/health', methods=['GET'])
+def health_check():
     """
-    return app.response_class(sw_code, mimetype='application/javascript')
-
-# --- RUTAS DE API ---
-
-@app.route('/api/login', methods=['POST'])
-def login_verificar():
-    data = request.json or {}
-    token = str(data.get('token')).strip()
-    pin_ingresado = str(data.get('pin')).strip()
-
-    usuarios_actuales = cargar_usuarios_drive()
-
-    if token in usuarios_actuales and str(usuarios_actuales[token]['pin']).strip() == pin_ingresado:
-        session['user_token'] = token
-        session['user_name'] = usuarios_actuales[token]['nombre']
-        user_info = usuarios_actuales[token]
-        return jsonify({
-            "status": "success", 
-            "user": user_info, 
-            "permisos": user_info['permisos'],
-            "comunicado": comunicado_admin_actual
-        })
-    
-    return jsonify({"status": "error", "message": "Token o PIN incorrecto"}), 401
-
-@app.route('/api/admin/comunicado', methods=['POST'])
-def admin_comunicado():
-    global comunicado_admin_actual
-    data = request.json or {}
-    comunicado_admin_actual = {
-        "titulo": data.get('titulo', 'AVISO IMPORTANTE'),
-        "mensaje": data.get('mensaje', ''),
-        "fecha": datetime.now().strftime("%d/%m/%Y %H:%M")
-    }
-    return jsonify({"status": "success"})
+    Endpoint de monitoreo de estado.
+    Útil para verificar si el backend está en línea.
+    """
+    return jsonify({
+        'status': 'online',
+        'service': 'SICEP_NEXUS_API',
+        'version': '1.0.0'
+    }), 200
 
 @app.route('/api/metas/datos', methods=['GET'])
-@app.route('/api/metas/sincronizar', methods=['POST'])
-def obtener_metas_datos():
-    return jsonify({
-        "status": "success",
-        "datos": pdf_metas_cache["datos"],
-        "estilos": pdf_metas_cache["estilos"],
-        "tallas": pdf_metas_cache["tallas"],
-        "procesos": pdf_metas_cache["procesos"]
-    })
+def obtener_metas():
+    """
+    Endpoint principal para obtener la base de datos de metas.
+    Descarga el CSV desde Google Sheets, lo procesa y lo devuelve como JSON.
+    """
+    app.logger.info("Iniciando solicitud de obtención de metas (/api/metas/datos)")
+    
+    try:
+        # Descarga directa utilizando pandas
+        app.logger.debug(f"Intentando descargar datos desde: {CSV_URL}")
+        df = pd.read_csv(CSV_URL)
+        
+        if df.empty:
+            raise DataFetchError("El archivo de origen está vacío o no se pudo leer.")
+            
+        # Llamada a la función modularizada de procesamiento
+        estilos, tallas, procesos, datos = procesar_dataframe_metas(df)
+
+        response_payload = {
+            'status': 'success',
+            'estilos': estilos,
+            'tallas': tallas,
+            'procesos': procesos,
+            'datos': datos,
+            'total_registros': len(datos)
+        }
+        
+        app.logger.info("Metas obtenidas y enviadas correctamente al cliente.")
+        return jsonify(response_payload), 200
+
+    except Exception as e:
+        app.logger.error(f"Error crítico en obtener_metas: {str(e)}")
+        return jsonify({
+            'status': 'error', 
+            'message': 'Error al procesar la base de datos',
+            'details': str(e)
+        }), 500
 
 @app.route('/api/save', methods=['POST'])
-@app.route('/api/historial/guardar', methods=['POST'])
-def guardar_calculo():
-    data = request.json or {}
-    token = data.get('token')
-    tipo = data.get('tipo', 'Cálculo Generado')
-    info = data.get('info', {})
-    lineas_calculo = data.get('lineas', [f"{tipo}: {info.get('res', '')}"])
-
-    if not token:
-        return jsonify({"status": "error", "message": "Datos incompletos"}), 400
-
-    usuarios = cargar_usuarios_drive()
-    if token not in usuarios:
-        return jsonify({"status": "error", "message": "Usuario no válido"}), 403
-
-    nombre_usuario = usuarios[token]['nombre']
-    folder_id = obtener_o_crear_carpeta_usuario(nombre_usuario)
-    if not folder_id or not drive_service:
-        return jsonify({"status": "error", "message": "No se pudo conectar con Drive"}), 500
-
-    nombre_base = generar_nombre_correlativo(folder_id)
-
-    if len(lineas_calculo) > 5:
-        archivo_binario = crear_pdf_en_memoria(lineas_calculo)
-        nombre_archivo = f"{nombre_base}.pdf"
-        mime_type = "application/pdf"
-    else:
-        archivo_binario = crear_imagen_en_memoria(lineas_calculo)
-        nombre_archivo = f"{nombre_base}.png"
-        mime_type = "image/png"
-
+def guardar_reporte():
+    """
+    Endpoint para guardar un reporte de producción.
+    Recibe un JSON con las líneas de texto, genera un archivo .txt,
+    y lo sube a la subcarpeta específica del usuario en Google Drive.
+    """
+    app.logger.info("Iniciando solicitud para guardar reporte en Drive (/api/save)")
+    
     try:
-        file_metadata = {'name': nombre_archivo, 'parents': [folder_id]}
-        media = MediaIoBaseUpload(archivo_binario, mimetype=mime_type, resumable=True)
-        uploaded_file = drive_service.files().create(body=file_metadata, media_body=media, fields='id, webViewLink').execute()
+        # Validación de datos entrantes
+        data = request.get_json()
+        if not data:
+            return jsonify({'status': 'error', 'message': 'No se enviaron datos JSON.'}), 400
+            
+        usuario = data.get('usuario', 'OPERADOR_GENERAL')
+        tipo_reporte = data.get('tipo', 'FICHA_TECNICA')
+        lineas = data.get('lineas', [])
 
+        if not lineas:
+            return jsonify({'status': 'error', 'message': 'Las líneas del reporte están vacías.'}), 400
+
+        # Conexión con Drive
+        service = get_drive_service()
+        if not service:
+            raise DriveAuthError("No se pudo iniciar el servicio de Google Drive.")
+            
+        # Obtener la carpeta de destino
+        user_folder_id = obtener_o_crear_carpeta_usuario(service, usuario)
+
+        # Generación del contenido del archivo
+        contenido_texto = "\n".join(lineas)
+        timestamp = pd.Timestamp.now().strftime('%Y%m%d_%H%M%S')
+        nombre_archivo = f"{tipo_reporte}_{usuario}_{timestamp}.txt"
+        
+        file_metadata = {
+            'name': nombre_archivo,
+            'parents': [user_folder_id],
+            'description': 'Reporte generado automáticamente por SICEP Nexus PWA'
+        }
+        
+        # Subida a la nube
+        app.logger.debug(f"Subiendo archivo {nombre_archivo} a Drive...")
+        media = MediaIoBaseUpload(
+            io.BytesIO(contenido_texto.encode('utf-8')), 
+            mimetype='text/plain',
+            resumable=True
+        )
+        
+        file_creado = service.files().create(
+            body=file_metadata, 
+            media_body=media, 
+            fields='id, name, webViewLink'
+        ).execute()
+
+        app.logger.info(f"Archivo guardado exitosamente. ID: {file_creado.get('id')}")
+        
         return jsonify({
-            "status": "success", 
-            "file_name": nombre_archivo, 
-            "file_id": uploaded_file.get('id'),
-            "drive_url": uploaded_file.get('webViewLink')
-        })
-    except Exception as e:
-        return jsonify({"status": "error", "message": f"Error al subir a Drive: {str(e)}"}), 500
+            'status': 'success',
+            'file_name': file_creado.get('name'),
+            'drive_url': file_creado.get('webViewLink'),
+            'message': 'Reporte sincronizado con Google Drive.'
+        }), 201
 
-@app.route('/api/load', methods=['GET'])
+    except Exception as e:
+        app.logger.error(f"Error en el guardado de reporte: {str(e)}")
+        return jsonify({
+            'status': 'error', 
+            'message': 'Fallo interno al guardar el archivo.',
+            'details': str(e)
+        }), 500
+
 @app.route('/api/historial/archivos', methods=['GET'])
-def listar_historial_usuario():
-    token = request.args.get('token')
-    if not token:
-        return jsonify({"status": "error", "message": "Falta token"}), 400
-
-    usuarios = cargar_usuarios_drive()
-    if token not in usuarios:
-        return jsonify({"status": "error", "message": "Usuario denegado"}), 403
-
-    nombre_usuario = usuarios[token]['nombre']
-    folder_id = obtener_o_crear_carpeta_usuario(nombre_usuario)
-
-    if not folder_id or not drive_service:
-        return jsonify([])
-
+def listar_historial():
+    """
+    Endpoint para consultar el historial de archivos.
+    Busca exclusivamente dentro de la subcarpeta del usuario que lo solicita.
+    """
+    usuario = request.args.get('usuario', 'OPERADOR_GENERAL')
+    app.logger.info(f"Solicitud de historial recibida para el usuario: {usuario}")
+    
     try:
-        query = f"'{folder_id}' in parents and trashed = false"
-        results = drive_service.files().list(q=query, fields="files(id, name, webViewLink, mimeType, createdTime)").execute()
-        files = results.get('files', [])
+        service = get_drive_service()
+        user_folder_id = obtener_o_crear_carpeta_usuario(service, usuario)
 
-        formateados = []
+        # Buscar todos los archivos dentro de la carpeta del usuario
+        query = f"'{user_folder_id}' in parents and trashed = false"
+        
+        app.logger.debug(f"Ejecutando consulta de listado en Drive. Query: {query}")
+        response = service.files().list(
+            q=query, 
+            spaces='drive', 
+            fields='files(id, name, createdTime, webViewLink)',
+            orderBy='createdTime desc' # Ordenar del más nuevo al más viejo
+        ).execute()
+        
+        files = response.get('files', [])
+        
+        # Mapear los resultados
+        reportes_lista = []
         for f in files:
-            formateados.append({
-                "tipo": "Reporte Guardado",
-                "fecha_hora": f.get('createdTime', datetime.now().strftime("%d/%m/%Y")),
-                "drive_url": f.get('webViewLink'),
-                "info": {"res": f.get('name'), "detalle": f.get('mimeType')}
+            reportes_lista.append({
+                'id_archivo': f.get('id'),
+                'nombre': f.get('name'),
+                'fecha_hora': f.get('createdTime'),
+                'drive_url': f.get('webViewLink')
             })
-        return jsonify(formateados)
+
+        app.logger.info(f"Historial consultado con éxito. Archivos encontrados: {len(reportes_lista)}")
+        return jsonify(reportes_lista), 200
+
     except Exception as e:
-        return jsonify([]), 500
+        app.logger.error(f"Error al consultar el historial: {str(e)}")
+        return jsonify({
+            'status': 'error', 
+            'message': 'No se pudo recuperar el historial.',
+            'details': str(e)
+        }), 500
 
-@app.route('/api/admin/usuarios', methods=['GET', 'POST', 'PUT'])
-def admin_drive():
-    if request.method == 'GET':
-        return jsonify(cargar_usuarios_drive())
-
-    data = request.json or {}
-    if request.method == 'POST':
-        nuevo_token = "tkn_" + "".join(random.choices(string.ascii_lowercase + string.digits, k=6))
-        nuevo_pin = "".join(random.choices(string.digits, k=4))
-        try:
-            if sheet:
-                sheet.append_row([nuevo_token, data.get('nombre'), data.get('contacto'), nuevo_pin, "operador", "", "true", "true", "true", "true", "true", ""])
-            return jsonify({"status": "success", "token": nuevo_token, "pin": nuevo_pin})
-        except Exception as e:
-            return jsonify({"status": "error", "message": str(e)}), 500
-
-    if request.method == 'PUT':
-        token = data.get('token')
-        try:
-            if sheet:
-                celda = sheet.find(token)
-                if data.get('nombre'): sheet.update_cell(celda.row, 2, data.get('nombre'))
-                if data.get('contacto'): sheet.update_cell(celda.row, 3, data.get('contacto'))
-                if data.get('nuevo_pin'): sheet.update_cell(celda.row, 4, data.get('nuevo_pin'))
-            return jsonify({"status": "success"})
-        except:
-            return jsonify({"status": "error"}), 404
+# =============================================================================
+# EJECUCIÓN PRINCIPAL DEL SERVIDOR
+# =============================================================================
 
 if __name__ == '__main__':
-    port = int(os.environ.get("PORT", 5000))
-    app.run(host='0.0.0.0', port=port, debug=True)
+    # Mensaje de inicialización en consola
+    print("="*60)
+    print(" SICEP NEXUS - INICIANDO SERVIDOR BACKEND ".center(60, "="))
+    print("="*60)
+    print(f"[*] Modo Debug: Activado")
+    print(f"[*] Puerto por defecto: 5000")
+    print(f"[*] Logs guardándose en: sicep_backend.log")
+    print("="*60)
+    
+    # app.run(host='0.0.0.0') permite que dispositivos en tu misma red local (WiFi)
+    # puedan acceder a la PWA ingresando la IP local de la computadora.
+    app.run(host='0.0.0.0', port=5000, debug=True)
