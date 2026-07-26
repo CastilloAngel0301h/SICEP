@@ -5,7 +5,7 @@ import os
 import random
 import string
 import io
-import openpyxl  # Para leer archivos Excel (.xlsx) de Google Drive
+import openpyxl
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaIoBaseDownload, MediaIoBaseUpload
 from datetime import datetime
@@ -15,20 +15,30 @@ from reportlab.lib.pagesizes import letter
 from reportlab.pdfgen import canvas
 from PIL import Image, ImageDraw, ImageFont
 
-app = Flask(__name__)
-app.secret_key = os.environ.get('SECRET_KEY', 'angel_admin_2026_secure')
+app = Flask(__name__, static_folder='static', template_folder='templates')
+app.secret_key = os.environ.get('SECRET_KEY', 'vektor_nexus_secure_key_2026')
 
 CARPETA_RAIZ_DRIVE = "1PbH8767Q86O-TntoxDxozaGiBl3WJqE0"
+
+# --- COMUNICADO VIP ADMINISTRADOR ---
+comunicado_admin_actual = {
+    "titulo": "¡BIENVENIDO A VEKTOR NEXUS!",
+    "mensaje": "Sistema actualizado a la versión Neón DB 2026. Calcula tu eficiencia para el turno.",
+    "fecha": datetime.now().strftime("%d/%m/%Y")
+}
 
 # --- CONFIGURACIÓN DE GOOGLE SERVICES ---
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
 try:
     creds = ServiceAccountCredentials.from_json_keyfile_name('credenciales.json', scope)
     client = gspread.authorize(creds)
-    sheet = client.open("Base_Datos_Calculadora").sheet1
+    # Abre la hoja base configurada
+    sheet = client.open_by_key("1flxIGd4eBiGYe2vrSsPU318Feg2KHFV4Ip9oTF2aPvA").sheet1
     drive_service = build('drive', 'v3', credentials=creds)
 except Exception as e:
-    print(f"Error de conexión a Google: {e}")
+    print(f"Error de conexión a Google Services: {e}")
+    sheet = None
+    drive_service = None
 
 # --- ESTRUCTURA CACHÉ DE METAS ---
 pdf_metas_cache = {
@@ -41,9 +51,11 @@ pdf_metas_cache = {
     ]
 }
 
-# --- HELPER FUNCTIONS FOR DRIVE & FILES ---
+# --- FUNCIONES AUXILIARES PARA DRIVE Y ARCHIVOS ---
 
 def obtener_o_crear_carpeta_usuario(nombre_usuario):
+    if not drive_service:
+        return None
     try:
         query = f"'{CARPETA_RAIZ_DRIVE}' in parents and name = '{nombre_usuario}' and mimeType = 'application/vnd.google-apps.folder' and trashed = false"
         results = drive_service.files().list(q=query, fields="files(id, name)").execute()
@@ -64,6 +76,8 @@ def obtener_o_crear_carpeta_usuario(nombre_usuario):
         return None
 
 def generar_nombre_correlativo(folder_id):
+    if not drive_service:
+        return f"calculo000001-{datetime.now().strftime('%d-%m-2026')}"
     try:
         query = f"'{folder_id}' in parents and trashed = false"
         results = drive_service.files().list(q=query, fields="files(name)").execute()
@@ -82,9 +96,9 @@ def crear_pdf_en_memoria(datos_extensos):
     pdf_buffer = io.BytesIO()
     c = canvas.Canvas(pdf_buffer, pagesize=letter)
     c.setFont("Helvetica-Bold", 16)
-    c.drawString(50, 750, "REPORTE DETALLADO DE CÁLCULO DE PRODUCCIÓN")
+    c.drawString(50, 750, "VEKTOR NEXUS - REPORTE DE PRODUCCIÓN")
     c.setFont("Helvetica", 10)
-    c.drawString(50, 730, f"Fecha de registro: {datetime.now().strftime('%d/%m/2026 %H:%M')}")
+    c.drawString(50, 730, f"Fecha de registro: {datetime.now().strftime('%d/%m/%Y %H:%M')}")
     c.line(50, 720, 550, 720)
 
     y = 690
@@ -102,15 +116,15 @@ def crear_pdf_en_memoria(datos_extensos):
     return pdf_buffer
 
 def crear_imagen_en_memoria(datos_cortos):
-    img = Image.new('RGB', (600, 300), color='#0b132b')
+    img = Image.new('RGB', (600, 300), color='#030008')
     d = ImageDraw.Draw(img)
 
-    d.text((30, 30), "CÁLCULO DE PRODUCCIÓN (RESUMEN)", fill='#ffffff')
-    d.line([(30, 55), (570, 55)], fill='#48cae4', width=2)
+    d.text((30, 30), "VEKTOR NEXUS - CÁLCULO DE PRODUCCIÓN", fill='#ff0055')
+    d.line([(30, 55), (570, 55)], fill='#00f0ff', width=2)
 
     y = 80
     for linea in datos_cortos:
-        d.text((30, y), str(linea), fill='#edf2f4')
+        d.text((30, y), str(linea), fill='#ffffff')
         y += 30
 
     img_buffer = io.BytesIO()
@@ -119,9 +133,26 @@ def crear_imagen_en_memoria(datos_cortos):
     return img_buffer
 
 def cargar_usuarios_drive():
+    # Usuario Administrador Maestro por defecto
+    usuarios = {
+        "angel0301": {
+            "token": "angel0301",
+            "nombre": "Angel Castillo (Admin 👑)",
+            "contacto": "+504 00000000",
+            "pin": "2004",
+            "rol": "admin",
+            "device_id": "",
+            "ultima_conexion": "Ahora",
+            "permisos": {
+                "biohorario": True, "eficiencia": True, "tiempo": True, "metas": True, "historial": True
+            }
+        }
+    }
+    if not sheet:
+        return usuarios
+
     try:
         records = sheet.get_all_values()
-        usuarios = {}
         for row in records[1:]:
             if len(row) > 0 and str(row[0]).strip():
                 tkn = str(row[0]).strip()
@@ -129,10 +160,10 @@ def cargar_usuarios_drive():
 
                 usuarios[tkn] = {
                     "token": tkn,
-                    "nombre": str(row[1]).strip() if len(row) > 1 else "",
+                    "nombre": str(row[1]).strip() if len(row) > 1 else "Operador",
                     "contacto": str(row[2]).strip() if len(row) > 2 else "",
-                    "pin": str(row[3]).strip() if len(row) > 3 else "",
-                    "rol": str(row[4]).strip() if len(row) > 4 else "operador",
+                    "pin": str(row[3]).strip() if len(row) > 3 else "0000",
+                    "rol": "admin" if tkn == 'angel0301' else (str(row[4]).strip() if len(row) > 4 else "operador"),
                     "device_id": str(row[5]).strip() if len(row) > 5 else "",
                     "ultima_conexion": str(row[11]).strip() if len(row) > 11 else "Desconocida",
                     "permisos": {
@@ -146,44 +177,77 @@ def cargar_usuarios_drive():
         return usuarios
     except Exception as e:
         print("Error al cargar usuarios de Drive:", e)
-        return {}
+        return usuarios
 
-# --- RUTAS DE API ---
+# --- RUTAS PRINCIPALES Y PWA ---
 
 @app.route('/')
 def index():
-    token = request.args.get('token')
-    usuarios_actuales = cargar_usuarios_drive()
-    if not token or token not in usuarios_actuales:
-        return "<h1 style='color:white;background:#050814;text-align:center;padding:50px;font-family:sans-serif;'>ACCESO DENEGADO: TOKEN INVÁLIDO</h1>", 403
-    return render_template('index.html', user=usuarios_actuales[token], token=token)
+    return render_template('index.html')
+
+@app.route('/manifest.json')
+def manifest():
+    return jsonify({
+        "short_name": "VEKTOR",
+        "name": "VEKTOR NEXUS - Eficiencia DB",
+        "icons": [{"src": "https://img.icons8.com/neon/512/goku.png", "type": "image/png", "sizes": "512x512"}],
+        "start_url": "/",
+        "background_color": "#030008",
+        "theme_color": "#ff0055",
+        "display": "standalone",
+        "orientation": "portrait"
+    })
+
+@app.route('/sw.js')
+def service_worker():
+    sw_code = """
+    const CACHE_NAME = 'vektor-nexus-v2';
+    self.addEventListener('install', (e) => {
+      e.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(['/'])));
+    });
+    self.addEventListener('fetch', (e) => {
+      e.respondWith(fetch(e.request).catch(() => caches.match(e.request)));
+    });
+    """
+    return app.response_class(sw_code, mimetype='application/javascript')
+
+# --- RUTAS DE API ---
 
 @app.route('/api/login', methods=['POST'])
 def login_verificar():
-    data = request.json
-    token = data.get('token')
+    data = request.json or {}
+    token = str(data.get('token')).strip()
     pin_ingresado = str(data.get('pin')).strip()
-    device_id_cliente = str(data.get('device_id')).strip()
 
     usuarios_actuales = cargar_usuarios_drive()
+
     if token in usuarios_actuales and str(usuarios_actuales[token]['pin']).strip() == pin_ingresado:
         session['user_token'] = token
         session['user_name'] = usuarios_actuales[token]['nombre']
-        return jsonify({"status": "success", "permisos": usuarios_actuales[token]['permisos']})
-    return jsonify({"status": "error", "message": "PIN o Token Incorrecto"}), 401
+        user_info = usuarios_actuales[token]
+        return jsonify({
+            "status": "success", 
+            "user": user_info, 
+            "permisos": user_info['permisos'],
+            "comunicado": comunicado_admin_actual
+        })
+    
+    return jsonify({"status": "error", "message": "Token o PIN incorrecto"}), 401
+
+@app.route('/api/admin/comunicado', methods=['POST'])
+def admin_comunicado():
+    global comunicado_admin_actual
+    data = request.json or {}
+    comunicado_admin_actual = {
+        "titulo": data.get('titulo', 'AVISO IMPORTANTE'),
+        "mensaje": data.get('mensaje', ''),
+        "fecha": datetime.now().strftime("%d/%m/%Y %H:%M")
+    }
+    return jsonify({"status": "success"})
 
 @app.route('/api/metas/datos', methods=['GET'])
-def obtener_metas_datos():
-    return jsonify({
-        "status": "success",
-        "datos": pdf_metas_cache["datos"],
-        "estilos": pdf_metas_cache["estilos"],
-        "tallas": pdf_metas_cache["tallas"],
-        "procesos": pdf_metas_cache["procesos"]
-    })
-
 @app.route('/api/metas/sincronizar', methods=['POST'])
-def sincronizar_metas():
+def obtener_metas_datos():
     return jsonify({
         "status": "success",
         "datos": pdf_metas_cache["datos"],
@@ -210,8 +274,8 @@ def guardar_calculo():
 
     nombre_usuario = usuarios[token]['nombre']
     folder_id = obtener_o_crear_carpeta_usuario(nombre_usuario)
-    if not folder_id:
-        return jsonify({"status": "error", "message": "No se pudo gestionar la carpeta en Drive"}), 500
+    if not folder_id or not drive_service:
+        return jsonify({"status": "error", "message": "No se pudo conectar con Drive"}), 500
 
     nombre_base = generar_nombre_correlativo(folder_id)
 
@@ -252,7 +316,7 @@ def listar_historial_usuario():
     nombre_usuario = usuarios[token]['nombre']
     folder_id = obtener_o_crear_carpeta_usuario(nombre_usuario)
 
-    if not folder_id:
+    if not folder_id or not drive_service:
         return jsonify([])
 
     try:
@@ -282,7 +346,8 @@ def admin_drive():
         nuevo_token = "tkn_" + "".join(random.choices(string.ascii_lowercase + string.digits, k=6))
         nuevo_pin = "".join(random.choices(string.digits, k=4))
         try:
-            sheet.append_row([nuevo_token, data.get('nombre'), data.get('contacto'), nuevo_pin, "operador", "", "true", "true", "true", "true", "true", ""])
+            if sheet:
+                sheet.append_row([nuevo_token, data.get('nombre'), data.get('contacto'), nuevo_pin, "operador", "", "true", "true", "true", "true", "true", ""])
             return jsonify({"status": "success", "token": nuevo_token, "pin": nuevo_pin})
         except Exception as e:
             return jsonify({"status": "error", "message": str(e)}), 500
@@ -290,14 +355,15 @@ def admin_drive():
     if request.method == 'PUT':
         token = data.get('token')
         try:
-            celda = sheet.find(token)
-            if data.get('nombre'): sheet.update_cell(celda.row, 2, data.get('nombre'))
-            if data.get('contacto'): sheet.update_cell(celda.row, 3, data.get('contacto'))
-            if data.get('nuevo_pin'): sheet.update_cell(celda.row, 4, data.get('nuevo_pin'))
+            if sheet:
+                celda = sheet.find(token)
+                if data.get('nombre'): sheet.update_cell(celda.row, 2, data.get('nombre'))
+                if data.get('contacto'): sheet.update_cell(celda.row, 3, data.get('contacto'))
+                if data.get('nuevo_pin'): sheet.update_cell(celda.row, 4, data.get('nuevo_pin'))
             return jsonify({"status": "success"})
         except:
             return jsonify({"status": "error"}), 404
 
 if __name__ == '__main__':
     port = int(os.environ.get("PORT", 5000))
-    app.run(host='0.0.0.0', port=port)
+    app.run(host='0.0.0.0', port=port, debug=True)
