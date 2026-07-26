@@ -1,18 +1,3 @@
-# -*- coding: utf-8 -*-
-"""
-SICEP NEXUS - SISTEMA DE CONTROL DE PRODUCCIÓN
-==============================================
-Módulo Principal de Backend (Flask) para la Gestión de Metas y Reportes.
-
-Este script maneja:
-1. Conexión con Google Sheets para extraer la base de datos de metas.
-2. Conexión con Google Drive API para la gestión de archivos y carpetas.
-3. API RESTful para servir datos al frontend (Progressive Web App).
-4. Sistema de logging y manejo de errores estructurado.
-
-Desarrollado para asegurar alta disponibilidad y trazabilidad.
-"""
-
 import os
 import io
 import sys
@@ -37,9 +22,13 @@ SICEP_FOLDER_ID = '1PbH8767Q86O-TntoxDxozaGiBl3WJqE0'
 SCOPES = ['https://www.googleapis.com/auth/drive']
 SERVICE_ACCOUNT_FILE = 'credentials.json'
 
-# ID del documento de Sheets extraído del enlace proporcionado
+# ID del documento de Sheets para las METAS
 SHEET_ID = '1U9rvF4Uj55N9kV-sVuwP0y6OutkP___H'
 CSV_URL = f"https://docs.google.com/spreadsheets/d/{SHEET_ID}/export?format=csv"
+
+# ID del documento de Sheets para los USUARIOS (Reemplazar con el ID real)
+SHEET_USUARIOS_ID = 'AQUI_EL_ID_DE_TU_SHEET_DE_USUARIOS'
+URL_USUARIOS = f"https://docs.google.com/spreadsheets/d/{SHEET_USUARIOS_ID}/export?format=csv"
 
 # =============================================================================
 # INICIALIZACIÓN DE LA APLICACIÓN FLASK
@@ -108,12 +97,6 @@ class DataFetchError(SicepError):
 def get_drive_service() -> Any:
     """
     Autentica y devuelve el servicio de Google Drive API.
-    
-    Returns:
-        Objeto resource de la API de Google Drive.
-        
-    Raises:
-        DriveAuthError: Si el archivo de credenciales no se encuentra o es inválido.
     """
     try:
         if not os.path.exists(SERVICE_ACCOUNT_FILE):
@@ -138,14 +121,6 @@ def get_drive_service() -> Any:
 def buscar_carpeta_en_drive(service: Any, nombre_carpeta: str, parent_id: str) -> Optional[str]:
     """
     Busca una carpeta específica por nombre dentro de un directorio padre en Drive.
-    
-    Args:
-        service: Servicio de Google Drive instanciado.
-        nombre_carpeta: Nombre de la carpeta a buscar.
-        parent_id: ID de la carpeta padre (SICEP).
-        
-    Returns:
-        El ID de la carpeta si existe, de lo contrario None.
     """
     app.logger.debug(f"Buscando carpeta '{nombre_carpeta}' en el padre '{parent_id}'")
     query = (
@@ -176,14 +151,6 @@ def buscar_carpeta_en_drive(service: Any, nombre_carpeta: str, parent_id: str) -
 def crear_carpeta_en_drive(service: Any, nombre_carpeta: str, parent_id: str) -> str:
     """
     Crea una nueva carpeta en Google Drive dentro del directorio especificado.
-    
-    Args:
-        service: Servicio de Google Drive instanciado.
-        nombre_carpeta: Nombre para la nueva carpeta.
-        parent_id: ID de la carpeta padre donde se alojará.
-        
-    Returns:
-        El ID de la carpeta recién creada.
     """
     app.logger.info(f"Creando nueva carpeta '{nombre_carpeta}'...")
     file_metadata = {
@@ -209,13 +176,6 @@ def crear_carpeta_en_drive(service: Any, nombre_carpeta: str, parent_id: str) ->
 def obtener_o_crear_carpeta_usuario(service: Any, nombre_usuario: str) -> str:
     """
     Busca la subcarpeta del usuario en SICEP. Si no existe, la crea dinámicamente.
-    
-    Args:
-        service: Servicio de Google Drive instanciado.
-        nombre_usuario: Identificador del operador.
-        
-    Returns:
-        ID de la carpeta personal del usuario.
     """
     if not nombre_usuario:
         nombre_usuario = "OPERADOR_DESCONOCIDO"
@@ -238,43 +198,22 @@ def obtener_o_crear_carpeta_usuario(service: Any, nombre_usuario: str) -> str:
 def procesar_dataframe_metas(df: pd.DataFrame) -> Tuple[List[str], List[str], List[str], List[Dict[str, Any]]]:
     """
     Limpia y procesa el DataFrame extraído de Google Sheets.
-    Asegura que los datos correspondan a las columnas:
-    A=ESTILO, B=TALLA, D=OPERACION, F=META, G=DZ/HORA, H=PZ/MINUTO
-    
-    Args:
-        df: DataFrame crudo de Pandas.
-        
-    Returns:
-        Tupla conteniendo: (lista_estilos, lista_tallas, lista_procesos, lista_datos_formateados)
     """
     app.logger.debug("Iniciando limpieza y procesamiento del DataFrame de metas.")
     
-    # Limpiar nombres de columnas para evitar errores de espacios invisibles
     df.columns = df.columns.str.strip()
 
-    # Mapeo estricto de índices de columnas según requerimiento:
-    # 0 = A (ESTILO)
-    # 1 = B (TALLA)
-    # 3 = D (OPERACION)
-    # 5 = F (META)
-    # 6 = G (DZ/HORA)
-    # 7 = H (PZ/MINUTO)
-    
-    # Limpieza de valores nulos y formateo a string sin espacios extra
     df.iloc[:, 0] = df.iloc[:, 0].astype(str).str.strip()
     df.iloc[:, 1] = df.iloc[:, 1].astype(str).str.strip()
     df.iloc[:, 3] = df.iloc[:, 3].astype(str).str.strip()
 
-    # Generación de listas únicas y ordenadas, filtrando valores 'nan' literales
     estilos = sorted([e for e in df.iloc[:, 0].unique() if e.lower() != 'nan'])
     tallas = sorted([t for t in df.iloc[:, 1].unique() if t.lower() != 'nan'])
     procesos = sorted([p for p in df.iloc[:, 3].unique() if p.lower() != 'nan'])
 
-    # Construcción de la lista de diccionarios para el JSON de respuesta
     datos_estructurados = []
     
     for indice, row in df.iterrows():
-        # Extracción segura de valores numéricos
         try:
             meta_val = float(row.iloc[5]) if pd.notnull(row.iloc[5]) else 0.0
             dz_hora_val = float(row.iloc[6]) if pd.notnull(row.iloc[6]) else 0.0
@@ -310,7 +249,6 @@ def index():
 def health_check():
     """
     Endpoint de monitoreo de estado.
-    Útil para verificar si el backend está en línea.
     """
     return jsonify({
         'status': 'online',
@@ -318,23 +256,76 @@ def health_check():
         'version': '1.0.0'
     }), 200
 
+@app.route('/api/login', methods=['POST'])
+def validar_acceso():
+    """
+    Endpoint para validar el PIN de usuario contra la base de datos de Google Sheets.
+    """
+    app.logger.info("Iniciando solicitud de validación de acceso (/api/login)")
+    try:
+        data = request.get_json()
+        if not data:
+            return jsonify({'status': 'error', 'message': 'No se enviaron datos.'}), 400
+            
+        # Recibir el PIN y asegurar que sea texto sin espacios
+        pin_ingresado = str(data.get('pin', '')).strip()
+        
+        # Leer el archivo de usuarios mediante pandas
+        app.logger.debug(f"Intentando descargar datos de usuarios desde: {URL_USUARIOS}")
+        df_usuarios = pd.read_csv(URL_USUARIOS)
+        
+        # Asegurar que la columna de PINs en el dataframe se trate como texto (string)
+        # Asume que la columna en tu Excel se llama 'PIN'. Cambia esto si se llama diferente.
+        if 'PIN' not in df_usuarios.columns:
+            raise DataFetchError("La columna 'PIN' no existe en el documento de usuarios.")
+            
+        df_usuarios['PIN'] = df_usuarios['PIN'].astype(str).str.strip()
+        
+        # Buscar el PIN ingresado en la base de datos
+        usuario_match = df_usuarios[df_usuarios['PIN'] == pin_ingresado]
+        
+        if not usuario_match.empty:
+            # Asume que tienes columnas 'NOMBRE' y 'ROL' en tu documento. 
+            # Ajusta los nombres de las columnas según tu estructura real.
+            nombre = str(usuario_match.iloc[0].get('NOMBRE', 'Usuario Desconocido')).strip()
+            rol = str(usuario_match.iloc[0].get('ROL', 'OPERADOR')).strip()
+            
+            app.logger.info(f"Acceso concedido para el usuario: {nombre} ({rol})")
+            return jsonify({
+                'status': 'success',
+                'message': 'Acceso concedido',
+                'usuario': nombre,
+                'rol': rol
+            }), 200
+        else:
+            app.logger.warning(f"Intento de acceso fallido con PIN: {pin_ingresado}")
+            return jsonify({
+                'status': 'error',
+                'message': 'PIN incorrecto o usuario no encontrado'
+            }), 401
+            
+    except Exception as e:
+        app.logger.error(f"Error al validar PIN: {str(e)}")
+        return jsonify({
+            'status': 'error', 
+            'message': 'Fallo interno al consultar la base de datos',
+            'details': str(e)
+        }), 500
+
 @app.route('/api/metas/datos', methods=['GET'])
 def obtener_metas():
     """
     Endpoint principal para obtener la base de datos de metas.
-    Descarga el CSV desde Google Sheets, lo procesa y lo devuelve como JSON.
     """
     app.logger.info("Iniciando solicitud de obtención de metas (/api/metas/datos)")
     
     try:
-        # Descarga directa utilizando pandas
         app.logger.debug(f"Intentando descargar datos desde: {CSV_URL}")
         df = pd.read_csv(CSV_URL)
         
         if df.empty:
             raise DataFetchError("El archivo de origen está vacío o no se pudo leer.")
             
-        # Llamada a la función modularizada de procesamiento
         estilos, tallas, procesos, datos = procesar_dataframe_metas(df)
 
         response_payload = {
@@ -361,13 +352,10 @@ def obtener_metas():
 def guardar_reporte():
     """
     Endpoint para guardar un reporte de producción.
-    Recibe un JSON con las líneas de texto, genera un archivo .txt,
-    y lo sube a la subcarpeta específica del usuario en Google Drive.
     """
     app.logger.info("Iniciando solicitud para guardar reporte en Drive (/api/save)")
     
     try:
-        # Validación de datos entrantes
         data = request.get_json()
         if not data:
             return jsonify({'status': 'error', 'message': 'No se enviaron datos JSON.'}), 400
@@ -379,15 +367,12 @@ def guardar_reporte():
         if not lineas:
             return jsonify({'status': 'error', 'message': 'Las líneas del reporte están vacías.'}), 400
 
-        # Conexión con Drive
         service = get_drive_service()
         if not service:
             raise DriveAuthError("No se pudo iniciar el servicio de Google Drive.")
             
-        # Obtener la carpeta de destino
         user_folder_id = obtener_o_crear_carpeta_usuario(service, usuario)
 
-        # Generación del contenido del archivo
         contenido_texto = "\n".join(lineas)
         timestamp = pd.Timestamp.now().strftime('%Y%m%d_%H%M%S')
         nombre_archivo = f"{tipo_reporte}_{usuario}_{timestamp}.txt"
@@ -398,7 +383,6 @@ def guardar_reporte():
             'description': 'Reporte generado automáticamente por SICEP Nexus PWA'
         }
         
-        # Subida a la nube
         app.logger.debug(f"Subiendo archivo {nombre_archivo} a Drive...")
         media = MediaIoBaseUpload(
             io.BytesIO(contenido_texto.encode('utf-8')), 
@@ -433,7 +417,6 @@ def guardar_reporte():
 def listar_historial():
     """
     Endpoint para consultar el historial de archivos.
-    Busca exclusivamente dentro de la subcarpeta del usuario que lo solicita.
     """
     usuario = request.args.get('usuario', 'OPERADOR_GENERAL')
     app.logger.info(f"Solicitud de historial recibida para el usuario: {usuario}")
@@ -442,7 +425,6 @@ def listar_historial():
         service = get_drive_service()
         user_folder_id = obtener_o_crear_carpeta_usuario(service, usuario)
 
-        # Buscar todos los archivos dentro de la carpeta del usuario
         query = f"'{user_folder_id}' in parents and trashed = false"
         
         app.logger.debug(f"Ejecutando consulta de listado en Drive. Query: {query}")
@@ -450,12 +432,11 @@ def listar_historial():
             q=query, 
             spaces='drive', 
             fields='files(id, name, createdTime, webViewLink)',
-            orderBy='createdTime desc' # Ordenar del más nuevo al más viejo
+            orderBy='createdTime desc'
         ).execute()
         
         files = response.get('files', [])
         
-        # Mapear los resultados
         reportes_lista = []
         for f in files:
             reportes_lista.append({
@@ -481,7 +462,6 @@ def listar_historial():
 # =============================================================================
 
 if __name__ == '__main__':
-    # Mensaje de inicialización en consola
     print("="*60)
     print(" SICEP NEXUS - INICIANDO SERVIDOR BACKEND ".center(60, "="))
     print("="*60)
@@ -490,6 +470,4 @@ if __name__ == '__main__':
     print(f"[*] Logs guardándose en: sicep_backend.log")
     print("="*60)
     
-    # app.run(host='0.0.0.0') permite que dispositivos en tu misma red local (WiFi)
-    # puedan acceder a la PWA ingresando la IP local de la computadora.
     app.run(host='0.0.0.0', port=5000, debug=True)
