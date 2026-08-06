@@ -30,10 +30,11 @@ SCOPES = [
 # --- INICIALIZACIÓN SEGURA DE GOOGLE SERVICES ---
 client = None
 sheet = None
+sheet_metas = None  # Declaración global explícita para evitar NameError
 drive_service = None
 
 def inicializar_servicios_google():
-    global client, sheet, drive_service
+    global client, sheet, sheet_metas, drive_service
     try:
         creds_dict = None
         # 1. Intentar cargar desde archivo físico o Secret File en Render
@@ -42,13 +43,15 @@ def inicializar_servicios_google():
                 creds_dict = json.load(f)
         # 2. Si no existe archivo físico, buscar en la variable de entorno
         elif os.environ.get('GOOGLE_CREDENTIALS_JSON'):
-            creds_raw = os.environ.get('GOOGLE_CREDENTIALS_JSON')
+            creds_raw = os.environ.get('GOOGLE_CREDENTIALS_JSON').strip()
+            if creds_raw.startswith("'") and creds_raw.endswith("'"):
+                creds_raw = creds_raw[1:-1]
             creds_dict = json.loads(creds_raw)
 
         if creds_dict:
             # FIX CRÍTICO: Formatear saltos de línea en la private key para evitar 'Invalid JWT Signature'
             if 'private_key' in creds_dict:
-                pk = creds_dict['private_key']
+                pk = str(creds_dict['private_key'])
                 if pk.startswith('"') and pk.endswith('"'):
                     pk = pk[1:-1]
                 pk = pk.replace('\\\\n', '\n').replace('\\n', '\n')
@@ -56,34 +59,66 @@ def inicializar_servicios_google():
             
             creds = Credentials.from_service_account_info(creds_dict, scopes=SCOPES)
             client = gspread.authorize(creds)
-            sheet = client.open("Base_Datos_Calculadora").sheet1
             drive_service = build('drive', 'v3', credentials=creds)
+
+            # 1. Hoja principal de Usuarios
+            try:
+                sheet = client.open("Base_Datos_Calculadora").sheet1
+            except Exception as e:
+                print(f"Error al abrir Base_Datos_Calculadora: {e}")
+                sheet = None
+
+            # 2. Hoja de Metas (Abre archivo independiente o pestaña dentro del libro)
+            try:
+                sheet_metas = client.open("Base_Datos_Metas").sheet1
+            except Exception:
+                try:
+                    sheet_metas = client.open("Base_Datos_Calculadora").worksheet("Metas")
+                except Exception as e_m:
+                    print(f"Pestaña/Archivo 'Metas' no encontrado: {e_m}")
+                    sheet_metas = None
+
             print("Conexión con Google APIs establecida correctamente.")
+            return True
         else:
             print("Advertencia: No se encontraron credenciales válidas de Google.")
+            return False
     except Exception as e:
-        print(f"Error de conexión a Google: {e}")
+        print(f"Error crítico de conexión a Google: {e}")
+        return False
 
 # Ejecutar inicialización al arrancar
 inicializar_servicios_google()
 
-# --- RUTAS DE SINCRONIZACIÓN Y CONSULTA DE METAS ---
+# --- PROCESAMIENTO DE METAS (CACHÉ LOCAL) ---
+pdf_metas_cache = {
+    "estilos": [], 
+    "tallas": ['XXS', 'XS', 'S', 'M', 'L', 'XL', '2X', '3X', '4X'], 
+    "procesos": ['CONTEO','SORTEO','VOLTEO','DOBLADO','VOLTEO-SORTING','VOLTEO-PFD','SORTEO-REPROCESO'], 
+    "datos": []
+}
+
+# --- RUTAS DE SINCRONIZACIÓN Y CONSULTA DE METAS / PREMIUM / DRIVE ---
 
 @app.route('/api/metas/sincronizar', methods=['GET', 'POST'])
 @app.route('/api/metas/datos', methods=['GET', 'POST'])
+@app.route('/api/premium/sincronizar', methods=['GET', 'POST'])
+@app.route('/api/drive/sincronizar-xlsx', methods=['GET', 'POST'])
 def api_gestion_metas():
     global sheet_metas, sheet, pdf_metas_cache
 
-    # 1. Intentar reconectar a Google Services si las variables globales están caídas
-    if not sheet and not sheet_metas:
+    # 1. Reconexión segura si las referencias globales están caídas
+    instancia_metas = globals().get('sheet_metas')
+    if not sheet and not instancia_metas:
         inicializar_servicios_google()
+        instancia_metas = globals().get('sheet_metas')
 
     try:
         registros_metas = []
 
-        # 2. Intentar leer de la hoja dedicada de Metas o de la pestaña 'Metas'
-        if sheet_metas:
-            registros_metas = sheet_metas.get_all_records()
+        # 2. Intentar leer registros desde la fuente disponible
+        if instancia_metas:
+            registros_metas = instancia_metas.get_all_records()
         elif sheet:
             try:
                 hoja_p = client.open("Base_Datos_Calculadora").worksheet("Metas")
@@ -92,14 +127,14 @@ def api_gestion_metas():
                 print(f"Pestaña 'Metas' no encontrada en el libro principal: {err_ws}")
                 registros_metas = pdf_metas_cache.get("datos", [])
 
-        # Actualizar la caché de metas si hay registros leídos
+        # Actualizar la caché de metas en memoria si se recuperaron datos
         if registros_metas:
             pdf_metas_cache["datos"] = registros_metas
 
-        # 3. Retornar siempre un JSON estructurado con estado HTTP 200
+        # 3. Retornar respuesta JSON formateada (Evita el SyntaxError en el cliente JS)
         return jsonify({
             "status": "success",
-            "message": "Datos de metas cargados correctamente",
+            "message": "Datos procesados correctamente",
             "estilos": pdf_metas_cache.get("estilos", []),
             "tallas": pdf_metas_cache.get("tallas", []),
             "procesos": pdf_metas_cache.get("procesos", []),
@@ -107,14 +142,13 @@ def api_gestion_metas():
         }), 200
 
     except Exception as e:
-        print(f"Error al procesar la ruta de metas: {e}")
-        # Respuesta de respaldo en formato JSON válido para evitar la falla del frontend
+        print(f"Error en API de metas/sincronización: {e}")
         return jsonify({
             "status": "error",
             "message": f"Error interno en la base de datos de metas: {str(e)}",
             "datos": pdf_metas_cache.get("datos", [])
         }), 200
-        
+
 # --- HELPER FUNCTIONS FOR DRIVE & FILES ---
 
 def obtener_o_crear_carpeta_usuario(nombre_usuario):
@@ -207,7 +241,7 @@ def crear_imagen_en_memoria(datos_cortos):
 def cargar_usuarios_drive():
     """Carga los usuarios desde Google Sheets sin riesgo de NameError."""
     if not sheet:
-        print("Atención: La hoja de cálculo no está inicializada.")
+        print("Atención: La hoja de cálculo de usuarios no está inicializada.")
         return {}
     try:
         records = sheet.get_all_values()
@@ -237,14 +271,6 @@ def cargar_usuarios_drive():
     except Exception as e:
         print("Error al cargar usuarios de Drive:", e)
         return {}
-
-# --- PROCESAMIENTO DE METAS ---
-pdf_metas_cache = {
-    "estilos": [], 
-    "tallas": ['XXS', 'XS', 'S', 'M', 'L', 'XL', '2X', '3X', '4X'], 
-    "procesos": ['CONTEO','SORTEO','VOLTEO','DOBLADO','VOLTEO-SORTING','VOLTEO-PFD','SORTEO-REPROCESO'], 
-    "datos": []
-}
 
 # --- RUTAS DE NAVEGACIÓN Y AUTENTICACIÓN ---
 
@@ -321,7 +347,6 @@ def login_verificar():
         print(f"Error en login: {e}")
         return jsonify({"status": "error", "message": "Usuario no encontrado"}), 404
 
-
 # --- OPERACIONES DE HISTORIAL Y DRIVE ---
 
 @app.route('/api/historial/guardar', methods=['POST'])
@@ -367,7 +392,6 @@ def guardar_calculo():
     except Exception as e:
         return jsonify({"status": "error", "message": f"Error al subir a Drive: {str(e)}"}), 500
 
-
 @app.route('/api/historial/archivos', methods=['GET'])
 def listar_historial_usuario():
     """Devuelve la lista de archivos con enlaces web dentro de la subcarpeta del usuario."""
@@ -395,7 +419,6 @@ def listar_historial_usuario():
         return jsonify({"status": "success", "archivos": archivos})
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
-
 
 # --- RUTAS DE ADMINISTRACIÓN ---
 
