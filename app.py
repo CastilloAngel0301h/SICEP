@@ -21,7 +21,8 @@ app.secret_key = os.environ.get('SECRET_KEY', 'angel_admin_2026_secure')
 CARPETA_RAIZ_DRIVE = "1PbH8767Q86O-TntoxDxozaGiBl3WJqE0"
 
 # --- CONFIGURACIÓN DE GOOGLE SERVICES ---
-scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
+scope = ["https://spreadsheets.google.com/feeds",
+         "https://www.googleapis.com/auth/drive"]
 try:
     creds = ServiceAccountCredentials.from_json_keyfile_name('credenciales.json', scope)
     client = gspread.authorize(creds)
