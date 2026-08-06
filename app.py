@@ -67,7 +67,54 @@ def inicializar_servicios_google():
 # Ejecutar inicialización al arrancar
 inicializar_servicios_google()
 
+# --- RUTAS DE SINCRONIZACIÓN Y CONSULTA DE METAS ---
 
+@app.route('/api/metas/sincronizar', methods=['GET', 'POST'])
+@app.route('/api/metas/datos', methods=['GET', 'POST'])
+def api_gestion_metas():
+    global sheet_metas, sheet, pdf_metas_cache
+
+    # 1. Intentar reconectar a Google Services si las variables globales están caídas
+    if not sheet and not sheet_metas:
+        inicializar_servicios_google()
+
+    try:
+        registros_metas = []
+
+        # 2. Intentar leer de la hoja dedicada de Metas o de la pestaña 'Metas'
+        if sheet_metas:
+            registros_metas = sheet_metas.get_all_records()
+        elif sheet:
+            try:
+                hoja_p = client.open("Base_Datos_Calculadora").worksheet("Metas")
+                registros_metas = hoja_p.get_all_records()
+            except Exception as err_ws:
+                print(f"Pestaña 'Metas' no encontrada en el libro principal: {err_ws}")
+                registros_metas = pdf_metas_cache.get("datos", [])
+
+        # Actualizar la caché de metas si hay registros leídos
+        if registros_metas:
+            pdf_metas_cache["datos"] = registros_metas
+
+        # 3. Retornar siempre un JSON estructurado con estado HTTP 200
+        return jsonify({
+            "status": "success",
+            "message": "Datos de metas cargados correctamente",
+            "estilos": pdf_metas_cache.get("estilos", []),
+            "tallas": pdf_metas_cache.get("tallas", []),
+            "procesos": pdf_metas_cache.get("procesos", []),
+            "datos": pdf_metas_cache.get("datos", [])
+        }), 200
+
+    except Exception as e:
+        print(f"Error al procesar la ruta de metas: {e}")
+        # Respuesta de respaldo en formato JSON válido para evitar la falla del frontend
+        return jsonify({
+            "status": "error",
+            "message": f"Error interno en la base de datos de metas: {str(e)}",
+            "datos": pdf_metas_cache.get("datos", [])
+        }), 200
+        
 # --- HELPER FUNCTIONS FOR DRIVE & FILES ---
 
 def obtener_o_crear_carpeta_usuario(nombre_usuario):
