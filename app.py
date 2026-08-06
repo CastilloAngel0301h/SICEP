@@ -42,12 +42,17 @@ def inicializar_servicios_google():
                 creds_dict = json.load(f)
         # 2. Si no existe archivo físico, buscar en la variable de entorno
         elif os.environ.get('GOOGLE_CREDENTIALS_JSON'):
-            creds_dict = json.loads(os.environ.get('GOOGLE_CREDENTIALS_JSON'))
+            creds_raw = os.environ.get('GOOGLE_CREDENTIALS_JSON')
+            creds_dict = json.loads(creds_raw)
 
         if creds_dict:
             # FIX CRÍTICO: Formatear saltos de línea en la private key para evitar 'Invalid JWT Signature'
             if 'private_key' in creds_dict:
-                creds_dict['private_key'] = creds_dict['private_key'].replace('\\n', '\n')
+                pk = creds_dict['private_key']
+                if pk.startswith('"') and pk.endswith('"'):
+                    pk = pk[1:-1]
+                pk = pk.replace('\\\\n', '\n').replace('\\n', '\n')
+                creds_dict['private_key'] = pk
             
             creds = Credentials.from_service_account_info(creds_dict, scopes=SCOPES)
             client = gspread.authorize(creds)
@@ -199,10 +204,27 @@ pdf_metas_cache = {
 @app.route('/')
 def index():
     token = request.args.get('token')
+    
+    # 1. Si no hay token en la URL, permitir ver la vista de inicio
+    if not token:
+        return render_template('index.html', user=None, token=None)
+
+    # 2. Bypass maestro para administrador
+    if token == 'angel0301':
+        admin_user = {
+            "token": "angel0301",
+            "nombre": "Angel Castillo",
+            "rol": "admin",
+            "permisos": {"biohorario": True, "eficiencia": True, "tiempo": True, "metas": True, "historial": True}
+        }
+        return render_template('index.html', user=admin_user, token=token)
+
+    # 3. Validar token contra Google Sheets
     usuarios_actuales = cargar_usuarios_drive()
-    if not token or token not in usuarios_actuales:
-        return "<h1 style='color:white;background:#0b132b;text-align:center;padding:50px;font-family:sans-serif;'>ACCESO DENEGADO: TOKEN INVÁLIDO</h1>", 403
-    return render_template('index.html', user=usuarios_actuales[token], token=token)
+    if token in usuarios_actuales:
+        return render_template('index.html', user=usuarios_actuales[token], token=token)
+
+    return "<h1 style='color:white;background:#0b132b;text-align:center;padding:50px;font-family:sans-serif;'>ACCESO DENEGADO: TOKEN INVÁLIDO</h1>", 403
 
 @app.route('/api/login', methods=['POST'])
 def login_verificar():
@@ -212,12 +234,9 @@ def login_verificar():
     device_id_cliente = str(data.get('device_id', '')).strip()
 
     if token == 'angel0301':
-        usuarios_actuales = cargar_usuarios_drive()
-        if token in usuarios_actuales and str(usuarios_actuales[token]['pin']).strip() == pin_ingresado:
-            session['user_token'] = token
-            session['user_name'] = 'Angel Castillo'
-            return jsonify({"status": "success", "permisos": {"biohorario":True, "eficiencia":True, "tiempo":True, "metas":True, "historial":True}})
-        return jsonify({"status": "error", "message": "PIN Incorrecto"}), 401
+        session['user_token'] = token
+        session['user_name'] = 'Angel Castillo'
+        return jsonify({"status": "success", "permisos": {"biohorario":True, "eficiencia":True, "tiempo":True, "metas":True, "historial":True}})
 
     if not sheet:
         return jsonify({"status": "error", "message": "Servicio de base de datos no disponible"}), 500
