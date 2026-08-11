@@ -92,7 +92,7 @@ inicializar_servicios_google()
 
 # --- PROCESAMIENTO DE METAS (CACHÉ LOCAL) ---
 pdf_metas_cache = {
-    "estilos": [], 
+    "estilos": ['1301GD', '1302GD', '1466', '1467', '1467Y', '1468', '1469', '1545', '1566', '1566L', '1567', '1580', '15BT', '1717', '1745', '1745Y', '207GD', '3023CL', '307GD', '4017', '4410', '6014', '6030', '6045', '9018', '9360'], 
     "tallas": ['XXS', 'XS', 'S', 'M', 'L', 'XL', '2X', '3X', '4X'], 
     "procesos": ['CONTEO','SORTEO','VOLTEO','DOBLADO','VOLTEO-SORTING','VOLTEO-PFD','SORTEO-REPROCESO'], 
     "datos": []
